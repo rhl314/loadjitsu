@@ -1,15 +1,22 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+use clap::Parser;
 
-// Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
-#[tauri::command]
-fn greet(name: &str) -> String {
-    format!("Hello, {}! You've been greeted from Rust now!", name)
+#[derive(Parser, Debug)]
+#[command(author, version, about, long_about = None)]
+struct CLIArgs {
+    /// Name of the person to greet
+    #[arg(short, long, default_value_t = String::from("GUI"))]
+    mode: String,
 }
 
+mod gui;
+
 fn main() {
-    tauri::Builder::default()
-        .invoke_handler(tauri::generate_handler![greet])
-        .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+    let args = CLIArgs::parse();
+    if args.mode == "GUI" {
+        gui::spawn_ui()
+    } else {
+        println!("Cli support coming soon");
+    }
 }
