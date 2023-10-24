@@ -3,11 +3,14 @@ import reactLogo from "./assets/react.svg";
 import { invoke } from "@tauri-apps/api/tauri";
 import "./App.css";
 
-function App() {
+function Root() {
   const [greetMsg, setGreetMsg] = useState("");
   const [name, setName] = useState("");
 
   async function greet() {
+    const response = await invoke("getRecentRuns");
+    console.log(response);
+    debugger;
     // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
     setGreetMsg(await invoke("greet", { name }));
   }
@@ -50,4 +53,4 @@ function App() {
   );
 }
 
-export default App;
+export default Root;

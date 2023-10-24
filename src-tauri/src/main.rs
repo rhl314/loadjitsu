@@ -15,7 +15,7 @@ mod gui;
 fn main() {
     let args = CLIArgs::parse();
     if args.mode == "GUI" {
-        gui::spawn_ui()
+        gui::spawnUi()
     } else {
         println!("Cli support coming soon");
     }
