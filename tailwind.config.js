@@ -4,9 +4,16 @@ export default {
   theme: {
     extend: {},
   },
-  plugins: [require("daisyui")],
+  plugins: [require('@tailwindcss/typography'), require("daisyui")],
   daisyui: {
-    themes: ["light", "dark", "cupcake"],
+    themes: [
+      {
+        lofi: {
+          ...require("daisyui/src/theming/themes")["[data-theme=lofi]"],
+          "--tab-radius": "0rem",
+        },
+      },
+    ],
   },
 }
 
