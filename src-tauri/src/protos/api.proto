@@ -1,0 +1,59 @@
+syntax = "proto3";
+package ipc;
+option go_package = "go/ipc";
+
+enum HttpAction {
+    GET = 0;
+    POST = 1;
+    PUT = 2;
+    PATCH = 3;
+    DELETE = 4;
+    HEAD = 5;  
+}
+
+enum EnumApiBodyType {
+    EMPTY = 0;
+    FORM_DATA = 1;
+    X_URL_FORM_ENCODED = 2;
+    TEXT = 3;
+    JSON = 4;
+    HTML = 5;
+    XML = 6;
+}
+
+
+message ApiBodyFormData {
+    string key = 1;
+    string value = 2;
+    string description = 3;
+    bool active = 4;
+    bool deleted = 5;
+    string uniqueId = 6;
+    
+}
+
+message ApiBody {
+    EnumApiBodyType type = 1;
+    string contentType = 2;
+    string data = 3;
+    repeated ApiBodyFormData formData = 4;
+}
+
+message ApiHeader {
+    string key = 1;
+    string value = 2;
+    string description = 3;
+    bool active = 4;
+    bool deleted = 5;
+    string uniqueId = 6;
+    
+}
+message ApiStep {
+    string uniqueId = 1;  // Unique ID string
+    string endpoint = 2;
+    HttpAction action = 3;
+    int32 timeoutInMs = 4;
+    ApiBody body = 5;
+    repeated ApiHeader headers = 6;
+    bool hasAuthorization = 7;
+}

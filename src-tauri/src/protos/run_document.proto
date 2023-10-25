@@ -1,0 +1,43 @@
+syntax = "proto3";
+package ipc;
+
+option go_package = "go/ipc";
+
+import "api.proto";
+
+enum RunType {
+    NONE = 0;
+    API = 1;
+    WEBSITE = 2;
+    REDIS = 3;
+    MYSQL = 4;
+    MONGODB = 5;
+    POSTGRES = 6;
+    NEO4J = 7;
+    MSSQL = 8;
+    GRAPHQL = 9;
+    ELASTICSEARCH = 10;
+    WEBSOCKETS = 11;
+}
+
+enum RunShape {
+    CONSTANT = 0;
+    SHAPED = 1;
+    RAMP = 2; 
+}
+
+message RunConfiguration {
+    int32 rps = 1;
+    int32 durationInSeconds = 2;
+    RunShape shape = 3;
+}
+
+
+
+message RunDocument {
+    string uniqueId = 1;  // Unique ID string
+    string title = 2;
+    RunType type = 3;
+    RunConfiguration configuration = 4;
+    repeated ApiStep apiSteps = 21;
+}

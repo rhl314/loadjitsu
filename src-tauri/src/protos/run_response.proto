@@ -1,0 +1,28 @@
+syntax = "proto3";
+package ipc;
+option go_package = "go/ipc";
+
+message RunResponse {
+    enum Status {
+      SUCCESS = 0;
+      ERROR = 1;
+      TIMEOUT = 2;
+      EXCEPTION = 3;
+    }
+  
+    message Log {
+      int64 timestamp = 1;
+      repeated string chunks = 2;
+    }
+    string uniqueId = 1;
+    bool hasLogs = 2;
+    repeated Log logs = 3;
+    Status status = 4;
+    string description = 5;
+    double time = 6;
+    map<string, int64> intValues = 7;
+    map<string, string> stringValues = 8;
+    map<string, double> floatValues = 9;
+    string stepUniqueId = 10;
+    string error = 11;
+}

@@ -8,13 +8,11 @@ fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust now!", name)
 }
 
-#[derive(Serialize, Deserialize)]
-struct RunFile {
-    path: String,
-}
 #[tauri::command]
-fn getRecentRuns() -> Vec<RunFile> {
-    let mut v: Vec<RunFile> = Vec::new();
+fn getRecentRuns() -> Vec<super::types::common::IRunFile> {
+    let mut v: Vec<super::types::common::IRunFile> = Vec::new();
+
+    let mut v: Vec<super::protos::ipc::ApiHeader> = Vec::new();
     /*let file = RunFile {
         path: String::from("hello"),
     };
