@@ -12,7 +12,6 @@ fn greet(name: &str) -> String {
 fn getRecentRuns() -> Vec<super::types::common::IRunFile> {
     let mut v: Vec<super::types::common::IRunFile> = Vec::new();
 
-    let mut v: Vec<super::protos::ipc::ApiHeader> = Vec::new();
     /*let file = RunFile {
         path: String::from("hello"),
     };
