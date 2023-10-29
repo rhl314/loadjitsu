@@ -8,26 +8,40 @@
     "build": "tsc && vite build",
     "preview": "vite preview",
     "tauri": "tauri",
-    "tsproto": "protoc --ts_proto_opt=esModuleInterop=true -I=./src-tauri/src/protos --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./src/protos/ipc ./src-tauri/src/protos/*.proto"
+    "tsproto": "protoc --ts_proto_opt=esModuleInterop=true -I=./src-tauri/src/protos --plugin=./node_modules/.bin/protoc-gen-ts_proto --ts_proto_out=./src/frontend_util/ipc ./src-tauri/src/protos/*.proto"
   },
   "dependencies": {
     "@tauri-apps/api": "^1.5.0",
+    "axios": "^1.6.0",
+    "chart.js": "^4.4.0",
+    "javascript-time-ago": "^2.5.9",
+    "lodash": "^4.17.21",
+    "minimist": "^1.2.8",
+    "mvdan-sh": "^0.10.1",
+    "query-string": "^8.1.0",
     "react": "^18.2.0",
+    "react-bootstrap": "^2.9.1",
+    "react-chartjs-2": "^5.2.0",
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.17.0",
+    "react-time-ago": "^7.2.1",
+    "shortid": "^2.2.16",
     "ts-proto": "^1.162.1"
   },
   "devDependencies": {
     "@tailwindcss/typography": "^0.5.10",
     "@tauri-apps/cli": "^1.5.0",
+    "@types/lodash": "^4.14.200",
     "@types/react": "^18.2.15",
     "@types/react-dom": "^18.2.7",
+    "@types/shortid": "^0.0.31",
     "@vitejs/plugin-react": "^4.0.3",
     "autoprefixer": "^10.4.16",
     "daisyui": "^3.9.3",
     "postcss": "^8.4.31",
     "tailwindcss": "^3.3.3",
     "typescript": "^5.0.2",
-    "vite": "^4.4.4"
+    "vite": "^4.4.4",
+    "vite-plugin-svgr": "^4.1.0"
   }
 }

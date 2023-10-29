@@ -23,6 +23,7 @@ export enum RunResponse_Status {
   ERROR = 1,
   TIMEOUT = 2,
   EXCEPTION = 3,
+  INVALID = 4,
   UNRECOGNIZED = -1,
 }
 
@@ -40,6 +41,9 @@ export function runResponse_StatusFromJSON(object: any): RunResponse_Status {
     case 3:
     case "EXCEPTION":
       return RunResponse_Status.EXCEPTION;
+    case 4:
+    case "INVALID":
+      return RunResponse_Status.INVALID;
     case -1:
     case "UNRECOGNIZED":
     default:
@@ -57,6 +61,8 @@ export function runResponse_StatusToJSON(object: RunResponse_Status): string {
       return "TIMEOUT";
     case RunResponse_Status.EXCEPTION:
       return "EXCEPTION";
+    case RunResponse_Status.INVALID:
+      return "INVALID";
     case RunResponse_Status.UNRECOGNIZED:
     default:
       return "UNRECOGNIZED";

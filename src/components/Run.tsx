@@ -1,18 +1,77 @@
-const Run = () => {
+import shortid from "shortid";
+
+import { useEffect, useReducer } from "react";
+import { RunDocumentFactory } from "../frontend_util/factories/run_document_factory";
+import { RunType, runTypeFromJSON } from "../frontend_util/ipc/run_document";
+import {
+  INITIAL_RUN_DOCUMENT_APP_STATE,
+  RunDocumentAppContext,
+  runDocumentReducer,
+} from "../frontend_util/react/RunDocumentContext";
+import Executions from "../frontend_util/react/components/Executions";
+import TopNav from "../frontend_util/react/components/TopNav";
+import ApiSteps from "../frontend_util/react/components/run_document/ApiSteps";
+import RunNavigation from "../frontend_util/react/components/run_document/RunNavigation";
+import RunSettings from "../frontend_util/react/components/run_document/RunSettings";
+
+const Home = () => {
+  const type = RunType.API;
+  const [runDocumentAppState, dispatch] = useReducer(
+    runDocumentReducer,
+    INITIAL_RUN_DOCUMENT_APP_STATE
+  );
+  const loadRunDocument = async () => {
+    const runType = runTypeFromJSON(RunType.API);
+    const runDocument = RunDocumentFactory.newRunDocument(
+      runType,
+      shortid.generate()
+    );
+
+    dispatch({
+      runDocument,
+      state: "IDLE",
+    });
+  };
+  useEffect(() => {
+    loadRunDocument();
+  }, []);
+
+  const steps = () => {
+    switch (type) {
+      case RunType.API:
+        return <ApiSteps />;
+    }
+  };
+
+  const main = () => {
+    if (runDocumentAppState.state == "LOADING") {
+      return <div />;
+    }
+    return (
+      <>
+        <RunDocumentAppContext.Provider
+          value={{ state: runDocumentAppState, dispatch }}
+        >
+          <div>
+            <TopNav container="container-fluid" />
+            <RunNavigation />
+            <RunSettings />
+            {steps()}
+          </div>
+        </RunDocumentAppContext.Provider>
+        <Executions />
+      </>
+    );
+  };
+
+  return <div>{main()}</div>;
+};
+
+export default Home;
+
+const RunOld = () => {
   return (
     <>
-      <div className="navbar bg-base-100">
-        <div className="flex-1">
-          <a className="btn btn-ghost normal-case text-xl">Loadjitsu</a>
-        </div>
-        <div className="flex-none">
-          <ul className="menu menu-horizontal px-1">
-            <li>
-              <a className="bg-base-200">Unlicensed</a>
-            </li>
-          </ul>
-        </div>
-      </div>
       <div className="app_container mx-auto">
         <article className="prose prose-lg my-4">
           <h2>Untitled test</h2>
@@ -105,5 +164,3 @@ const Run = () => {
     </>
   );
 };
-
-export default Run;

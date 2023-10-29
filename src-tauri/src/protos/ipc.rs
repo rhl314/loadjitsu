@@ -306,6 +306,7 @@ pub mod run_response {
         Error = 1,
         Timeout = 2,
         Exception = 3,
+        Invalid = 4,
     }
     impl Status {
         /// String value of the enum field names used in the ProtoBuf definition.
@@ -318,6 +319,7 @@ pub mod run_response {
                 Status::Error => "ERROR",
                 Status::Timeout => "TIMEOUT",
                 Status::Exception => "EXCEPTION",
+                Status::Invalid => "INVALID",
             }
         }
         /// Creates an enum from field names used in the ProtoBuf definition.
@@ -327,6 +329,7 @@ pub mod run_response {
                 "ERROR" => Some(Self::Error),
                 "TIMEOUT" => Some(Self::Timeout),
                 "EXCEPTION" => Some(Self::Exception),
+                "INVALID" => Some(Self::Invalid),
                 _ => None,
             }
         }

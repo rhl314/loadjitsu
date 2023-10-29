@@ -8,6 +8,7 @@ message RunResponse {
       ERROR = 1;
       TIMEOUT = 2;
       EXCEPTION = 3;
+      INVALID = 4;
     }
   
     message Log {
