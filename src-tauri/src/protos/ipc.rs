@@ -44,6 +44,14 @@ pub struct ApiHeader {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct HttpAuthBasic {
+    #[prost(string, tag = "1")]
+    pub username: ::prost::alloc::string::String,
+    #[prost(string, tag = "2")]
+    pub password: ::prost::alloc::string::String,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ApiStep {
     /// Unique ID string
     #[prost(string, tag = "1")]
@@ -58,8 +66,10 @@ pub struct ApiStep {
     pub body: ::core::option::Option<ApiBody>,
     #[prost(message, repeated, tag = "6")]
     pub headers: ::prost::alloc::vec::Vec<ApiHeader>,
-    #[prost(bool, tag = "7")]
-    pub has_authorization: bool,
+    #[prost(enumeration = "HttpAuthType", tag = "7")]
+    pub auth_type: i32,
+    #[prost(message, optional, tag = "8")]
+    pub auth_basic: ::core::option::Option<HttpAuthBasic>,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]
@@ -136,6 +146,32 @@ impl EnumApiBodyType {
             "JSON" => Some(Self::Json),
             "HTML" => Some(Self::Html),
             "XML" => Some(Self::Xml),
+            _ => None,
+        }
+    }
+}
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum HttpAuthType {
+    NoneAuth = 0,
+    BasicAuth = 1,
+}
+impl HttpAuthType {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            HttpAuthType::NoneAuth => "NONE_AUTH",
+            HttpAuthType::BasicAuth => "BASIC_AUTH",
+        }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "NONE_AUTH" => Some(Self::NoneAuth),
+            "BASIC_AUTH" => Some(Self::BasicAuth),
             _ => None,
         }
     }
@@ -252,86 +288,68 @@ impl RunShape {
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct RunLog {
+    #[prost(int64, tag = "1")]
+    pub timestamp: i64,
+    #[prost(string, repeated, tag = "2")]
+    pub chunks: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct RunResponse {
     #[prost(string, tag = "1")]
     pub unique_id: ::prost::alloc::string::String,
     #[prost(bool, tag = "2")]
     pub has_logs: bool,
     #[prost(message, repeated, tag = "3")]
-    pub logs: ::prost::alloc::vec::Vec<run_response::Log>,
-    #[prost(enumeration = "run_response::Status", tag = "4")]
+    pub logs: ::prost::alloc::vec::Vec<RunLog>,
+    #[prost(enumeration = "RunStatus", tag = "4")]
     pub status: i32,
     #[prost(string, tag = "5")]
     pub description: ::prost::alloc::string::String,
-    #[prost(double, tag = "6")]
-    pub time: f64,
-    #[prost(map = "string, int64", tag = "7")]
-    pub int_values: ::std::collections::HashMap<::prost::alloc::string::String, i64>,
-    #[prost(map = "string, string", tag = "8")]
-    pub string_values: ::std::collections::HashMap<
-        ::prost::alloc::string::String,
-        ::prost::alloc::string::String,
-    >,
-    #[prost(map = "string, double", tag = "9")]
-    pub float_values: ::std::collections::HashMap<::prost::alloc::string::String, f64>,
-    #[prost(string, tag = "10")]
+    #[prost(uint64, tag = "6")]
+    pub time: u64,
+    #[prost(uint64, tag = "7")]
+    pub latency: u64,
+    #[prost(string, tag = "8")]
     pub step_unique_id: ::prost::alloc::string::String,
     #[prost(string, tag = "11")]
     pub error: ::prost::alloc::string::String,
+    #[prost(uint64, tag = "12")]
+    pub status_code: u64,
 }
-/// Nested message and enum types in `RunResponse`.
-pub mod run_response {
-    #[allow(clippy::derive_partial_eq_without_eq)]
-    #[derive(Clone, PartialEq, ::prost::Message)]
-    pub struct Log {
-        #[prost(int64, tag = "1")]
-        pub timestamp: i64,
-        #[prost(string, repeated, tag = "2")]
-        pub chunks: ::prost::alloc::vec::Vec<::prost::alloc::string::String>,
-    }
-    #[derive(
-        Clone,
-        Copy,
-        Debug,
-        PartialEq,
-        Eq,
-        Hash,
-        PartialOrd,
-        Ord,
-        ::prost::Enumeration
-    )]
-    #[repr(i32)]
-    pub enum Status {
-        Success = 0,
-        Error = 1,
-        Timeout = 2,
-        Exception = 3,
-        Invalid = 4,
-    }
-    impl Status {
-        /// String value of the enum field names used in the ProtoBuf definition.
-        ///
-        /// The values are not transformed in any way and thus are considered stable
-        /// (if the ProtoBuf definition does not change) and safe for programmatic use.
-        pub fn as_str_name(&self) -> &'static str {
-            match self {
-                Status::Success => "SUCCESS",
-                Status::Error => "ERROR",
-                Status::Timeout => "TIMEOUT",
-                Status::Exception => "EXCEPTION",
-                Status::Invalid => "INVALID",
-            }
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
+#[repr(i32)]
+pub enum RunStatus {
+    Success = 0,
+    Error = 1,
+    Timeout = 2,
+    Exception = 3,
+    Invalid = 4,
+}
+impl RunStatus {
+    /// String value of the enum field names used in the ProtoBuf definition.
+    ///
+    /// The values are not transformed in any way and thus are considered stable
+    /// (if the ProtoBuf definition does not change) and safe for programmatic use.
+    pub fn as_str_name(&self) -> &'static str {
+        match self {
+            RunStatus::Success => "SUCCESS",
+            RunStatus::Error => "ERROR",
+            RunStatus::Timeout => "TIMEOUT",
+            RunStatus::Exception => "EXCEPTION",
+            RunStatus::Invalid => "INVALID",
         }
-        /// Creates an enum from field names used in the ProtoBuf definition.
-        pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
-            match value {
-                "SUCCESS" => Some(Self::Success),
-                "ERROR" => Some(Self::Error),
-                "TIMEOUT" => Some(Self::Timeout),
-                "EXCEPTION" => Some(Self::Exception),
-                "INVALID" => Some(Self::Invalid),
-                _ => None,
-            }
+    }
+    /// Creates an enum from field names used in the ProtoBuf definition.
+    pub fn from_str_name(value: &str) -> ::core::option::Option<Self> {
+        match value {
+            "SUCCESS" => Some(Self::Success),
+            "ERROR" => Some(Self::Error),
+            "TIMEOUT" => Some(Self::Timeout),
+            "EXCEPTION" => Some(Self::Exception),
+            "INVALID" => Some(Self::Invalid),
+            _ => None,
         }
     }
 }

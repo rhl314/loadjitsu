@@ -9,7 +9,7 @@ use ureq::{Agent, AgentBuilder};
 
 use serde::{Deserialize, Serialize};
 
-use crate::protos::ipc::HttpAction;
+use crate::protos::ipc::{ApiStep, HttpAction, RunResponse, RunStatus};
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -27,6 +27,34 @@ fn getRecentRuns() -> Vec<super::types::common::IRunFile> {
     v
 }
 
+fn runApiStep(apiStep: ApiStep) -> RunResponse {
+    let agent: Agent = ureq::AgentBuilder::new()
+        .timeout_read(Duration::from_secs(5))
+        .timeout_write(Duration::from_secs(5))
+        .build();
+    let method = HttpAction::as_str_name(&apiStep.action());
+    let request = agent.request(method, &apiStep.endpoint);
+    //request.set("Content-Type", value);
+    //request.send(reader);
+    let response: ureq::Response = request.call().unwrap();
+    let status = response.status();
+
+    println!("{}", status);
+    let runResponse = RunResponse {
+        unique_id: String::from("uniqueid"),
+        has_logs: false,
+        logs: [].to_vec(),
+        status: RunStatus::Exception.into(),
+        description: String::from("wrong"),
+        time: 0,
+        latency: 0,
+        step_unique_id: String::from("something"),
+        error: String::from("hello"),
+        status_code: 200,
+    };
+    runResponse
+}
+
 #[tauri::command]
 fn runApiStepOnce(serialized: &str) -> String {
     println!("{serialized}");
@@ -40,8 +68,7 @@ fn runApiStepOnce(serialized: &str) -> String {
                 .build();
             let method = super::protos::ipc::HttpAction::as_str_name(&apiStep.action());
             let request = agent.request(method, &apiStep.endpoint);
-            //request.set("Content-Type", value);
-            //request.send(reader);
+
             let response: ureq::Response = request.call().unwrap();
             let status = response.status();
 
@@ -50,14 +77,13 @@ fn runApiStepOnce(serialized: &str) -> String {
                 unique_id: String::from("uniqueid"),
                 has_logs: false,
                 logs: [].to_vec(),
-                status: super::protos::ipc::run_response::Status::Exception.into(),
+                status: RunStatus::Exception.into(),
                 description: String::from("wrong"),
-                time: 0.0,
-                int_values: HashMap::new(),
-                string_values: HashMap::new(),
-                float_values: HashMap::new(),
+                time: 0,
+                latency: 0,
                 step_unique_id: String::from("something"),
                 error: String::from("hello"),
+                status_code: 200,
             };
             String::from("gello")
         }
@@ -66,31 +92,16 @@ fn runApiStepOnce(serialized: &str) -> String {
                 unique_id: String::from("uniqueid"),
                 has_logs: false,
                 logs: [].to_vec(),
-                status: super::protos::ipc::run_response::Status::Exception.into(),
+                status: RunStatus::Exception.into(),
                 description: String::from("wrong"),
-                time: 0.0,
-                int_values: HashMap::new(),
-                string_values: HashMap::new(),
-                float_values: HashMap::new(),
+                time: 0,
+                latency: 0,
                 step_unique_id: String::from("something"),
                 error: String::from("hello"),
+                status_code: 200,
             };
             String::from("gello")
         }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    use crate::gui::runApiStepOnce;
-
-    #[test]
-    fn it_works() {
-        let serialized =
-            "CgpqSzVxeG5pN2lIEhdodHRwczovL2h0dHBiaW4ub3JnL2dldCCIJyoSEhBhcHBsaWNhdGlvbi9qc29u";
-        runApiStepOnce(serialized);
-        let result = 2 + 2;
-        assert_eq!(result, 4);
     }
 }
 

@@ -1,8 +1,6 @@
 syntax = "proto3";
 package ipc;
 
-option go_package = "go/ipc";
-
 import "api.proto";
 
 enum RunType {

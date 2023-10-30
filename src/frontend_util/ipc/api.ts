@@ -123,6 +123,39 @@ export function enumApiBodyTypeToJSON(object: EnumApiBodyType): string {
   }
 }
 
+export enum HttpAuthType {
+  NONE_AUTH = 0,
+  BASIC_AUTH = 1,
+  UNRECOGNIZED = -1,
+}
+
+export function httpAuthTypeFromJSON(object: any): HttpAuthType {
+  switch (object) {
+    case 0:
+    case "NONE_AUTH":
+      return HttpAuthType.NONE_AUTH;
+    case 1:
+    case "BASIC_AUTH":
+      return HttpAuthType.BASIC_AUTH;
+    case -1:
+    case "UNRECOGNIZED":
+    default:
+      return HttpAuthType.UNRECOGNIZED;
+  }
+}
+
+export function httpAuthTypeToJSON(object: HttpAuthType): string {
+  switch (object) {
+    case HttpAuthType.NONE_AUTH:
+      return "NONE_AUTH";
+    case HttpAuthType.BASIC_AUTH:
+      return "BASIC_AUTH";
+    case HttpAuthType.UNRECOGNIZED:
+    default:
+      return "UNRECOGNIZED";
+  }
+}
+
 export interface ApiBodyFormData {
   key: string;
   value: string;
@@ -148,6 +181,11 @@ export interface ApiHeader {
   uniqueId: string;
 }
 
+export interface HttpAuthBasic {
+  username: string;
+  password: string;
+}
+
 export interface ApiStep {
   /** Unique ID string */
   uniqueId: string;
@@ -156,7 +194,8 @@ export interface ApiStep {
   timeoutInMs: number;
   body: ApiBody | undefined;
   headers: ApiHeader[];
-  hasAuthorization: boolean;
+  authType: HttpAuthType;
+  authBasic: HttpAuthBasic | undefined;
 }
 
 function createBaseApiBodyFormData(): ApiBodyFormData {
@@ -533,6 +572,80 @@ export const ApiHeader = {
   },
 };
 
+function createBaseHttpAuthBasic(): HttpAuthBasic {
+  return { username: "", password: "" };
+}
+
+export const HttpAuthBasic = {
+  encode(message: HttpAuthBasic, writer: _m0.Writer = _m0.Writer.create()): _m0.Writer {
+    if (message.username !== "") {
+      writer.uint32(10).string(message.username);
+    }
+    if (message.password !== "") {
+      writer.uint32(18).string(message.password);
+    }
+    return writer;
+  },
+
+  decode(input: _m0.Reader | Uint8Array, length?: number): HttpAuthBasic {
+    const reader = input instanceof _m0.Reader ? input : _m0.Reader.create(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseHttpAuthBasic();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1:
+          if (tag !== 10) {
+            break;
+          }
+
+          message.username = reader.string();
+          continue;
+        case 2:
+          if (tag !== 18) {
+            break;
+          }
+
+          message.password = reader.string();
+          continue;
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skipType(tag & 7);
+    }
+    return message;
+  },
+
+  fromJSON(object: any): HttpAuthBasic {
+    return {
+      username: isSet(object.username) ? globalThis.String(object.username) : "",
+      password: isSet(object.password) ? globalThis.String(object.password) : "",
+    };
+  },
+
+  toJSON(message: HttpAuthBasic): unknown {
+    const obj: any = {};
+    if (message.username !== "") {
+      obj.username = message.username;
+    }
+    if (message.password !== "") {
+      obj.password = message.password;
+    }
+    return obj;
+  },
+
+  create<I extends Exact<DeepPartial<HttpAuthBasic>, I>>(base?: I): HttpAuthBasic {
+    return HttpAuthBasic.fromPartial(base ?? ({} as any));
+  },
+  fromPartial<I extends Exact<DeepPartial<HttpAuthBasic>, I>>(object: I): HttpAuthBasic {
+    const message = createBaseHttpAuthBasic();
+    message.username = object.username ?? "";
+    message.password = object.password ?? "";
+    return message;
+  },
+};
+
 function createBaseApiStep(): ApiStep {
   return {
     uniqueId: "",
@@ -541,7 +654,8 @@ function createBaseApiStep(): ApiStep {
     timeoutInMs: 0,
     body: undefined,
     headers: [],
-    hasAuthorization: false,
+    authType: 0,
+    authBasic: undefined,
   };
 }
 
@@ -565,8 +679,11 @@ export const ApiStep = {
     for (const v of message.headers) {
       ApiHeader.encode(v!, writer.uint32(50).fork()).ldelim();
     }
-    if (message.hasAuthorization === true) {
-      writer.uint32(56).bool(message.hasAuthorization);
+    if (message.authType !== 0) {
+      writer.uint32(56).int32(message.authType);
+    }
+    if (message.authBasic !== undefined) {
+      HttpAuthBasic.encode(message.authBasic, writer.uint32(66).fork()).ldelim();
     }
     return writer;
   },
@@ -625,7 +742,14 @@ export const ApiStep = {
             break;
           }
 
-          message.hasAuthorization = reader.bool();
+          message.authType = reader.int32() as any;
+          continue;
+        case 8:
+          if (tag !== 66) {
+            break;
+          }
+
+          message.authBasic = HttpAuthBasic.decode(reader, reader.uint32());
           continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
@@ -644,7 +768,8 @@ export const ApiStep = {
       timeoutInMs: isSet(object.timeoutInMs) ? globalThis.Number(object.timeoutInMs) : 0,
       body: isSet(object.body) ? ApiBody.fromJSON(object.body) : undefined,
       headers: globalThis.Array.isArray(object?.headers) ? object.headers.map((e: any) => ApiHeader.fromJSON(e)) : [],
-      hasAuthorization: isSet(object.hasAuthorization) ? globalThis.Boolean(object.hasAuthorization) : false,
+      authType: isSet(object.authType) ? httpAuthTypeFromJSON(object.authType) : 0,
+      authBasic: isSet(object.authBasic) ? HttpAuthBasic.fromJSON(object.authBasic) : undefined,
     };
   },
 
@@ -668,8 +793,11 @@ export const ApiStep = {
     if (message.headers?.length) {
       obj.headers = message.headers.map((e) => ApiHeader.toJSON(e));
     }
-    if (message.hasAuthorization === true) {
-      obj.hasAuthorization = message.hasAuthorization;
+    if (message.authType !== 0) {
+      obj.authType = httpAuthTypeToJSON(message.authType);
+    }
+    if (message.authBasic !== undefined) {
+      obj.authBasic = HttpAuthBasic.toJSON(message.authBasic);
     }
     return obj;
   },
@@ -685,7 +813,10 @@ export const ApiStep = {
     message.timeoutInMs = object.timeoutInMs ?? 0;
     message.body = (object.body !== undefined && object.body !== null) ? ApiBody.fromPartial(object.body) : undefined;
     message.headers = object.headers?.map((e) => ApiHeader.fromPartial(e)) || [];
-    message.hasAuthorization = object.hasAuthorization ?? false;
+    message.authType = object.authType ?? 0;
+    message.authBasic = (object.authBasic !== undefined && object.authBasic !== null)
+      ? HttpAuthBasic.fromPartial(object.authBasic)
+      : undefined;
     return message;
   },
 };

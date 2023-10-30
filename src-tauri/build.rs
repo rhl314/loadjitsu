@@ -1,4 +1,5 @@
 fn main() {
+    println!("building3");
     tauri_build::build();
     prost_build::Config::new()
         .out_dir("src/protos")

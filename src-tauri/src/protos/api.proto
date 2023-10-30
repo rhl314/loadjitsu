@@ -21,6 +21,11 @@ enum EnumApiBodyType {
     XML = 6;
 }
 
+enum HttpAuthType {
+    NONE_AUTH = 0;
+    BASIC_AUTH = 1;
+}
+
 
 message ApiBodyFormData {
     string key = 1;
@@ -45,8 +50,12 @@ message ApiHeader {
     string description = 3;
     bool active = 4;
     bool deleted = 5;
-    string uniqueId = 6;
-    
+    string uniqueId = 6;    
+}
+
+message HttpAuthBasic {
+    string username = 1;
+    string password = 2;
 }
 message ApiStep {
     string uniqueId = 1;  // Unique ID string
@@ -55,5 +64,6 @@ message ApiStep {
     int32 timeoutInMs = 4;
     ApiBody body = 5;
     repeated ApiHeader headers = 6;
-    bool hasAuthorization = 7;
+    HttpAuthType authType = 7;
+    HttpAuthBasic authBasic = 8;
 }
