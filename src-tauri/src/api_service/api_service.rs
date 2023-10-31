@@ -122,6 +122,16 @@ impl ApiService {
         }
 
         request_builder = request_builder.headers(headers);
+
+        if api_step.auth_type() == protos::ipc::HttpAuthType::BasicAuth {
+            if let Some(auth_basic) = &api_step.auth_basic {
+                request_builder = request_builder.basic_auth(
+                    auth_basic.username.clone(),
+                    Some(auth_basic.password.clone()),
+                );
+            }
+        }
+
         let start = Instant::now();
 
         // Send the request
@@ -138,6 +148,9 @@ impl ApiService {
             Ok(response) => {
                 latency = start.elapsed().as_millis() as u64;
                 status_code = u64::from(response.status().as_u16());
+                if status_code >= 400 || status_code < 200 {
+                    status = protos::ipc::RunStatus::Error;
+                }
                 let responseBytesOrError = response.bytes().await;
                 match responseBytesOrError {
                     Ok(responseBytes) => {
@@ -234,7 +247,6 @@ mod tests {
         assert_eq!(response.status(), RunStatus::Success);
         assert_eq!(response.status_code, 200);
     }
-
     #[tokio::test]
     async fn it_should_fail_with_exception_if_url_domain_is_incorrect() {
         let unique_id = String::from(Uuid::new_v4());
@@ -258,7 +270,6 @@ mod tests {
         assert_eq!(response.step_unique_id, unique_id);
         assert_eq!(response.status(), RunStatus::Exception);
     }
-
     #[tokio::test]
     async fn it_should_not_correctly_send_get_request_without_protocol() {
         let unique_id = String::from(Uuid::new_v4());
@@ -283,7 +294,6 @@ mod tests {
         assert_eq!(response.step_unique_id, unique_id);
         assert_eq!(response.status(), RunStatus::Exception);
     }
-
     #[tokio::test]
     async fn it_should_handle_404() {
         let unique_id = String::from(Uuid::new_v4());
@@ -305,10 +315,9 @@ mod tests {
         assert!(response_or_error.is_ok());
         let response = response_or_error.unwrap();
         assert_eq!(response.step_unique_id, unique_id);
-        assert_eq!(response.status(), RunStatus::Success);
+        assert_eq!(response.status(), RunStatus::Error);
         assert_eq!(response.status_code, 404);
     }
-
     #[tokio::test]
     async fn it_should_correctly_send_delete_request() {
         let unique_id = String::from(Uuid::new_v4());
@@ -400,6 +409,86 @@ mod tests {
             headers: Vec::new(),
             auth_type: HttpAuthType::NoneAuth.into(),
             auth_basic: Some(ApiService::generateBlankBasicAuth()),
+        };
+        let response_or_error = ApiService::run(&api_step).await;
+        assert!(response_or_error.is_ok());
+        let response = response_or_error.unwrap();
+        assert_eq!(response.step_unique_id, unique_id);
+        assert_eq!(response.status(), RunStatus::Success);
+        assert_eq!(response.status_code, 200);
+    }
+
+    #[tokio::test]
+    async fn it_should_handle_401_if_auth_is_missing() {
+        let unique_id = String::from(Uuid::new_v4());
+        let endpoint = String::from("https://httpbin.org/basic-auth/user/passwd");
+        let action = HttpAction::Get;
+        let timeout_in_ms = 5000;
+        let body = self::ApiService::generateBlankApiBody();
+        let api_step = ApiStep {
+            unique_id: unique_id.clone(),
+            endpoint: endpoint.clone(),
+            action: action.into(),
+            timeout_in_ms,
+            body: Some(body.clone()),
+            headers: Vec::new(),
+            auth_type: HttpAuthType::NoneAuth.into(),
+            auth_basic: Some(ApiService::generateBlankBasicAuth()),
+        };
+        let response_or_error = ApiService::run(&api_step).await;
+        assert!(response_or_error.is_ok());
+        let response = response_or_error.unwrap();
+        assert_eq!(response.step_unique_id, unique_id);
+        assert_eq!(response.status(), RunStatus::Error);
+        assert_eq!(response.status_code, 401);
+    }
+
+    #[tokio::test]
+    async fn it_should_handle_401_without_basic_auth() {
+        let unique_id = String::from(Uuid::new_v4());
+        let endpoint = String::from("https://httpbin.org/basic-auth/user/passwd");
+        let action = HttpAction::Get;
+        let timeout_in_ms = 5000;
+        let body = self::ApiService::generateBlankApiBody();
+        let mut basic_auth = ApiService::generateBlankBasicAuth();
+        basic_auth.username = String::from("user");
+        basic_auth.password = String::from("passwd");
+        let api_step = ApiStep {
+            unique_id: unique_id.clone(),
+            endpoint: endpoint.clone(),
+            action: action.into(),
+            timeout_in_ms,
+            body: Some(body.clone()),
+            headers: Vec::new(),
+            auth_type: HttpAuthType::NoneAuth.into(),
+            auth_basic: Some(basic_auth),
+        };
+        let response_or_error = ApiService::run(&api_step).await;
+        assert!(response_or_error.is_ok());
+        let response = response_or_error.unwrap();
+        assert_eq!(response.step_unique_id, unique_id);
+        assert_eq!(response.status(), RunStatus::Error);
+        assert_eq!(response.status_code, 401);
+    }
+    #[tokio::test]
+    async fn it_should_basic_auth_correctly() {
+        let unique_id = String::from(Uuid::new_v4());
+        let endpoint = String::from("https://httpbin.org/basic-auth/user/passwd");
+        let action = HttpAction::Get;
+        let timeout_in_ms = 5000;
+        let body = self::ApiService::generateBlankApiBody();
+        let mut basic_auth = ApiService::generateBlankBasicAuth();
+        basic_auth.username = String::from("user");
+        basic_auth.password = String::from("passwd");
+        let api_step = ApiStep {
+            unique_id: unique_id.clone(),
+            endpoint: endpoint.clone(),
+            action: action.into(),
+            timeout_in_ms,
+            body: Some(body.clone()),
+            headers: Vec::new(),
+            auth_type: HttpAuthType::BasicAuth.into(),
+            auth_basic: Some(basic_auth),
         };
         let response_or_error = ApiService::run(&api_step).await;
         assert!(response_or_error.is_ok());
