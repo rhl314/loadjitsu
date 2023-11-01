@@ -23,6 +23,19 @@ impl ApiService {
 
         Ok(api_step)
     }
+    pub fn serialize_run_response(
+        run_response: &RunResponse,
+    ) -> Result<String, Box<dyn std::error::Error>> {
+        // Convert the ApiStep object into bytes
+        let mut bytes = Vec::new();
+        run_response.encode(&mut bytes)?;
+
+        // Encode the bytes into a Base64 string
+        let encoded_string = base64::encode(&bytes);
+
+        Ok(encoded_string)
+    }
+
     pub fn serialize_api_step(api_step: &ApiStep) -> Result<String, Box<dyn std::error::Error>> {
         // Convert the ApiStep object into bytes
         let mut bytes = Vec::new();

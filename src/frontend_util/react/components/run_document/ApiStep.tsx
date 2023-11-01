@@ -1,24 +1,23 @@
 import { capitalize, findIndex, startCase } from "lodash";
-import React, { useState } from "react";
-import {
-  Button,
-  Dropdown,
-  DropdownButton,
-  InputGroup,
-  Modal,
-} from "react-bootstrap";
-import { StepClient } from "../../../../api_client/ApiStepClient";
+import { useState } from "react";
+import { Button, Modal } from "react-bootstrap";
 import { ProtoHelper } from "../../../common/ProtoHelper";
 import { CurlParser } from "../../../factories/CurlParser";
-import { ApiStep, HttpAction, httpActionToJSON } from "../../../ipc/api";
+import {
+  ApiStep,
+  HttpAction,
+  httpActionFromJSON,
+  httpActionToJSON,
+} from "../../../ipc/api";
 import {
   RunResponse,
-  RunResponse_Status,
-  runResponse_StatusToJSON,
+  RunStatus,
+  runStatusFromJSON,
+  runStatusToJSON,
 } from "../../../ipc/run_response";
 import ApiBodyElement from "./ApiBody";
 import ApiHeaders from "./ApiHeaders";
-import PlusButton from "./PlusButton";
+import { ApiClient } from "../../../../api_client/api_client";
 
 export interface ApiStepComponentUpdated {
   (apiStep: ApiStep): void;
@@ -79,9 +78,9 @@ export default function ApiStepComponent(props: {
     const results: IResults[] = [];
     results.push({
       key: "STATUS",
-      value: runResponse_StatusToJSON(testConnectionResponse.status),
+      value: runStatusToJSON(testConnectionResponse.status),
     });
-    if (testConnectionResponse.status != RunResponse_Status.SUCCESS) {
+    if (testConnectionResponse.status != RunStatus.SUCCESS) {
       results.push({
         key: "ERROR",
         value: testConnectionResponse.description,
@@ -91,30 +90,6 @@ export default function ApiStepComponent(props: {
       key: "TIME_IN_MS",
       value: `${testConnectionResponse.time}`,
     });
-    if (testConnectionResponse.stringValues) {
-      for (const key in testConnectionResponse.stringValues) {
-        results.push({
-          key,
-          value: testConnectionResponse.stringValues[key],
-        });
-      }
-    }
-    if (testConnectionResponse.floatValues) {
-      for (const key in testConnectionResponse.floatValues) {
-        results.push({
-          key,
-          value: `${testConnectionResponse.floatValues[key]}`,
-        });
-      }
-    }
-    if (testConnectionResponse.intValues) {
-      for (const key in testConnectionResponse.intValues) {
-        results.push({
-          key,
-          value: `${testConnectionResponse.intValues[key]}`,
-        });
-      }
-    }
 
     return (
       <div className="row mt-4">
@@ -151,7 +126,7 @@ export default function ApiStepComponent(props: {
       return;
     }
     setTestConnectionState("RUNNING");
-    const apiStepClient = new StepClient();
+    const apiStepClient = new ApiClient();
     const responseOrError = await apiStepClient.runApiStepOnce(apiStep);
     if (responseOrError.isFailure) {
       setTestConnectionState("EXCEPTION");
@@ -312,27 +287,26 @@ export default function ApiStepComponent(props: {
           <div className="tabs z-10 -mb-px">
             <button className="tab tab-lifted tab-active">Settings</button>
           </div>
-          <div className="bg-base-300  relative overflow-x-auto">
+          <div className="relative overflow-x-auto">
             <div className="preview border-base-300 bg-base-100  w-100 gap-2 overflow-x-hidden border bg-cover bg-top p-4">
               <div className="join w-full">
-                <select className="select select-bordered join-item w-2/12">
+                <select
+                  className="select select-bordered join-item w-2/12"
+                  onChange={(ev: any) => {
+                    const action = httpActionFromJSON(
+                      httpActionToJSON(ev.target.value)
+                    );
+                    const updatedApiStep = {
+                      ...props.apiStep,
+                      action,
+                    };
+                    setTestConnectionState("IDLE");
+                    props.onUpdated(updatedApiStep);
+                  }}
+                >
                   {ProtoHelper.enumKeysAsIntegers(HttpAction).map((enumKey) => {
                     return (
-                      <option
-                        selected={apiStep.action === enumKey}
-                        onClick={(ev: any) => {
-                          const action = parseInt(
-                            ev.target.getAttribute("data-enum-key")
-                          );
-                          const updatedApiStep = {
-                            ...props.apiStep,
-                            action,
-                          };
-                          props.onUpdated(updatedApiStep);
-                        }}
-                        key={enumKey}
-                        data-enum-key={enumKey}
-                      >
+                      <option key={enumKey} data-enum-key={enumKey}>
                         {httpActionToJSON(enumKey)}
                       </option>
                     );
@@ -348,6 +322,7 @@ export default function ApiStepComponent(props: {
                           ...props.apiStep,
                           endpoint: event?.target?.value,
                         };
+                        setTestConnectionState("IDLE");
                         props.onUpdated(updatedApiStep);
                       }}
                     />
@@ -386,6 +361,116 @@ export default function ApiStepComponent(props: {
                   </button>
                 </div>
               </div>
+
+              {testConnectionState === "RUNNING" && (
+                <div className="alert mt-4">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    className="stroke-info shrink-0 w-6 h-6"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    ></path>
+                  </svg>
+                  <span>Connecting ...</span>
+                </div>
+              )}
+              {testConnectionState === "READY" &&
+                runStatusFromJSON(testConnectionResponse.status) ===
+                  RunStatus.SUCCESS && (
+                  <div className="alert alert-success mt-4">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="stroke-current shrink-0 h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                      />
+                    </svg>
+                    <span>
+                      {apiStep.endpoint} replied with{" "}
+                      {testConnectionResponse.statusCode} in{" "}
+                      {testConnectionResponse.time} milliseconds
+                    </span>
+                  </div>
+                )}
+              {testConnectionState === "READY" &&
+                runStatusFromJSON(testConnectionResponse.status) ===
+                  RunStatus.EXCEPTION && (
+                  <div className="alert alert-warning mt-4">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="stroke-current shrink-0 h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                      />
+                    </svg>
+                    <span>{testConnectionResponse.error} </span>
+                  </div>
+                )}
+              {testConnectionState === "READY" &&
+                runStatusFromJSON(testConnectionResponse.status) ===
+                  RunStatus.ERROR && (
+                  <div className="alert alert-warning mt-4">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="stroke-current shrink-0 h-6 w-6"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        stroke-width="2"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                      />
+                    </svg>
+                    <span>
+                      {apiStep.endpoint} replied with{" "}
+                      {testConnectionResponse.statusCode} in{" "}
+                      {testConnectionResponse.time} milliseconds
+                    </span>
+                  </div>
+                )}
+              {testConnectionState === "EXCEPTION" && (
+                <div className="alert alert-warning mt-4">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="stroke-current shrink-0 h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                  </svg>
+                  <span>
+                    We are unable to test the connection. This seems to be a
+                    problem with Loadjitsu itself and should get resolved on
+                    retrying. Please contact support@loadjitsu.com if this
+                    happens again.
+                  </span>
+                </div>
+              )}
             </div>
           </div>
         </div>

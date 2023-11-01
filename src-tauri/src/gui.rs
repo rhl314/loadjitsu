@@ -3,12 +3,13 @@
 extern crate base64;
 
 use prost::Message;
-use std::collections::HashMap;
 use std::time::Duration;
+use std::{collections::HashMap, error::Error};
 use ureq::{Agent, AgentBuilder};
 
 use serde::{Deserialize, Serialize};
 
+use crate::api_service::api_service::ApiService;
 use crate::protos::ipc::{ApiStep, HttpAction, RunResponse, RunStatus};
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -56,7 +57,21 @@ fn runApiStep(apiStep: ApiStep) -> RunResponse {
 }
 
 #[tauri::command]
-fn runApiStepOnce(serialized: &str) -> String {
+async fn runApiStepOnce(serialized: &str) -> Result<String, String> {
+    let ranOrError = self::run_api_step_once_core(serialized).await;
+    match ranOrError {
+        Ok(ran) => Ok(ran),
+        Err(error) => Err(error.to_string()),
+    }
+}
+async fn run_api_step_once_core(serialized: &str) -> Result<String, Box<dyn std::error::Error>> {
+    let api_step = super::protos::ipc::ApiStep::decode(base64::decode(serialized)?.as_slice())?;
+    let response = ApiService::run(&api_step).await?;
+    let serialized = ApiService::serialize_run_response(&response)?;
+    Ok(serialized)
+}
+#[tauri::command]
+fn runApiStepOnceOld(serialized: &str) -> String {
     println!("{serialized}");
     let result = base64::decode(serialized);
     match result {
@@ -110,7 +125,7 @@ pub fn spawnUi() {
         .invoke_handler(tauri::generate_handler![
             getRecentRuns,
             greet,
-            runApiStepOnce
+            runApiStepOnce,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

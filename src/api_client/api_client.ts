@@ -4,6 +4,10 @@ import internal from "stream";
 import { Result } from "../frontend_util/common/Result";
 import { RunDocument } from "../frontend_util/ipc/run_document";
 import { IBootApiResponse } from "./IBootApiResponse";
+import { ApiStep } from "../frontend_util/ipc/api";
+import { RunResponse } from "../frontend_util/ipc/run_response";
+import { AppUtil } from "./AppUtil";
+import { invoke } from "@tauri-apps/api/tauri";
 export interface ICreateAdminUserRequest {
   handle: string;
   password: string;
@@ -213,9 +217,7 @@ export class ApiClient {
     }
   }
 
-  public async getRunDocument(
-    documentUniqueId: string
-  ): Promise<
+  public async getRunDocument(documentUniqueId: string): Promise<
     Result<{
       document?: RunDocument;
       alreadyRunning?: boolean;
@@ -284,6 +286,28 @@ export class ApiClient {
       return Result.fail({
         code: "INTERNAL_SERVER_ERROR",
         message: err.mesage,
+      });
+    }
+  }
+
+  public async runApiStepOnce(step: ApiStep): Promise<Result<RunResponse>> {
+    try {
+      const serialized = ApiStep.encode(step).finish();
+
+      const appUtil = new AppUtil();
+      const base64 = await appUtil.uint8ArrayToBase64(serialized);
+      const response = (await invoke("runApiStepOnce", {
+        serialized: base64,
+      })) as string;
+      const runResponse = RunResponse.decode(
+        appUtil.base64ToUint8Array(response)
+      );
+      return Result.ok<RunResponse>(runResponse);
+    } catch (err) {
+      console.error(err);
+      return Result.fail<RunResponse>({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Something went wrong. Please try again",
       });
     }
   }

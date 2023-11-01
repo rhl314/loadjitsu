@@ -19,4 +19,8 @@ export class AppUtil {
       reader.readAsDataURL(blob);
     });
   }
+  public base64ToUint8Array(base64: string): Uint8Array {
+    console.log(base64);
+    return Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+  }
 }
