@@ -173,14 +173,20 @@ export class ApiClient {
     );
   }
 
-  public async execute(payload: string) {
-    const response = await this.client().post(
-      `${this.apiHost}/api/v1/private/execute`,
-      {
-        payload,
-      }
-    );
-    return response;
+  public async saveRunDocument(args: {
+    runDocument: RunDocument;
+    runDocumentPath: string;
+    execute: boolean;
+  }) {
+    const bytes = RunDocument.encode(args.runDocument).finish();
+    const appUtil = new AppUtil();
+    const serialized = await appUtil.uint8ArrayToBase64(bytes);
+    const response = (await invoke("saveRunDocument", {
+      runDocumentSerialized: serialized,
+      runDocumentPath: args.runDocumentPath,
+      execute: args.execute.toString(),
+    })) as string;
+    console.log(response);
   }
 
   public async abort(executionUniqueId: string): Promise<Result<void>> {

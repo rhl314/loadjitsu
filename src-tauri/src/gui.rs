@@ -130,13 +130,23 @@ fn runApiStepOnceOld(serialized: &str) -> String {
     }
 }
 
+#[tauri::command]
+async fn saveRunDocument(
+    runDocumentSerialized: &str,
+    runDocumentPath: &str,
+    execute: &str,
+) -> Result<String, String> {
+    println!("{} {} {}", runDocumentSerialized, runDocumentPath, execute);
+    Ok(String::from("hello"))
+}
 pub fn spawnUi() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
             getRecentRuns,
             greet,
             runApiStepOnce,
-            getTemporaryDocumentPath
+            getTemporaryDocumentPath,
+            saveRunDocument
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

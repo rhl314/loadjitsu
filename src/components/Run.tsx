@@ -14,12 +14,12 @@ import ApiSteps from "../frontend_util/react/components/run_document/ApiSteps";
 import RunNavigation from "../frontend_util/react/components/run_document/RunNavigation";
 import RunSettings from "../frontend_util/react/components/run_document/RunSettings";
 
-const Home = () => {
+const Run = (args: { documentPath: string }) => {
   const type = RunType.API;
-  const [runDocumentAppState, dispatch] = useReducer(
-    runDocumentReducer,
-    INITIAL_RUN_DOCUMENT_APP_STATE
-  );
+  const [runDocumentAppState, dispatch] = useReducer(runDocumentReducer, {
+    ...INITIAL_RUN_DOCUMENT_APP_STATE,
+    runDocumentPath: args.documentPath,
+  });
   const loadRunDocument = async () => {
     const runType = runTypeFromJSON(RunType.API);
     const runDocument = RunDocumentFactory.newRunDocument(
@@ -67,7 +67,7 @@ const Home = () => {
   return <div>{main()}</div>;
 };
 
-export default Home;
+export default Run;
 
 const RunOld = () => {
   return (

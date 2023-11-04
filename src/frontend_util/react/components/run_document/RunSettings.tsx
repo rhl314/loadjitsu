@@ -28,24 +28,30 @@ export default function RunSettings() {
     );
   };
   const startExecution = async () => {
+    console.log(state.runDocument);
     if (_.isNil(state.runDocument)) {
       return;
     }
-    const bytes = RunDocument.encode(state.runDocument).finish();
-    const serialized = Buffer.from(bytes).toString("base64");
+
     const apiClient = new ApiClient();
     try {
-      const response = await apiClient.execute(serialized);
-      const uniqueId = response?.data?.uniqueId;
+      const response = await apiClient.saveRunDocument({
+        runDocument: state.runDocument,
+        runDocumentPath: state.runDocumentPath as string,
+        execute: false,
+      });
+      console.log(response);
+      /*const uniqueId = response?.data?.uniqueId;
       if (_.isNil(uniqueId)) {
         throw new Error("Unique id not found in result");
-      }
+      }*/
       /*router.push(
         `/run/${runTypeToJSON(state.runDocument.type)}/${
           state.runDocument.uniqueId
         }/runs/${uniqueId}`
       );*/
     } catch (err: any) {
+      console.error(err);
       const code = err?.response?.data?.code;
       if (code === "ALREADY_RUNNING") {
         return; /*router.push(
@@ -120,7 +126,11 @@ export default function RunSettings() {
                   <div>Test duration in seconds</div>
                 </div>
                 <div className="text-center">
-                  <div>
+                  <div
+                    onClick={() => {
+                      startExecution();
+                    }}
+                  >
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 24 24"
