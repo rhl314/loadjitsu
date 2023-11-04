@@ -10,7 +10,7 @@ const router = createBrowserRouter([
     element: <Root />,
   },
   {
-    path: "/runs/new",
+    path: "/runs/api/:path",
     element: <NewRun />,
   },
 ]);

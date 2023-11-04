@@ -9,7 +9,8 @@ function Root() {
   async function getRecentRuns() {
     const response = (await invoke("getRecentRuns")) as IRunFile[];
     if (response.length === 0) {
-      navigate("/runs/new");
+      const temporaryDocumentPath = await invoke("getTemporaryDocumentPath");
+      navigate(`/runs/api/${temporaryDocumentPath}`);
     } else {
       navigate("/home");
     }

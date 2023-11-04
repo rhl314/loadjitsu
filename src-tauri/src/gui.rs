@@ -10,11 +10,21 @@ use ureq::{Agent, AgentBuilder};
 use serde::{Deserialize, Serialize};
 
 use crate::api_service::api_service::ApiService;
+use crate::document_service::document_service::DocumentService;
 use crate::protos::ipc::{ApiStep, HttpAction, RunResponse, RunStatus};
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
 fn greet(name: &str) -> String {
     format!("Hello, {}! You've been greeted from Rust now!", name)
+}
+
+#[tauri::command]
+async fn getTemporaryDocumentPath() -> Result<String, String> {
+    let ranOrError = DocumentService::get_temporary_document_path();
+    match ranOrError {
+        Ok(ran) => Ok(ran),
+        Err(error) => Err(error.to_string()),
+    }
 }
 
 #[tauri::command]
@@ -126,6 +136,7 @@ pub fn spawnUi() {
             getRecentRuns,
             greet,
             runApiStepOnce,
+            getTemporaryDocumentPath
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

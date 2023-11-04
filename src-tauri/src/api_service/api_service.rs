@@ -1,4 +1,5 @@
 use base64;
+use base64::{engine::general_purpose, Engine as _};
 use prost::Message;
 use reqwest::header::{HeaderMap, HeaderValue};
 use std::{f64::consts::E, io::Cursor, time::Instant};

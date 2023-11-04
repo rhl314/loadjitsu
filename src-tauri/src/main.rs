@@ -2,6 +2,7 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 use clap::Parser;
 mod api_service;
+mod document_service;
 mod protos;
 mod types;
 
