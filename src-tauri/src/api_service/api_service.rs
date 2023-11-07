@@ -3,7 +3,10 @@ use base64::{engine::general_purpose, Engine as _};
 use prost::Message;
 use reqwest::header::{HeaderMap, HeaderValue};
 use std::{f64::consts::E, io::Cursor, time::Instant};
+use uuid::Uuid;
 
+use crate::database_service::database_service::DatabaseService;
+use crate::protos::ipc::{RunConfiguration, RunDocument, RunShape, RunType};
 use crate::protos::{
     self,
     ipc::{ApiBody, ApiStep, EnumApiBodyType, HttpAction, HttpAuthBasic, RunResponse},
@@ -48,6 +51,17 @@ impl ApiService {
         Ok(encoded_string)
     }
 
+    pub fn serialize_run_document(run_document: &RunDocument) -> anyhow::Result<String> {
+        // Convert the ApiStep object into bytes
+        let mut bytes = Vec::new();
+        run_document.encode(&mut bytes)?;
+
+        // Encode the bytes into a Base64 string
+        let encoded_string = base64::encode(&bytes);
+
+        Ok(encoded_string)
+    }
+
     pub fn generateBlankApiBody() -> ApiBody {
         ApiBody {
             r#type: EnumApiBodyType::Empty as i32, // Setting type as Empty
@@ -61,6 +75,24 @@ impl ApiService {
         HttpAuthBasic {
             username: "".to_string(),
             password: "".to_string(),
+        }
+    }
+
+    pub fn generateRunConfiguration() -> RunConfiguration {
+        RunConfiguration {
+            rps: 30,
+            duration_in_seconds: 30,
+            shape: RunShape::Constant.into(),
+        }
+    }
+
+    pub fn generateNewRunDocument() -> RunDocument {
+        RunDocument {
+            unique_id: Uuid::new_v4().to_string(),
+            title: String::from("Untitled test"),
+            r#type: RunType::Api.into(),
+            configuration: Some(self::ApiService::generateRunConfiguration()),
+            api_steps: Vec::new(),
         }
     }
 
@@ -204,7 +236,10 @@ impl ApiService {
 mod tests {
     use uuid::{uuid, Uuid};
 
-    use crate::protos::ipc::{ApiStep, HttpAction, HttpAuthType, RunStatus};
+    use crate::{
+        file_service::file_service::FileService,
+        protos::ipc::{ApiStep, HttpAction, HttpAuthType, RunStatus},
+    };
 
     use super::ApiService;
 

@@ -1,9 +1,16 @@
 // Prevents additional console window on Windows in release, DO NOT REMOVE!!
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
+#[macro_use]
+extern crate diesel;
+
 use clap::Parser;
 mod api_service;
+mod database_service;
 mod document_service;
+mod file_service;
+mod models;
 mod protos;
+mod schema;
 mod types;
 
 #[derive(Parser, Debug)]
