@@ -1,10 +1,17 @@
 use anyhow::Result;
+use base64::engine::general_purpose;
+use base64::Engine;
+use platform_dirs::AppDirs;
 use sha2::Digest;
 use sha2::Sha256;
+use uuid::Uuid;
 
 pub struct FileService;
 
 impl FileService {
+    pub fn get_app_name() -> String {
+        return String::from("loadjitsu");
+    }
     pub fn get_temporary_file_path() -> Result<String> {
         let named_temp_file = tempfile::NamedTempFile::new()?;
         let file_path_or_error = named_temp_file
@@ -15,6 +22,23 @@ impl FileService {
         match file_path_or_error {
             Ok(file_path) => Ok(file_path),
             Err(e) => Err(anyhow::anyhow!("Error in getting file path")),
+        }
+    }
+
+    pub fn get_run_documents_file_path() -> anyhow::Result<String> {
+        let app_name = FileService::get_app_name();
+        let app_dirs = AppDirs::new(Some(app_name.as_str()), false);
+        if let Some(app_dirs) = app_dirs {
+            let data_dir = app_dirs.data_dir;
+            let data_dir = data_dir.to_str();
+            if let Some(data_dir) = data_dir {
+                let file_path = format!("{}/run_document_files", data_dir);
+                Ok(general_purpose::STANDARD_NO_PAD.encode(file_path))
+            } else {
+                Err(anyhow::anyhow!("Could not get data directory"))
+            }
+        } else {
+            Err(anyhow::anyhow!("Could not get app directory"))
         }
     }
 
