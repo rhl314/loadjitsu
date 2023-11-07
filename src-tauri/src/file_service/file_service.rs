@@ -1,3 +1,7 @@
+use std::f32::consts::E;
+use std::fs;
+use std::fs::File;
+
 use anyhow::Result;
 use base64::engine::general_purpose;
 use base64::Engine;
@@ -29,11 +33,20 @@ impl FileService {
         let app_name = FileService::get_app_name();
         let app_dirs = AppDirs::new(Some(app_name.as_str()), false);
         if let Some(app_dirs) = app_dirs {
-            let data_dir = app_dirs.data_dir;
+            let data_dir = &app_dirs.data_dir;
             let data_dir = data_dir.to_str();
+            fs::create_dir_all(&app_dirs.data_dir)?;
             if let Some(data_dir) = data_dir {
-                let file_path = format!("{}/run_document_files", data_dir);
-                Ok(general_purpose::STANDARD_NO_PAD.encode(file_path))
+                let file_path = app_dirs.data_dir.join("run_document_files");
+                if file_path.exists() != true {
+                    File::create(&file_path)?;
+                } else {
+                }
+                let result = file_path.into_os_string().into_string();
+                match result {
+                    Ok(file_path) => Ok(file_path),
+                    Err(e) => Err(anyhow::anyhow!("Error in getting file path")),
+                }
             } else {
                 Err(anyhow::anyhow!("Could not get data directory"))
             }

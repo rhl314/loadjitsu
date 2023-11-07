@@ -21,72 +21,12 @@ impl DatabaseService {
         let ranOrError = connection.run_pending_migrations(MIGRATIONS);
         match ranOrError {
             Ok(_) => Ok(connection),
-            Err(e) => Err(anyhow!("Erro in migration")),
+            Err(e) => Err(anyhow!("Error in migration")),
         }
     }
     pub async fn connection(database_path: &str) -> anyhow::Result<Pool<Sqlite>> {
         let pool = SqlitePool::connect(database_path).await?;
         Ok(pool)
-    }
-    async fn get_document_revision_by_id(
-        pool: &SqlitePool,
-        id: &str,
-    ) -> anyhow::Result<Option<DocumentRevision>> {
-        let document_revision = sqlx::query_as::<_, DocumentRevision>(
-            "SELECT id, value, created_at FROM DocumentRevisions WHERE id = ?",
-        )
-        .bind(id)
-        .fetch_optional(pool)
-        .await?;
-
-        Ok(document_revision)
-    }
-
-    async fn create_or_update_document_revision(
-        pool: &SqlitePool,
-        input: DocumentRevision,
-    ) -> anyhow::Result<()> {
-        let existing = sqlx::query("SELECT EXISTS(SELECT 1 FROM DocumentRevisions WHERE id = ?)")
-            .bind(&input.id)
-            .fetch_one(pool)
-            .await?
-            .get::<i32, _>(0);
-
-        if existing == 1 {
-            // Record exists, so update it
-            sqlx::query("UPDATE DocumentRevisions SET value = ?, created_at = ? WHERE id = ?")
-                .bind(&input.value)
-                .bind(input.created_at)
-                .bind(&input.id)
-                .execute(pool)
-                .await?;
-        } else {
-            // Record does not exist, so insert it
-            sqlx::query("INSERT INTO DocumentRevisions (id, value, created_at) VALUES (?, ?, ?)")
-                .bind(&input.id)
-                .bind(&input.value)
-                .bind(input.created_at)
-                .execute(pool)
-                .await?;
-        }
-
-        Ok(())
-    }
-    pub async fn saveRunDocument(
-        path: &str,
-        run_document: RunDocument,
-    ) -> anyhow::Result<RunDocument> {
-        let pool = DatabaseService::connection(path).await?;
-        let serialized = ApiService::serialize_run_document(&run_document)?;
-        let id = FileService::get_hash(&serialized)?;
-        let document_revision = DocumentRevision {
-            id: id.clone(),
-            value: serialized,
-            created_at: chrono::Utc::now().to_rfc3339(),
-        };
-        DatabaseService::create_or_update_document_revision(&pool, document_revision).await?;
-
-        Ok(run_document)
     }
 }
 #[cfg(test)]
@@ -108,14 +48,5 @@ mod tests {
         let metadata = fs::metadata(&file_path).unwrap();
         assert!(metadata.is_file());
         fs::remove_file(&file_path).unwrap()
-    }
-
-    #[tokio::test]
-    async fn it_should_save_run_document_correctly() {
-        let run_document = ApiService::generateNewRunDocument();
-        let path = FileService::get_temporary_file_path().unwrap();
-        super::DatabaseService::run_migrations(&path).unwrap();
-        let saved_or_error = super::DatabaseService::saveRunDocument(&path, run_document).await;
-        assert!(saved_or_error.is_ok());
     }
 }
