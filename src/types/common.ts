@@ -1,5 +1,8 @@
-export interface IRunFile {
-  path: string;
+export interface IRunDocumentFile {
+  id: String;
+  path: String;
+  title: String;
+  saved_at: String;
 }
 
 export enum EnumVariableType {

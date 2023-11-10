@@ -5,13 +5,36 @@ use crate::{
     protos::ipc::RunDocument,
 };
 
+use serde::{Deserialize, Serialize};
+#[derive(Serialize, Deserialize)]
+#[derive(Debug)]
+
 pub struct RunDocumentFile {
     pub id: String,
     pub path: String,
     pub title: String,
     pub saved_at: String,
 }
+
 impl RunDocumentFile {
+    pub async fn get_recent_runs() -> anyhow::Result<Vec<RunDocumentFile>> {
+        let path = FileService::get_run_documents_file_path()?;
+        let pool = DatabaseService::connection(&path).await?;
+        let mut run_document_files: Vec<RunDocumentFile> = Vec::new();
+        let rows = sqlx::query("SELECT * FROM RunDocumentFiles")
+            .fetch_all(&pool)
+            .await?;
+        for row in rows {
+            let run_document_file = RunDocumentFile {
+                id: row.get("id"),
+                path: row.get("path"),
+                title: row.get("title"),
+                saved_at: row.get("saved_at"),
+            };
+            run_document_files.push(run_document_file);
+        }
+        Ok(run_document_files)
+    }
     pub async fn register_run_document(
         run_document: &RunDocument,
         path_of_run_document: &str,
@@ -82,5 +105,12 @@ mod tests {
         assert!(&saved_or_error.is_ok());
         let path = FileService::get_run_documents_file_path().unwrap();
         println!("Path is {}", path);
+    }
+
+    #[tokio::test]
+    async fn it_should_correctly_get_recent_runs() {
+        let recent_runs_or_error = super::RunDocumentFile::get_recent_runs().await;
+        assert!(recent_runs_or_error.is_ok());
+        println!("{:?}", recent_runs_or_error.unwrap());
     }
 }

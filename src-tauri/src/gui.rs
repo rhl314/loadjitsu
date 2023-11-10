@@ -11,6 +11,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::api_service::api_service::ApiService;
 use crate::document_service::document_service::DocumentService;
+use crate::models::RunDocumentFile;
 use crate::protos::ipc::{ApiStep, HttpAction, RunResponse, RunStatus};
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -28,14 +29,12 @@ async fn getTemporaryDocumentPath() -> Result<String, String> {
 }
 
 #[tauri::command]
-fn getRecentRuns() -> Vec<super::types::common::IRunFile> {
-    let mut v: Vec<super::types::common::IRunFile> = Vec::new();
-
-    /*let file = RunFile {
-        path: String::from("hello"),
-    };
-    v.push(file);*/
-    v
+async fn getRecentRuns() -> Result<Vec<RunDocumentFile>, String> {
+    let ranOrError = RunDocumentFile::get_recent_runs().await;
+    match ranOrError {
+        Ok(ran) => Ok(ran),
+        Err(error) => Err(error.to_string()),
+    }
 }
 
 fn runApiStep(apiStep: ApiStep) -> RunResponse {
