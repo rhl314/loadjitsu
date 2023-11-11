@@ -103,12 +103,21 @@ const Home = () => {
                             </td>
 
                             <td className="relative whitespace-nowrap py-4 pl-3 pr-4  text-sm font-medium sm:pr-6 text-center items-center">
-                              <a
-                                href="#"
+                              <div
                                 className="text-indigo-600 hover:text-indigo-900"
+                                onClick={() => {
+                                  const encodedPath = btoa(
+                                    unescape(
+                                      encodeURIComponent(
+                                        runDocumentFile.path.toString()
+                                      )
+                                    )
+                                  );
+                                  navigate(`/runs/api/${encodedPath}`);
+                                }}
                               >
                                 Open
-                              </a>
+                              </div>
                             </td>
                           </tr>
                         ))}
