@@ -5,8 +5,11 @@ use sqlx::SqlitePool;
 
 use crate::api_service::api_service::ApiService;
 use crate::database_service::database_service::DatabaseService;
+use crate::document_service::document_service::DocumentService;
 use crate::file_service::file_service::FileService;
 use crate::protos::ipc::RunDocument;
+
+use super::RunDocumentFile;
 
 #[derive(Debug, FromRow)]
 pub struct DocumentRevision {
@@ -83,6 +86,28 @@ impl DocumentRevision {
         DocumentRevision::create_or_update_document_revision(&pool, document_revision).await?;
 
         Ok(run_document)
+    }
+
+    pub async fn saveSerializedRunDocument(
+        encodedPath: &str,
+        seralizedRunDocument: &str,
+    ) -> anyhow::Result<()> {
+        let decoded_document_path = DocumentService::decode_document_path(encodedPath)?;
+        FileService::ensure_file_exists(&decoded_document_path)?;
+        DatabaseService::run_migrations(&decoded_document_path)?;
+        println!("decoded_document_path: {}", decoded_document_path);
+        let deserialized_run_document = ApiService::deserialize_run_document(seralizedRunDocument)?;
+        let pool = DatabaseService::connection(&decoded_document_path).await?;
+        let id = FileService::get_hash(&seralizedRunDocument)?;
+        let document_revision = DocumentRevision {
+            id: id.clone(),
+            value: String::from(seralizedRunDocument),
+            created_at: chrono::Utc::now().to_rfc3339(),
+        };
+        DocumentRevision::create_or_update_document_revision(&pool, document_revision).await?;
+        RunDocumentFile::register_run_document(&deserialized_run_document, &decoded_document_path)
+            .await?;
+        Ok(())
     }
 }
 

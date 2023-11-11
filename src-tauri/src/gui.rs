@@ -11,7 +11,7 @@ use serde::{Deserialize, Serialize};
 
 use crate::api_service::api_service::ApiService;
 use crate::document_service::document_service::DocumentService;
-use crate::models::RunDocumentFile;
+use crate::models::{DocumentRevision, RunDocumentFile};
 use crate::protos::ipc::{ApiStep, HttpAction, RunResponse, RunStatus};
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -134,9 +134,13 @@ async fn saveRunDocument(
     runDocumentSerialized: &str,
     runDocumentPath: &str,
     execute: &str,
-) -> Result<String, String> {
-    println!("{} {} {}", runDocumentSerialized, runDocumentPath, execute);
-    Ok(String::from("hello"))
+) -> Result<(), String> {
+    let savedOrError =
+        DocumentRevision::saveSerializedRunDocument(runDocumentPath, runDocumentSerialized).await;
+    match savedOrError {
+        Ok(ran) => Ok(()),
+        Err(error) => Err(error.to_string()),
+    }
 }
 pub fn spawnUi() {
     tauri::Builder::default()

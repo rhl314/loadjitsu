@@ -28,6 +28,14 @@ impl FileService {
             Err(e) => Err(anyhow::anyhow!("Error in getting file path")),
         }
     }
+    pub fn ensure_file_exists(file_path: &str) -> Result<()> {
+        if fs::metadata(file_path).is_ok() {
+            Ok(())
+        } else {
+            let file = File::create(file_path)?;
+            Ok(())
+        }
+    }
 
     pub fn get_run_documents_file_path() -> anyhow::Result<String> {
         let app_name = FileService::get_app_name();

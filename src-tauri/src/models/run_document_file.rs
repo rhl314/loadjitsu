@@ -6,8 +6,7 @@ use crate::{
 };
 
 use serde::{Deserialize, Serialize};
-#[derive(Serialize, Deserialize)]
-#[derive(Debug)]
+#[derive(Serialize, Deserialize, Debug)]
 
 pub struct RunDocumentFile {
     pub id: String,
@@ -40,9 +39,7 @@ impl RunDocumentFile {
         path_of_run_document: &str,
     ) -> anyhow::Result<RunDocumentFile> {
         let path = FileService::get_run_documents_file_path()?;
-        println!("Path is {}", path);
         DatabaseService::run_migrations(&path)?;
-        println!("Migrations ran");
         let run_document_file = RunDocumentFile {
             id: run_document.unique_id.clone(),
             path: path_of_run_document.to_string(),

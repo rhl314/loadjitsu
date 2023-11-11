@@ -62,6 +62,19 @@ impl ApiService {
         Ok(encoded_string)
     }
 
+    pub fn deserialize_run_document(encoded: &str) -> anyhow::Result<RunDocument> {
+        // Decode the Base64 encoded string into bytes
+        let decoded_bytes = base64::decode(encoded)?;
+
+        // Create a Cursor over the decoded bytes
+        let mut cursor = Cursor::new(decoded_bytes);
+
+        // Use prost's decode method to try and parse the ApiStep
+        let run_document = RunDocument::decode(&mut cursor)?;
+
+        Ok(run_document)
+    }
+
     pub fn generateBlankApiBody() -> ApiBody {
         ApiBody {
             r#type: EnumApiBodyType::Empty as i32, // Setting type as Empty
