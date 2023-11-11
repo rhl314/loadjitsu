@@ -22,6 +22,10 @@ import { ApiClient } from "../../../../api_client/api_client";
 export interface ApiStepComponentUpdated {
   (apiStep: ApiStep): void;
 }
+
+export interface ApiStepValidate {
+  (apiStep: ApiStep): boolean;
+}
 interface ICurlImport {
   show: boolean;
   data: string;
@@ -31,6 +35,7 @@ interface ICurlImport {
 export default function ApiStepComponent(props: {
   apiStep: ApiStep;
   onUpdated: ApiStepComponentUpdated;
+  validate: ApiStepValidate;
 }) {
   const { apiStep } = props;
   const [curlImport, setCurlImport] = useState<ICurlImport>({
@@ -126,6 +131,11 @@ export default function ApiStepComponent(props: {
       return;
     }
     setTestConnectionState("RUNNING");
+    const valid = props.validate(apiStep);
+    if (valid !== true) {
+      setTestConnectionState("INVALID");
+      return;
+    }
     const apiStepClient = new ApiClient();
     const responseOrError = await apiStepClient.runApiStepOnce(apiStep);
     if (responseOrError.isFailure) {
@@ -279,6 +289,12 @@ export default function ApiStepComponent(props: {
       </Modal>
     );
   };
+  const endpointValidationErrors = (field: string) => {
+    const errors = (apiStep.validationErrors || []).filter((error) => {
+      return error.field === field;
+    });
+    return errors;
+  };
   return (
     <>
       <div className="app_container mx-auto">
@@ -316,7 +332,11 @@ export default function ApiStepComponent(props: {
                   <div>
                     <input
                       value={props.apiStep.endpoint}
-                      className="input input-bordered join-item w-full"
+                      className={`input input-bordered join-item w-full ${
+                        endpointValidationErrors("endpoint").length > 0
+                          ? "input-warning"
+                          : ""
+                      }`}
                       onChange={(event: any) => {
                         const updatedApiStep = {
                           ...props.apiStep,
@@ -326,6 +346,13 @@ export default function ApiStepComponent(props: {
                         props.onUpdated(updatedApiStep);
                       }}
                     />
+                    {endpointValidationErrors("endpoint").map((error) => {
+                      return (
+                        <div className="text-warning text-sm">
+                          {error.message}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
               </div>
@@ -340,7 +367,11 @@ export default function ApiStepComponent(props: {
                   <div>
                     <input
                       value={props.apiStep.timeoutInMs}
-                      className="input input-bordered join-item w-full"
+                      className={`input input-bordered join-item w-full ${
+                        endpointValidationErrors("timeoutInMs").length > 0
+                          ? "input-warning"
+                          : ""
+                      }`}
                       onChange={(event: any) => {
                         const updatedApiStep = {
                           ...props.apiStep,
@@ -349,6 +380,13 @@ export default function ApiStepComponent(props: {
                         props.onUpdated(updatedApiStep);
                       }}
                     />
+                    {endpointValidationErrors("timeoutInMs").map((error) => {
+                      return (
+                        <div className="text-warning text-sm">
+                          {error.message}
+                        </div>
+                      );
+                    })}
                   </div>
                 </div>
                 <div className="w-1/12"></div>
@@ -468,6 +506,27 @@ export default function ApiStepComponent(props: {
                     problem with Loadjitsu itself and should get resolved on
                     retrying. Please contact support@loadjitsu.com if this
                     happens again.
+                  </span>
+                </div>
+              )}
+              {testConnectionState === "INVALID" && (
+                <div className="alert alert-warning mt-4">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="stroke-current shrink-0 h-6 w-6"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+                    />
+                  </svg>
+                  <span>
+                    Please fix the errors highlighted in red before running the
+                    load test
                   </span>
                 </div>
               )}

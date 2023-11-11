@@ -1,5 +1,6 @@
 /* eslint-disable */
 import _m0 from "protobufjs/minimal";
+import { ValidationError } from "./error";
 
 export const protobufPackage = "ipc";
 
@@ -163,6 +164,7 @@ export interface ApiBodyFormData {
   active: boolean;
   deleted: boolean;
   uniqueId: string;
+  validationErrors: ValidationError[];
 }
 
 export interface ApiBody {
@@ -179,11 +181,13 @@ export interface ApiHeader {
   active: boolean;
   deleted: boolean;
   uniqueId: string;
+  validationErrors: ValidationError[];
 }
 
 export interface HttpAuthBasic {
   username: string;
   password: string;
+  validationErrors: ValidationError[];
 }
 
 export interface ApiStep {
@@ -196,10 +200,11 @@ export interface ApiStep {
   headers: ApiHeader[];
   authType: HttpAuthType;
   authBasic: HttpAuthBasic | undefined;
+  validationErrors: ValidationError[];
 }
 
 function createBaseApiBodyFormData(): ApiBodyFormData {
-  return { key: "", value: "", description: "", active: false, deleted: false, uniqueId: "" };
+  return { key: "", value: "", description: "", active: false, deleted: false, uniqueId: "", validationErrors: [] };
 }
 
 export const ApiBodyFormData = {
@@ -221,6 +226,9 @@ export const ApiBodyFormData = {
     }
     if (message.uniqueId !== "") {
       writer.uint32(50).string(message.uniqueId);
+    }
+    for (const v of message.validationErrors) {
+      ValidationError.encode(v!, writer.uint32(58).fork()).ldelim();
     }
     return writer;
   },
@@ -274,6 +282,13 @@ export const ApiBodyFormData = {
 
           message.uniqueId = reader.string();
           continue;
+        case 7:
+          if (tag !== 58) {
+            break;
+          }
+
+          message.validationErrors.push(ValidationError.decode(reader, reader.uint32()));
+          continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -291,6 +306,9 @@ export const ApiBodyFormData = {
       active: isSet(object.active) ? globalThis.Boolean(object.active) : false,
       deleted: isSet(object.deleted) ? globalThis.Boolean(object.deleted) : false,
       uniqueId: isSet(object.uniqueId) ? globalThis.String(object.uniqueId) : "",
+      validationErrors: globalThis.Array.isArray(object?.validationErrors)
+        ? object.validationErrors.map((e: any) => ValidationError.fromJSON(e))
+        : [],
     };
   },
 
@@ -314,6 +332,9 @@ export const ApiBodyFormData = {
     if (message.uniqueId !== "") {
       obj.uniqueId = message.uniqueId;
     }
+    if (message.validationErrors?.length) {
+      obj.validationErrors = message.validationErrors.map((e) => ValidationError.toJSON(e));
+    }
     return obj;
   },
 
@@ -328,6 +349,7 @@ export const ApiBodyFormData = {
     message.active = object.active ?? false;
     message.deleted = object.deleted ?? false;
     message.uniqueId = object.uniqueId ?? "";
+    message.validationErrors = object.validationErrors?.map((e) => ValidationError.fromPartial(e)) || [];
     return message;
   },
 };
@@ -439,7 +461,7 @@ export const ApiBody = {
 };
 
 function createBaseApiHeader(): ApiHeader {
-  return { key: "", value: "", description: "", active: false, deleted: false, uniqueId: "" };
+  return { key: "", value: "", description: "", active: false, deleted: false, uniqueId: "", validationErrors: [] };
 }
 
 export const ApiHeader = {
@@ -461,6 +483,9 @@ export const ApiHeader = {
     }
     if (message.uniqueId !== "") {
       writer.uint32(50).string(message.uniqueId);
+    }
+    for (const v of message.validationErrors) {
+      ValidationError.encode(v!, writer.uint32(58).fork()).ldelim();
     }
     return writer;
   },
@@ -514,6 +539,13 @@ export const ApiHeader = {
 
           message.uniqueId = reader.string();
           continue;
+        case 7:
+          if (tag !== 58) {
+            break;
+          }
+
+          message.validationErrors.push(ValidationError.decode(reader, reader.uint32()));
+          continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -531,6 +563,9 @@ export const ApiHeader = {
       active: isSet(object.active) ? globalThis.Boolean(object.active) : false,
       deleted: isSet(object.deleted) ? globalThis.Boolean(object.deleted) : false,
       uniqueId: isSet(object.uniqueId) ? globalThis.String(object.uniqueId) : "",
+      validationErrors: globalThis.Array.isArray(object?.validationErrors)
+        ? object.validationErrors.map((e: any) => ValidationError.fromJSON(e))
+        : [],
     };
   },
 
@@ -554,6 +589,9 @@ export const ApiHeader = {
     if (message.uniqueId !== "") {
       obj.uniqueId = message.uniqueId;
     }
+    if (message.validationErrors?.length) {
+      obj.validationErrors = message.validationErrors.map((e) => ValidationError.toJSON(e));
+    }
     return obj;
   },
 
@@ -568,12 +606,13 @@ export const ApiHeader = {
     message.active = object.active ?? false;
     message.deleted = object.deleted ?? false;
     message.uniqueId = object.uniqueId ?? "";
+    message.validationErrors = object.validationErrors?.map((e) => ValidationError.fromPartial(e)) || [];
     return message;
   },
 };
 
 function createBaseHttpAuthBasic(): HttpAuthBasic {
-  return { username: "", password: "" };
+  return { username: "", password: "", validationErrors: [] };
 }
 
 export const HttpAuthBasic = {
@@ -583,6 +622,9 @@ export const HttpAuthBasic = {
     }
     if (message.password !== "") {
       writer.uint32(18).string(message.password);
+    }
+    for (const v of message.validationErrors) {
+      ValidationError.encode(v!, writer.uint32(26).fork()).ldelim();
     }
     return writer;
   },
@@ -608,6 +650,13 @@ export const HttpAuthBasic = {
 
           message.password = reader.string();
           continue;
+        case 3:
+          if (tag !== 26) {
+            break;
+          }
+
+          message.validationErrors.push(ValidationError.decode(reader, reader.uint32()));
+          continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -621,6 +670,9 @@ export const HttpAuthBasic = {
     return {
       username: isSet(object.username) ? globalThis.String(object.username) : "",
       password: isSet(object.password) ? globalThis.String(object.password) : "",
+      validationErrors: globalThis.Array.isArray(object?.validationErrors)
+        ? object.validationErrors.map((e: any) => ValidationError.fromJSON(e))
+        : [],
     };
   },
 
@@ -632,6 +684,9 @@ export const HttpAuthBasic = {
     if (message.password !== "") {
       obj.password = message.password;
     }
+    if (message.validationErrors?.length) {
+      obj.validationErrors = message.validationErrors.map((e) => ValidationError.toJSON(e));
+    }
     return obj;
   },
 
@@ -642,6 +697,7 @@ export const HttpAuthBasic = {
     const message = createBaseHttpAuthBasic();
     message.username = object.username ?? "";
     message.password = object.password ?? "";
+    message.validationErrors = object.validationErrors?.map((e) => ValidationError.fromPartial(e)) || [];
     return message;
   },
 };
@@ -656,6 +712,7 @@ function createBaseApiStep(): ApiStep {
     headers: [],
     authType: 0,
     authBasic: undefined,
+    validationErrors: [],
   };
 }
 
@@ -684,6 +741,9 @@ export const ApiStep = {
     }
     if (message.authBasic !== undefined) {
       HttpAuthBasic.encode(message.authBasic, writer.uint32(66).fork()).ldelim();
+    }
+    for (const v of message.validationErrors) {
+      ValidationError.encode(v!, writer.uint32(74).fork()).ldelim();
     }
     return writer;
   },
@@ -751,6 +811,13 @@ export const ApiStep = {
 
           message.authBasic = HttpAuthBasic.decode(reader, reader.uint32());
           continue;
+        case 9:
+          if (tag !== 74) {
+            break;
+          }
+
+          message.validationErrors.push(ValidationError.decode(reader, reader.uint32()));
+          continue;
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -770,6 +837,9 @@ export const ApiStep = {
       headers: globalThis.Array.isArray(object?.headers) ? object.headers.map((e: any) => ApiHeader.fromJSON(e)) : [],
       authType: isSet(object.authType) ? httpAuthTypeFromJSON(object.authType) : 0,
       authBasic: isSet(object.authBasic) ? HttpAuthBasic.fromJSON(object.authBasic) : undefined,
+      validationErrors: globalThis.Array.isArray(object?.validationErrors)
+        ? object.validationErrors.map((e: any) => ValidationError.fromJSON(e))
+        : [],
     };
   },
 
@@ -799,6 +869,9 @@ export const ApiStep = {
     if (message.authBasic !== undefined) {
       obj.authBasic = HttpAuthBasic.toJSON(message.authBasic);
     }
+    if (message.validationErrors?.length) {
+      obj.validationErrors = message.validationErrors.map((e) => ValidationError.toJSON(e));
+    }
     return obj;
   },
 
@@ -817,6 +890,7 @@ export const ApiStep = {
     message.authBasic = (object.authBasic !== undefined && object.authBasic !== null)
       ? HttpAuthBasic.fromPartial(object.authBasic)
       : undefined;
+    message.validationErrors = object.validationErrors?.map((e) => ValidationError.fromPartial(e)) || [];
     return message;
   },
 };
