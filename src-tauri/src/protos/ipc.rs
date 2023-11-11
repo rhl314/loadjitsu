@@ -1,5 +1,13 @@
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
+pub struct ValidationError {
+    #[prost(string, tag = "1")]
+    pub field: ::prost::alloc::string::String,
+    #[prost(string, tag = "2")]
+    pub message: ::prost::alloc::string::String,
+}
+#[allow(clippy::derive_partial_eq_without_eq)]
+#[derive(Clone, PartialEq, ::prost::Message)]
 pub struct ApiBodyFormData {
     #[prost(string, tag = "1")]
     pub key: ::prost::alloc::string::String,
@@ -13,6 +21,8 @@ pub struct ApiBodyFormData {
     pub deleted: bool,
     #[prost(string, tag = "6")]
     pub unique_id: ::prost::alloc::string::String,
+    #[prost(message, repeated, tag = "7")]
+    pub validation_errors: ::prost::alloc::vec::Vec<ValidationError>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -41,6 +51,8 @@ pub struct ApiHeader {
     pub deleted: bool,
     #[prost(string, tag = "6")]
     pub unique_id: ::prost::alloc::string::String,
+    #[prost(message, repeated, tag = "7")]
+    pub validation_errors: ::prost::alloc::vec::Vec<ValidationError>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -49,6 +61,8 @@ pub struct HttpAuthBasic {
     pub username: ::prost::alloc::string::String,
     #[prost(string, tag = "2")]
     pub password: ::prost::alloc::string::String,
+    #[prost(message, repeated, tag = "3")]
+    pub validation_errors: ::prost::alloc::vec::Vec<ValidationError>,
 }
 #[allow(clippy::derive_partial_eq_without_eq)]
 #[derive(Clone, PartialEq, ::prost::Message)]
@@ -70,6 +84,8 @@ pub struct ApiStep {
     pub auth_type: i32,
     #[prost(message, optional, tag = "8")]
     pub auth_basic: ::core::option::Option<HttpAuthBasic>,
+    #[prost(message, repeated, tag = "9")]
+    pub validation_errors: ::prost::alloc::vec::Vec<ValidationError>,
 }
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord, ::prost::Enumeration)]
 #[repr(i32)]

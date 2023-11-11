@@ -37,6 +37,7 @@
       {
         "fullscreen": false,
         "resizable": true,
+        "maximized": true,
         "title": "loadjitsu",
         "width": 800,
         "height": 600

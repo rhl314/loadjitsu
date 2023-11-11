@@ -88,6 +88,7 @@ impl ApiService {
         HttpAuthBasic {
             username: "".to_string(),
             password: "".to_string(),
+            validation_errors: Vec::new(),
         }
     }
 
@@ -272,6 +273,7 @@ mod tests {
             headers: Vec::new(),
             auth_type: HttpAuthType::NoneAuth.into(),
             auth_basic: Some(ApiService::generateBlankBasicAuth()),
+            validation_errors: Vec::new(),
         };
         let serialised_or_error = self::ApiService::serialize_api_step(&object);
         assert!(serialised_or_error.is_ok());
@@ -301,6 +303,7 @@ mod tests {
             headers: Vec::new(),
             auth_type: HttpAuthType::NoneAuth.into(),
             auth_basic: Some(ApiService::generateBlankBasicAuth()),
+            validation_errors: Vec::new(),
         };
         let response_or_error = ApiService::run(&api_step).await;
         assert!(response_or_error.is_ok());
@@ -325,6 +328,7 @@ mod tests {
             headers: Vec::new(),
             auth_type: HttpAuthType::NoneAuth.into(),
             auth_basic: Some(ApiService::generateBlankBasicAuth()),
+            validation_errors: Vec::new(),
         };
         let response_or_error = ApiService::run(&api_step).await;
         assert!(response_or_error.is_ok());
@@ -348,6 +352,7 @@ mod tests {
             headers: Vec::new(),
             auth_type: HttpAuthType::NoneAuth.into(),
             auth_basic: Some(ApiService::generateBlankBasicAuth()),
+            validation_errors: Vec::new(),
         };
         let response_or_error = ApiService::run(&api_step).await;
         assert!(response_or_error.is_ok());
@@ -372,6 +377,7 @@ mod tests {
             headers: Vec::new(),
             auth_type: HttpAuthType::NoneAuth.into(),
             auth_basic: Some(ApiService::generateBlankBasicAuth()),
+            validation_errors: Vec::new(),
         };
         let response_or_error = ApiService::run(&api_step).await;
         assert!(response_or_error.is_ok());
@@ -396,6 +402,7 @@ mod tests {
             headers: Vec::new(),
             auth_type: HttpAuthType::NoneAuth.into(),
             auth_basic: Some(ApiService::generateBlankBasicAuth()),
+            validation_errors: Vec::new(),
         };
         let response_or_error = ApiService::run(&api_step).await;
         assert!(response_or_error.is_ok());
@@ -421,6 +428,7 @@ mod tests {
             headers: Vec::new(),
             auth_type: HttpAuthType::NoneAuth.into(),
             auth_basic: Some(ApiService::generateBlankBasicAuth()),
+            validation_errors: Vec::new(),
         };
         let response_or_error = ApiService::run(&api_step).await;
         assert!(response_or_error.is_ok());
@@ -446,6 +454,7 @@ mod tests {
             headers: Vec::new(),
             auth_type: HttpAuthType::NoneAuth.into(),
             auth_basic: Some(ApiService::generateBlankBasicAuth()),
+            validation_errors: Vec::new(),
         };
         let response_or_error = ApiService::run(&api_step).await;
         assert!(response_or_error.is_ok());
@@ -471,6 +480,7 @@ mod tests {
             headers: Vec::new(),
             auth_type: HttpAuthType::NoneAuth.into(),
             auth_basic: Some(ApiService::generateBlankBasicAuth()),
+            validation_errors: Vec::new(),
         };
         let response_or_error = ApiService::run(&api_step).await;
         assert!(response_or_error.is_ok());
@@ -496,6 +506,7 @@ mod tests {
             headers: Vec::new(),
             auth_type: HttpAuthType::NoneAuth.into(),
             auth_basic: Some(ApiService::generateBlankBasicAuth()),
+            validation_errors: Vec::new(),
         };
         let response_or_error = ApiService::run(&api_step).await;
         assert!(response_or_error.is_ok());
@@ -524,6 +535,7 @@ mod tests {
             headers: Vec::new(),
             auth_type: HttpAuthType::NoneAuth.into(),
             auth_basic: Some(basic_auth),
+            validation_errors: Vec::new(),
         };
         let response_or_error = ApiService::run(&api_step).await;
         assert!(response_or_error.is_ok());
@@ -551,6 +563,7 @@ mod tests {
             headers: Vec::new(),
             auth_type: HttpAuthType::BasicAuth.into(),
             auth_basic: Some(basic_auth),
+            validation_errors: Vec::new(),
         };
         let response_or_error = ApiService::run(&api_step).await;
         assert!(response_or_error.is_ok());
