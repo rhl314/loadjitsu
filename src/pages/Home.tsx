@@ -25,6 +25,10 @@ const Home = () => {
   useEffect(() => {
     getRecentRuns();
   }, []);
+  const openNewLoadTest = async () => {
+    const temporaryDocumentPath = await invoke("getTemporaryDocumentPath");
+    navigate(`/runs/api/${temporaryDocumentPath}`);
+  };
   return (
     <div>
       <TopNav container="container-fluid" />
@@ -37,7 +41,13 @@ const Home = () => {
               </article>
             </div>
             <div className="mt-4 sm:ml-16 sm:mt-0 sm:flex-none">
-              <button type="button" className="btn btn-primary btn-sm">
+              <button
+                type="button"
+                className="btn btn-primary btn-sm"
+                onClick={() => {
+                  openNewLoadTest();
+                }}
+              >
                 New load test
               </button>
             </div>
