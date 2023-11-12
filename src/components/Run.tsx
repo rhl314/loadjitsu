@@ -27,18 +27,31 @@ const Run = (args: { documentPath: string }) => {
     runDocumentPath: args.documentPath,
   });
   const loadRunDocument = async () => {
-    const runDocumentSerialized = (await invoke("loadRunDocument", {
-      runDocumentPath: args.documentPath,
-    })) as string;
-    const appUtil = new AppUtil();
-    const runDocument = RunDocument.decode(
-      appUtil.base64ToUint8Array(runDocumentSerialized)
-    );
-
-    dispatch({
-      runDocument,
-      state: "IDLE",
-    });
+    try {
+      const runDocumentSerialized = (await invoke("loadRunDocument", {
+        runDocumentPath: args.documentPath,
+      })) as string;
+      const appUtil = new AppUtil();
+      const runDocument = RunDocument.decode(
+        appUtil.base64ToUint8Array(runDocumentSerialized)
+      );
+      dispatch({
+        runDocument,
+        state: "IDLE",
+      });
+    } catch (err) {
+      if (err === "DOCUMENT_NOT_FOUND") {
+        const runDocument = RunDocumentFactory.newRunDocument(
+          RunType.API,
+          shortid.generate()
+        );
+        dispatch({
+          runDocument,
+          state: "IDLE",
+        });
+        return;
+      }
+    }
   };
   useEffect(() => {
     loadRunDocument();

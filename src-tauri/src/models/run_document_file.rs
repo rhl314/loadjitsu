@@ -18,6 +18,8 @@ pub struct RunDocumentFile {
 impl RunDocumentFile {
     pub async fn get_recent_runs() -> anyhow::Result<Vec<RunDocumentFile>> {
         let path = FileService::get_run_documents_file_path()?;
+        FileService::ensure_file_exists(&path)?;
+        DatabaseService::run_migrations(&path)?;
         let pool = DatabaseService::connection(&path).await?;
         let mut run_document_files: Vec<RunDocumentFile> = Vec::new();
         let rows = sqlx::query("SELECT * FROM RunDocumentFiles")
@@ -62,15 +64,22 @@ impl RunDocumentFile {
             .get::<i32, _>(0);
 
         if existing == 1 {
+            println!("Record exists");
+            println!("Updating record");
+            println!("id: {}", &input.id);
+            dbg!(input);
+
             // Record exists, so update it
-            sqlx::query(
+            let results = sqlx::query(
                 "UPDATE RunDocumentFiles SET title = ?, saved_at = ?, path = ? WHERE id = ?",
             )
             .bind(&input.title)
             .bind(&input.saved_at)
             .bind(&input.path)
+            .bind(&input.id)
             .execute(pool)
             .await?;
+            dbg!(results);
         } else {
             // Record does not exist, so insert it
             sqlx::query(

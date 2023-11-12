@@ -128,7 +128,7 @@ impl DocumentRevision {
         println!("decoded_document_path: {}", decoded_document_path);
         let file_exists = FileService::does_file_exists(&decoded_document_path)?;
         if file_exists == false {
-            return Ok(ApiService::generateNewRunDocument());
+            return Err(anyhow::anyhow!("DOCUMENT_NOT_FOUND"));
         }
         DatabaseService::run_migrations(&decoded_document_path)?;
         println!("ran migrations");
