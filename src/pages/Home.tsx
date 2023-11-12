@@ -102,7 +102,7 @@ const Home = () => {
                               ).format("DD MMMM YYYY HH:mm:ss A")}
                             </td>
 
-                            <td className="relative whitespace-nowrap py-4 pl-3 pr-4  text-sm font-medium sm:pr-6 text-center items-center">
+                            <td className="cursor-pointer relative whitespace-nowrap py-4 pl-3 pr-4  text-sm font-medium sm:pr-6 text-center items-center">
                               <div
                                 className="text-indigo-600 hover:text-indigo-900"
                                 onClick={() => {

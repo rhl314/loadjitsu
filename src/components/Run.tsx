@@ -2,7 +2,11 @@ import shortid from "shortid";
 
 import { useEffect, useReducer } from "react";
 import { RunDocumentFactory } from "../frontend_util/factories/run_document_factory";
-import { RunType, runTypeFromJSON } from "../frontend_util/ipc/run_document";
+import {
+  RunDocument,
+  RunType,
+  runTypeFromJSON,
+} from "../frontend_util/ipc/run_document";
 import {
   INITIAL_RUN_DOCUMENT_APP_STATE,
   RunDocumentAppContext,
@@ -13,6 +17,8 @@ import TopNav from "../frontend_util/react/components/TopNav";
 import ApiSteps from "../frontend_util/react/components/run_document/ApiSteps";
 import RunNavigation from "../frontend_util/react/components/run_document/RunNavigation";
 import RunSettings from "../frontend_util/react/components/run_document/RunSettings";
+import { invoke } from "@tauri-apps/api/tauri";
+import { AppUtil } from "../api_client/AppUtil";
 
 const Run = (args: { documentPath: string }) => {
   const type = RunType.API;
@@ -21,10 +27,12 @@ const Run = (args: { documentPath: string }) => {
     runDocumentPath: args.documentPath,
   });
   const loadRunDocument = async () => {
-    const runType = runTypeFromJSON(RunType.API);
-    const runDocument = RunDocumentFactory.newRunDocument(
-      runType,
-      shortid.generate()
+    const runDocumentSerialized = (await invoke("loadRunDocument", {
+      runDocumentPath: args.documentPath,
+    })) as string;
+    const appUtil = new AppUtil();
+    const runDocument = RunDocument.decode(
+      appUtil.base64ToUint8Array(runDocumentSerialized)
     );
 
     dispatch({

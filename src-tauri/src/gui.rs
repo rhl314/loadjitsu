@@ -142,6 +142,15 @@ async fn saveRunDocument(
         Err(error) => Err(error.to_string()),
     }
 }
+
+#[tauri::command]
+async fn loadRunDocument(runDocumentPath: &str) -> Result<String, String> {
+    let run_document_or_error = DocumentRevision::loadRunDocumentSerialized(runDocumentPath).await;
+    match run_document_or_error {
+        Ok(ran) => Ok(ran),
+        Err(error) => Err(error.to_string()),
+    }
+}
 pub fn spawnUi() {
     tauri::Builder::default()
         .invoke_handler(tauri::generate_handler![
@@ -149,7 +158,8 @@ pub fn spawnUi() {
             greet,
             runApiStepOnce,
             getTemporaryDocumentPath,
-            saveRunDocument
+            saveRunDocument,
+            loadRunDocument
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

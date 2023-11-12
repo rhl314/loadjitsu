@@ -2,7 +2,9 @@ use chrono::{DateTime, Utc};
 use sqlx::FromRow;
 use sqlx::Row;
 use sqlx::SqlitePool;
+use tauri::api;
 
+use crate::api_service;
 use crate::api_service::api_service::ApiService;
 use crate::database_service::database_service::DatabaseService;
 use crate::document_service::document_service::DocumentService;
@@ -40,6 +42,17 @@ impl DocumentRevision {
             .await?;
 
         Ok(record.is_some())
+    }
+    pub async fn get_latest_document_revision(
+        pool: &SqlitePool,
+    ) -> anyhow::Result<Option<DocumentRevision>> {
+        let document_revision = sqlx::query_as::<_, DocumentRevision>(
+            "SELECT id, value, created_at FROM DocumentRevisions ORDER BY created_at DESC LIMIT 1",
+        )
+        .fetch_optional(pool)
+        .await?;
+
+        Ok(document_revision)
     }
     pub async fn create_or_update_document_revision(
         pool: &SqlitePool,
@@ -108,6 +121,34 @@ impl DocumentRevision {
         RunDocumentFile::register_run_document(&deserialized_run_document, &decoded_document_path)
             .await?;
         Ok(())
+    }
+
+    pub async fn loadRunDocument(encodedPath: &str) -> anyhow::Result<RunDocument> {
+        let decoded_document_path = DocumentService::decode_document_path(encodedPath)?;
+        println!("decoded_document_path: {}", decoded_document_path);
+        let file_exists = FileService::does_file_exists(&decoded_document_path)?;
+        if file_exists == false {
+            return Ok(ApiService::generateNewRunDocument());
+        }
+        DatabaseService::run_migrations(&decoded_document_path)?;
+        println!("ran migrations");
+        let pool = DatabaseService::connection(&decoded_document_path).await?;
+        let latest_document_revision =
+            DocumentRevision::get_latest_document_revision(&pool).await?;
+        if let Some(latest_document_revision) = latest_document_revision {
+            let deserialized_run_document =
+                ApiService::deserialize_run_document(&latest_document_revision.value)?;
+            return Ok(deserialized_run_document);
+        } else {
+            return Ok(ApiService::generateNewRunDocument());
+        }
+    }
+
+    pub async fn loadRunDocumentSerialized(encodedPath: &str) -> anyhow::Result<String> {
+        println!("encodedPath: {}", encodedPath);
+        let run_document = DocumentRevision::loadRunDocument(encodedPath).await?;
+        let serialized_run_document = ApiService::serialize_run_document(&run_document)?;
+        Ok(serialized_run_document)
     }
 }
 

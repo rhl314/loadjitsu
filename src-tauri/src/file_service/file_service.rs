@@ -37,6 +37,14 @@ impl FileService {
         }
     }
 
+    pub fn does_file_exists(file_path: &str) -> Result<bool> {
+        if fs::metadata(file_path).is_ok() {
+            Ok(true)
+        } else {
+            Ok(false)
+        }
+    }
+
     pub fn get_run_documents_file_path() -> anyhow::Result<String> {
         let app_name = FileService::get_app_name();
         let app_dirs = AppDirs::new(Some(app_name.as_str()), false);
