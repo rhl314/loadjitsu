@@ -104,7 +104,7 @@ impl DocumentRevision {
     pub async fn saveSerializedRunDocument(
         encodedPath: &str,
         seralizedRunDocument: &str,
-    ) -> anyhow::Result<()> {
+    ) -> anyhow::Result<String> {
         let decoded_document_path = DocumentService::decode_document_path(encodedPath)?;
         FileService::ensure_file_exists(&decoded_document_path)?;
         DatabaseService::run_migrations(&decoded_document_path)?;
@@ -120,7 +120,7 @@ impl DocumentRevision {
         DocumentRevision::create_or_update_document_revision(&pool, document_revision).await?;
         RunDocumentFile::register_run_document(&deserialized_run_document, &decoded_document_path)
             .await?;
-        Ok(())
+        Ok(id)
     }
 
     pub async fn loadRunDocument(encodedPath: &str) -> anyhow::Result<RunDocument> {

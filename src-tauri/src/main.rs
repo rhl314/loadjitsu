@@ -4,6 +4,7 @@
 extern crate diesel;
 
 use clap::Parser;
+use load_test_service::load_test_service::LoadTestService;
 mod api_service;
 mod database_service;
 mod document_service;
@@ -23,11 +24,13 @@ struct CLIArgs {
     run_document_path: String,
     #[arg(short, long, default_value_t = String::from(""))]
     document_revision_id: String,
+    #[arg(short, long, default_value_t = String::from(""))]
+    unique_id: String,
 }
 
 mod gui;
-
-fn main() {
+#[tokio::main]
+async fn main() {
     let args = CLIArgs::parse();
     let mut v: Vec<types::common::IRunFile> = Vec::new();
     if args.mode == "GUI" {
@@ -40,6 +43,26 @@ fn main() {
         if args.document_revision_id.len() == 0 {
             println!("Please provide document_revision_id");
             std::process::exit(1);
+        }
+
+        if args.unique_id.len() == 0 {
+            println!("Please provide run_unique_id");
+            std::process::exit(1);
+        }
+        let ranOrError = LoadTestService::run_load_test_from_cli_args(
+            args.run_document_path,
+            args.document_revision_id,
+            args.unique_id,
+        )
+        .await;
+        match ranOrError {
+            Ok(ran) => {
+                println!("ran: {:?}", ran);
+            }
+            Err(error) => {
+                println!("error: {:?}", error);
+                std::process::exit(1);
+            }
         }
     } else {
         println!("Invalid mode. Please use CLI or GUI");

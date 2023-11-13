@@ -137,8 +137,14 @@ async fn saveRunDocument(
 ) -> Result<(), String> {
     let savedOrError =
         DocumentRevision::saveSerializedRunDocument(runDocumentPath, runDocumentSerialized).await;
+
     match savedOrError {
-        Ok(ran) => Ok(()),
+        Ok(ran) => {
+            println!("Saved successfully");
+            println!("document_revision_id: {}", ran);
+            println!("encoded_path: {}", runDocumentPath);
+            Ok(())
+        }
         Err(error) => Err(error.to_string()),
     }
 }
