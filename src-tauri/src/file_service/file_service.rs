@@ -2,7 +2,9 @@ use std::f32::consts::E;
 use std::fs;
 use std::fs::File;
 
+use anyhow::anyhow;
 use anyhow::Result;
+use base64::decode;
 use base64::engine::general_purpose;
 use base64::Engine;
 use platform_dirs::AppDirs;
@@ -15,6 +17,15 @@ pub struct FileService;
 impl FileService {
     pub fn get_app_name() -> String {
         return String::from("loadjitsu");
+    }
+    pub fn decode_path(encoded: &str) -> Result<String> {
+        match decode(encoded) {
+            Ok(bytes) => match String::from_utf8(bytes) {
+                Ok(decoded) => Ok(decoded),
+                Err(e) => Err(anyhow!("Failed to convert bytes to string: {}", e)),
+            },
+            Err(e) => Err(anyhow!("Failed to decode base64: {}", e)),
+        }
     }
     pub fn get_temporary_file_path() -> Result<String> {
         let named_temp_file = tempfile::NamedTempFile::new()?;
