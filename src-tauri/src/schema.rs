@@ -28,8 +28,21 @@ diesel::table! {
     }
 }
 
+diesel::table! {
+    RunResponseDocuments (unique_id) {
+        unique_id -> Nullable<Text>,
+        status -> Nullable<Text>,
+        timeMs -> Nullable<BigInt>,
+        latencyMs -> Nullable<BigInt>,
+        stepUniqueId -> Nullable<Text>,
+        error -> Nullable<Text>,
+        statusCode -> Nullable<BigInt>,
+    }
+}
+
 diesel::allow_tables_to_appear_in_same_query!(
     DocumentMeta,
     DocumentRevisions,
     RunDocumentFiles,
+    RunResponseDocuments,
 );
