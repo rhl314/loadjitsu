@@ -2,10 +2,12 @@ use base64;
 use base64::{engine::general_purpose, Engine as _};
 use prost::Message;
 use reqwest::header::{HeaderMap, HeaderValue};
+use sqlx::SqlitePool;
 use std::{f64::consts::E, io::Cursor, time::Instant};
 use uuid::Uuid;
 
 use crate::database_service::database_service::DatabaseService;
+use crate::models::RunResponseDocument;
 use crate::protos::ipc::{RunConfiguration, RunDocument, RunShape, RunType};
 use crate::protos::{
     self,
@@ -108,6 +110,27 @@ impl ApiService {
             configuration: Some(self::ApiService::generateRunConfiguration()),
             api_steps: Vec::new(),
         }
+    }
+
+    pub async fn run_and_record_response(
+        api_step: &ApiStep,
+        run_unique_id: &str,
+        run_document_path: &str,
+        pool: &SqlitePool,
+    ) {
+        let ran = ApiService::run(api_step).await.unwrap();
+        let run_response_document = RunResponseDocument {
+            unique_id: String::from(&ran.unique_id),
+            status: ran.status().as_str_name().to_string(),
+            timeMs: ran.time,
+            latencyMs: ran.latency,
+            stepUniqueId: ran.step_unique_id,
+            error: ran.error,
+            statusCode: ran.status_code,
+        };
+        RunResponseDocument::insert(run_response_document, pool)
+            .await
+            .unwrap();
     }
 
     pub async fn run(api_step: &ApiStep) -> Result<RunResponse, Box<dyn std::error::Error>> {
