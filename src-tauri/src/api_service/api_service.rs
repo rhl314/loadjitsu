@@ -3,6 +3,7 @@ use base64::{engine::general_purpose, Engine as _};
 use prost::Message;
 use reqwest::header::{HeaderMap, HeaderValue};
 use sqlx::SqlitePool;
+use std::time::Duration;
 use std::{f64::consts::E, io::Cursor, time::Instant};
 use uuid::Uuid;
 
@@ -128,6 +129,7 @@ impl ApiService {
             error: ran.error,
             statusCode: ran.status_code,
         };
+        dbg!(&run_response_document);
         RunResponseDocument::insert(run_response_document, pool)
             .await
             .unwrap();
@@ -204,7 +206,9 @@ impl ApiService {
             }
         }
 
-        request_builder = request_builder.headers(headers);
+        request_builder = request_builder
+            .headers(headers)
+            .timeout(Duration::from_millis(api_step.timeout_in_ms as u64));
 
         if api_step.auth_type() == protos::ipc::HttpAuthType::BasicAuth {
             if let Some(auth_basic) = &api_step.auth_basic {

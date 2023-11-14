@@ -1,6 +1,6 @@
 use sqlx::sqlite::{SqlitePool, SqliteQueryResult};
 use sqlx::Error;
-
+#[derive(Debug)]
 pub struct RunResponseDocument {
     pub unique_id: String,
     pub status: String,
