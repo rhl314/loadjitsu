@@ -4,11 +4,34 @@ use crate::models::DocumentRevision;
 use crate::{file_service::file_service::FileService, protos::ipc::RunDocument};
 use anyhow::anyhow;
 use reqwest::Client;
+use std::env;
+use std::io;
+use std::process::{Child, Command};
 use std::time::Duration;
 use tokio::time::{sleep, timeout};
 
 pub struct LoadTestService;
 impl LoadTestService {
+    pub async fn run_load_test_in_background(
+        document_revision_id: String,
+        run_document_path: String,
+        run_unique_id: String,
+    ) -> anyhow::Result<String> {
+        let current_exe = env::current_exe()?.to_str().unwrap().to_string();
+        let mut child = Command::new(current_exe)
+            .arg("--mode")
+            .arg("CLI")
+            .arg("--document-revision-id")
+            .arg(document_revision_id)
+            .arg("--run-document-path")
+            .arg(run_document_path)
+            .arg("--unique-id")
+            .arg(run_unique_id)
+            .spawn()?;
+        let child_id = child.id();
+        Ok(child_id.to_string())
+    }
+
     pub async fn run_load_test(
         run_document: RunDocument,
         run_document_path: String,
@@ -72,10 +95,10 @@ impl LoadTestService {
         }
         DatabaseService::run_migrations(&decoded_run_document_path)?;
         let pool = DatabaseService::connection(&decoded_run_document_path).await?;
-        let latest_document_revision =
-            DocumentRevision::get_latest_document_revision(&pool).await?;
+        let document_revision =
+            DocumentRevision::get_document_revision_by_id(&pool, &document_revision_id).await?;
 
-        if let Some(latest_document_revision) = latest_document_revision {
+        if let Some(latest_document_revision) = document_revision {
             let value = latest_document_revision.value;
             let run_document = ApiService::deserialize_run_document(&value)?;
             return LoadTestService::run_load_test(

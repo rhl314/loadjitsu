@@ -1930,6 +1930,7 @@ dependencies = [
  "tauri",
  "tauri-build",
  "tempfile",
+ "thiserror",
  "tokio",
  "ureq",
  "uuid",

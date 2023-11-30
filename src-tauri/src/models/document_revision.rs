@@ -21,7 +21,7 @@ pub struct DocumentRevision {
 }
 
 impl DocumentRevision {
-    async fn get_document_revision_by_id(
+    pub async fn get_document_revision_by_id(
         pool: &SqlitePool,
         id: &str,
     ) -> anyhow::Result<Option<DocumentRevision>> {
