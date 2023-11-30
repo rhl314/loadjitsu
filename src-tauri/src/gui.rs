@@ -157,8 +157,16 @@ async fn loadRunDocument(runDocumentPath: &str) -> Result<String, String> {
         Err(error) => Err(error.to_string()),
     }
 }
-pub fn spawnUi() {
+
+struct AppState {
+    current_exe_signature: String,
+}
+pub fn spawnUi(current_exe_signature: String) {
+    let state = AppState {
+        current_exe_signature: current_exe_signature.clone(),
+    };
     tauri::Builder::default()
+        .manage(state)
         .invoke_handler(tauri::generate_handler![
             getRecentRuns,
             greet,

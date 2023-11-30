@@ -10,6 +10,9 @@ use base64::Engine;
 use platform_dirs::AppDirs;
 use sha2::Digest;
 use sha2::Sha256;
+use std::env;
+
+use std::io::{self, Read};
 use uuid::Uuid;
 
 pub struct FileService;
@@ -89,5 +92,31 @@ impl FileService {
         // Convert the hash to a hex string
         let hex_string = format!("{:x}", result);
         Ok(hex_string)
+    }
+    pub fn current_exe_signature() -> anyhow::Result<String> {
+        // Get the path to the current executable
+        let exe_path = env::current_exe()?;
+
+        // Open the file
+        let mut file = File::open(exe_path)?;
+
+        // Create a SHA256 object
+        let mut hasher = Sha256::new();
+
+        // Read the file and update the hasher
+        let mut buffer = [0; 1024]; // Buffer to read chunks of the file
+        loop {
+            let count = file.read(&mut buffer)?;
+            if count == 0 {
+                break;
+            }
+            hasher.update(&buffer[..count]);
+        }
+
+        // Calculate the checksum
+        let result = hasher.finalize();
+
+        // Convert the hash to a hexadecimal string
+        Ok(format!("{:x}", result))
     }
 }

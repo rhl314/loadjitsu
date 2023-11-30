@@ -3,7 +3,10 @@
 #[macro_use]
 extern crate diesel;
 
+use std::env::current_exe;
+
 use clap::Parser;
+use file_service::file_service::FileService;
 use load_test_service::load_test_service::LoadTestService;
 mod api_service;
 mod database_service;
@@ -33,8 +36,10 @@ mod gui;
 async fn main() {
     let args = CLIArgs::parse();
     let mut v: Vec<types::common::IRunFile> = Vec::new();
+    let current_exe_signature = FileService::current_exe_signature().unwrap();
+    println!("current_exe_signature: {}", current_exe_signature);
     if args.mode == "GUI" {
-        gui::spawnUi()
+        gui::spawnUi(current_exe_signature)
     } else if args.mode == "CLI" {
         if args.run_document_path.len() == 0 {
             println!("Please provide run_document_path");
