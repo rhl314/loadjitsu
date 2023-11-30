@@ -12,7 +12,7 @@ use serde::{Deserialize, Serialize};
 use crate::api_service::api_service::ApiService;
 use crate::document_service::document_service::DocumentService;
 use crate::load_test_service::load_test_service::LoadTestService;
-use crate::models::{DocumentRevision, RunDocumentFile};
+use crate::models::{DocumentRevision, Run, RunDocumentFile};
 use crate::protos::ipc::{ApiStep, HttpAction, RunResponse, RunStatus};
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -135,7 +135,7 @@ async fn saveRunDocument(
     runDocumentSerialized: &str,
     runDocumentPath: &str,
     execute: &str,
-) -> Result<String, String> {
+) -> Result<Run, String> {
     let savedOrError =
         DocumentRevision::saveSerializedRunDocument(runDocumentPath, runDocumentSerialized).await;
 
@@ -147,11 +147,10 @@ async fn saveRunDocument(
             let ran_or_error = LoadTestService::run_load_test_in_background(
                 document_revision_id,
                 runDocumentPath.to_string(),
-                "run_unique_id".to_string(),
             )
             .await;
             match ran_or_error {
-                Ok(child_pid) => Ok(child_pid),
+                Ok(run) => Ok(run),
                 Err(error) => Err(error.to_string()),
             }
         }
