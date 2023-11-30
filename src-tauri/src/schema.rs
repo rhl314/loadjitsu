@@ -20,6 +20,17 @@ diesel::table! {
 }
 
 diesel::table! {
+    Run (id) {
+        id -> Text,
+        document_revision_id -> Text,
+        pid -> Nullable<Text>,
+        status -> Text,
+        started_at -> Nullable<Timestamp>,
+        completed_at -> Nullable<Timestamp>,
+    }
+}
+
+diesel::table! {
     RunDocumentFiles (id) {
         id -> Nullable<Text>,
         path -> Text,
@@ -43,6 +54,7 @@ diesel::table! {
 diesel::allow_tables_to_appear_in_same_query!(
     DocumentMeta,
     DocumentRevisions,
+    Run,
     RunDocumentFiles,
     RunResponseDocuments,
 );
