@@ -1,13 +1,12 @@
-import axios, { AxiosInstance, AxiosStatic } from "axios";
-import _, { result } from "lodash";
-import internal from "stream";
+import { invoke } from "@tauri-apps/api/tauri";
+import axios, { AxiosInstance } from "axios";
+import _ from "lodash";
 import { Result } from "../frontend_util/common/Result";
-import { RunDocument } from "../frontend_util/ipc/run_document";
-import { IBootApiResponse } from "./IBootApiResponse";
 import { ApiStep } from "../frontend_util/ipc/api";
+import { RunDocument } from "../frontend_util/ipc/run_document";
 import { RunResponse } from "../frontend_util/ipc/run_response";
 import { AppUtil } from "./AppUtil";
-import { invoke } from "@tauri-apps/api/tauri";
+import { IBootApiResponse } from "./IBootApiResponse";
 export interface ICreateAdminUserRequest {
   handle: string;
   password: string;
@@ -66,11 +65,8 @@ export interface IGetLicenseApiResponse {
   buildVersion: string;
 }
 
-export interface IExecution {
-  UniqueId: string;
-  DocumentUniqueId: string;
-  RunDocument: string;
-  CreatedAt: string;
+export interface IRun {
+  id: string;
 }
 
 export class ApiClient {
@@ -103,16 +99,19 @@ export class ApiClient {
     return response.data as IGetLicenseApiResponse;
   }
 
-  public async getExecutions(uniqueId: string): Promise<Result<IExecution[]>> {
+  public async getRuns(args: {
+    runDocumentPath: string;
+  }): Promise<Result<IRun[]>> {
     try {
-      const response = await this.client().get(
-        `${this.apiHost}/api/v1/private/getExecutionsForDocument/${uniqueId}`
-      );
-      return Result.ok<IExecution[]>(
-        response.data?.executionDocuments || ([] as IExecution[])
-      );
+      console.log("Getting runs");
+      const response = (await invoke("getAllRuns", {
+        runDocumentPath: args.runDocumentPath,
+      })) as IRun[];
+      console.log(response);
+      return Result.ok<IRun[]>(response);
     } catch (err: any) {
-      return Result.fail<IExecution[]>({
+      console.error(err);
+      return Result.fail<IRun[]>({
         code: "INTERNAL_SERVER_ERROR",
         message: "Please try again",
       });

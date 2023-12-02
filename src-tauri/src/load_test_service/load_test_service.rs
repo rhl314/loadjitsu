@@ -8,6 +8,7 @@ use anyhow::anyhow;
 use reqwest::Client;
 use std::env;
 use std::io;
+use std::process;
 use std::process::{Child, Command};
 use std::time::Duration;
 use tokio::time::{sleep, timeout};
@@ -89,6 +90,11 @@ impl LoadTestService {
         for handle in handles {
             let _ = handle.await;
         }
+        let pool = DatabaseService::connection(&run_document_path).await?;
+
+        let pid = process::id().to_string();
+        println!("pid: {}", pid);
+        Run::complete_run(&pool, pid).await?;
         Ok(())
     }
     pub async fn run_load_test_from_cli_args(

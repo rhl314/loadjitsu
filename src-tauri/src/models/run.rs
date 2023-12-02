@@ -1,7 +1,10 @@
-use serde::{Deserialize, Serialize};
+use serde::{de, Deserialize, Serialize};
 use sqlx::sqlite::{SqlitePool, SqliteQueryResult};
 use sqlx::FromRow;
 use uuid::Uuid;
+
+use crate::database_service::database_service::DatabaseService;
+use crate::file_service::file_service::FileService;
 #[derive(Debug, FromRow, Serialize, Deserialize)]
 pub struct Run {
     pub id: String,
@@ -49,6 +52,27 @@ impl Run {
         .bind(&run.id);
         query.execute(pool).await?;
         Ok(())
+    }
+
+    pub async fn complete_run(pool: &SqlitePool, pid: String) -> anyhow::Result<()> {
+        println!("Completing run with pid: {}", pid);
+        let query = sqlx::query(
+            "UPDATE Run SET status = 'COMPLETED', completed_at = datetime('now') WHERE pid = $1",
+        )
+        .bind(pid);
+        query.execute(pool).await?;
+        Ok(())
+    }
+
+    pub async fn get_all_runs(encoded_document_path: &str) -> anyhow::Result<Vec<Run>> {
+        let decoded_document_path = FileService::decode_path(encoded_document_path)?;
+        let pool = DatabaseService::connection(decoded_document_path.as_str()).await?;
+        let runs = sqlx::query_as::<_, Run>(
+            "SELECT id, document_revision_id, pid, status, started_at, completed_at FROM Run",
+        )
+        .fetch_all(&pool)
+        .await?;
+        Ok(runs)
     }
 }
 

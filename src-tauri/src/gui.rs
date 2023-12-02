@@ -10,6 +10,7 @@ use ureq::{Agent, AgentBuilder};
 use serde::{Deserialize, Serialize};
 
 use crate::api_service::api_service::ApiService;
+use crate::database_service::database_service::DatabaseService;
 use crate::document_service::document_service::DocumentService;
 use crate::load_test_service::load_test_service::LoadTestService;
 use crate::models::{DocumentRevision, Run, RunDocumentFile};
@@ -166,6 +167,14 @@ async fn loadRunDocument(runDocumentPath: &str) -> Result<String, String> {
         Err(error) => Err(error.to_string()),
     }
 }
+#[tauri::command]
+async fn getAllRuns(runDocumentPath: &str) -> Result<Vec<Run>, String> {
+    let runs_or_error = Run::get_all_runs(runDocumentPath).await;
+    match runs_or_error {
+        Ok(ran) => Ok(ran),
+        Err(error) => Err(error.to_string()),
+    }
+}
 
 struct AppState {
     current_exe_signature: String,
@@ -182,7 +191,8 @@ pub fn spawnUi(current_exe_signature: String) {
             runApiStepOnce,
             getTemporaryDocumentPath,
             saveRunDocument,
-            loadRunDocument
+            loadRunDocument,
+            getAllRuns
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

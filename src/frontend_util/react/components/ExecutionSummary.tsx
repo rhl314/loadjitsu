@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import TimeAgo from "react-time-ago";
 import {
   ApiClient,
-  IExecution,
+  IRun,
   IResponseTimes,
   IResultStatus,
   IStatusGroup,
@@ -15,7 +15,7 @@ import Chart from "./ChartThumb";
 
 JSTimeAgo.addDefaultLocale(en);
 
-export default function ExecutionSummary(props: { execution: IExecution }) {
+export default function ExecutionSummary(props: { execution: IRun }) {
   const document = RunDocument.decode(
     Buffer.from(props.execution.RunDocument, "base64")
   );
@@ -39,7 +39,7 @@ export default function ExecutionSummary(props: { execution: IExecution }) {
     const apiClient = new ApiClient();
     const executionResultOrError = await apiClient.getResults(
       props.execution.DocumentUniqueId,
-      props.execution.UniqueId
+      props.execution.id
     );
     if (executionResultOrError.isFailure) {
       setState("ERROR");

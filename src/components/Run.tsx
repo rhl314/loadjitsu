@@ -12,7 +12,7 @@ import {
   RunDocumentAppContext,
   runDocumentReducer,
 } from "../frontend_util/react/RunDocumentContext";
-import Executions from "../frontend_util/react/components/Executions";
+import Runs from "../frontend_util/react/components/Runs";
 import TopNav from "../frontend_util/react/components/TopNav";
 import ApiSteps from "../frontend_util/react/components/run_document/ApiSteps";
 import RunNavigation from "../frontend_util/react/components/run_document/RunNavigation";
@@ -79,8 +79,10 @@ const Run = (args: { documentPath: string }) => {
             <RunSettings />
             {steps()}
           </div>
+          <div>
+            <Runs />
+          </div>
         </RunDocumentAppContext.Provider>
-        <Executions />
       </>
     );
   };

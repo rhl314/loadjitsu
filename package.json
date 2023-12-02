@@ -26,6 +26,7 @@
     "react-dom": "^18.2.0",
     "react-router-dom": "^6.17.0",
     "react-time-ago": "^7.2.1",
+    "recharts": "^2.10.3",
     "shortid": "^2.2.16",
     "ts-proto": "^1.162.2",
     "valid-url": "^1.0.9"
