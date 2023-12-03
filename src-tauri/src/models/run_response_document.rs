@@ -3,6 +3,7 @@ use sqlx::Error;
 #[derive(Debug)]
 pub struct RunResponseDocument {
     pub unique_id: String,
+    pub run_unique_id: String,
     pub status: String,
     pub timeMs: u64,
     pub latencyMs: u64,
@@ -18,8 +19,9 @@ impl RunResponseDocument {
         pool: &SqlitePool,
     ) -> anyhow::Result<()> {
         sqlx::query(
-            "INSERT INTO RunResponseDocuments (unique_id, status, timeMs, latencyMs, stepUniqueId, error, statusCode, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)")
+            "INSERT INTO RunResponseDocuments (unique_id, run_unique_id, status, timeMs, latencyMs, stepUniqueId, error, statusCode, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
             .bind(run_response_document.unique_id)
+            .bind(run_response_document.run_unique_id)
             .bind(run_response_document.status)
             .bind(run_response_document.timeMs as i64)
             .bind(run_response_document.latencyMs as i64)
@@ -27,7 +29,6 @@ impl RunResponseDocument {
             .bind(run_response_document.error)
             .bind(run_response_document.statusCode as i64)
             .bind(run_response_document.created_at)
-
             .execute(pool).await?;
         Ok(())
     }
@@ -44,6 +45,7 @@ mod tests {
     async fn it_should_save_run_response_document_correctly() {
         let run_response_document = RunResponseDocument {
             unique_id: String::from("uniqueid"),
+            run_unique_id: String::from("run_uniqueid"),
             status: String::from("OK"),
             timeMs: 0,
             latencyMs: 0,

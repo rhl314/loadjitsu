@@ -42,6 +42,7 @@ diesel::table! {
 diesel::table! {
     RunResponseDocuments (unique_id) {
         unique_id -> Nullable<Text>,
+        run_unique_id -> Text,
         status -> Nullable<Text>,
         timeMs -> Nullable<BigInt>,
         latencyMs -> Nullable<BigInt>,

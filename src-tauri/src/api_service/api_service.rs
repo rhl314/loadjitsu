@@ -122,6 +122,7 @@ impl ApiService {
         let ran = ApiService::run(api_step).await.unwrap();
         let run_response_document = RunResponseDocument {
             unique_id: String::from(&ran.unique_id),
+            run_unique_id: run_unique_id.to_string(),
             status: ran.status().as_str_name().to_string(),
             timeMs: ran.time,
             latencyMs: ran.latency,

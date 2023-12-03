@@ -1,6 +1,7 @@
 -- Your SQL goes here
 CREATE TABLE RunResponseDocuments (
     unique_id TEXT PRIMARY KEY,
+    run_unique_id TEXT NOT NULL,
     status TEXT,
     timeMs UNSIGNED BIG INT,
     latencyMs UNSIGNED BIG INT,
