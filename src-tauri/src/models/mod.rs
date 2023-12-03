@@ -6,6 +6,6 @@ pub mod run_response_document;
 
 pub use document_meta::DocumentMeta;
 pub use document_revision::DocumentRevision;
-pub use run::Run;
+pub use run::Execution;
 pub use run_document_file::RunDocumentFile;
 pub use run_response_document::RunResponseDocument;

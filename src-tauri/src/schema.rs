@@ -20,7 +20,7 @@ diesel::table! {
 }
 
 diesel::table! {
-    Run (id) {
+    Execution (id) {
         id -> Text,
         document_revision_id -> Text,
         pid -> Nullable<Text>,
@@ -48,13 +48,14 @@ diesel::table! {
         stepUniqueId -> Nullable<Text>,
         error -> Nullable<Text>,
         statusCode -> Nullable<BigInt>,
+        created_at -> Timestamp,
     }
 }
 
 diesel::allow_tables_to_appear_in_same_query!(
     DocumentMeta,
     DocumentRevisions,
-    Run,
+    Execution,
     RunDocumentFiles,
     RunResponseDocuments,
 );

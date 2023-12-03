@@ -13,7 +13,7 @@ use crate::api_service::api_service::ApiService;
 use crate::database_service::database_service::DatabaseService;
 use crate::document_service::document_service::DocumentService;
 use crate::load_test_service::load_test_service::LoadTestService;
-use crate::models::{DocumentRevision, Run, RunDocumentFile};
+use crate::models::{DocumentRevision, Execution, RunDocumentFile};
 use crate::protos::ipc::{ApiStep, HttpAction, RunResponse, RunStatus};
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -136,7 +136,7 @@ async fn saveRunDocument(
     runDocumentSerialized: &str,
     runDocumentPath: &str,
     execute: &str,
-) -> Result<Run, String> {
+) -> Result<Execution, String> {
     let savedOrError =
         DocumentRevision::saveSerializedRunDocument(runDocumentPath, runDocumentSerialized).await;
 
@@ -168,8 +168,8 @@ async fn loadRunDocument(runDocumentPath: &str) -> Result<String, String> {
     }
 }
 #[tauri::command]
-async fn getAllRuns(runDocumentPath: &str) -> Result<Vec<Run>, String> {
-    let runs_or_error = Run::get_all_runs(runDocumentPath).await;
+async fn getExecutions(runDocumentPath: &str) -> Result<Vec<Execution>, String> {
+    let runs_or_error = Execution::get_all_executions(runDocumentPath).await;
     match runs_or_error {
         Ok(ran) => Ok(ran),
         Err(error) => Err(error.to_string()),
@@ -192,7 +192,7 @@ pub fn spawnUi(current_exe_signature: String) {
             getTemporaryDocumentPath,
             saveRunDocument,
             loadRunDocument,
-            getAllRuns
+            getExecutions
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

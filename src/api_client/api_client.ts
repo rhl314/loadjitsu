@@ -99,12 +99,12 @@ export class ApiClient {
     return response.data as IGetLicenseApiResponse;
   }
 
-  public async getRuns(args: {
+  public async getExecutions(args: {
     runDocumentPath: string;
   }): Promise<Result<IRun[]>> {
     try {
       console.log("Getting runs");
-      const response = (await invoke("getAllRuns", {
+      const response = (await invoke("getExecutions", {
         runDocumentPath: args.runDocumentPath,
       })) as IRun[];
       console.log(response);

@@ -4,15 +4,17 @@ import { ApiClient, IRun } from "../../../api_client/api_client";
 import ExecutionSummary from "./ExecutionSummary";
 import { RunDocumentAppContext } from "../RunDocumentContext";
 import ThumbnailChart from "./ThumbnailChart";
+import { useNavigate } from "react-router-dom";
 
 export default function Runs() {
+  const navigate = useNavigate();
   const runDocumentAppContext = useContext(RunDocumentAppContext);
   const [executions, setExecutions] = useState<IRun[]>([]);
   const [state, setState] = useState("IDLE");
   const loadExecutions = async () => {
     const apiClient = new ApiClient();
 
-    const executionsOrError = await apiClient.getRuns({
+    const executionsOrError = await apiClient.getExecutions({
       runDocumentPath: runDocumentAppContext.state.runDocumentPath as string,
     });
     if (executionsOrError.isFailure) {
@@ -30,7 +32,14 @@ export default function Runs() {
     return executions.map((execution) => {
       // return <ExecutionSummary key={execution.id} execution={execution} />;
       return (
-        <tr style={{ border: "none" }}>
+        <tr
+          style={{ border: "none" }}
+          onClick={() => {
+            navigate(
+              `/runs/api/${runDocumentAppContext.state.runDocumentPath}/executions/${execution.id}`
+            );
+          }}
+        >
           <td>http://localhost:3000</td>
           <td>30 rps for 10 seconds</td>
           <td>A few minutes ago</td>

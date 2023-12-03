@@ -1,5 +1,5 @@
 -- Your SQL goes here
-CREATE TABLE Run (
+CREATE TABLE Execution (
     id VARCHAR(512) NOT NULL PRIMARY KEY,
     document_revision_id VARCHAR NOT NULL,
     pid VARCHAR,

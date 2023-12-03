@@ -5,6 +5,7 @@ import Home from "./pages/Home";
 import NewRun from "./pages/NewRun";
 import Root from "./Root";
 import "./styles.css";
+import Execution from "./pages/Execution";
 const router = createBrowserRouter([
   {
     path: "/",
@@ -17,6 +18,10 @@ const router = createBrowserRouter([
   {
     path: "/runs/api/:documentPath",
     element: <NewRun />,
+  },
+  {
+    path: "/runs/api/:documentPath/executions/:executionId",
+    element: <Execution />,
   },
 ]);
 

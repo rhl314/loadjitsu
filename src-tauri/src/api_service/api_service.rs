@@ -128,6 +128,7 @@ impl ApiService {
             stepUniqueId: ran.step_unique_id,
             error: ran.error,
             statusCode: ran.status_code,
+            created_at: chrono::Utc::now().to_rfc3339(),
         };
         dbg!(&run_response_document);
         RunResponseDocument::insert(run_response_document, pool)

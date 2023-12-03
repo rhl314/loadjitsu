@@ -6,7 +6,8 @@ CREATE TABLE RunResponseDocuments (
     latencyMs UNSIGNED BIG INT,
     stepUniqueId TEXT,
     error TEXT,
-    statusCode UNSIGNED BIG INT
+    statusCode UNSIGNED BIG INT,
+    created_at DATETIME NOT NULL
 );
 
 CREATE INDEX index_status ON RunResponseDocuments(status);

@@ -2,7 +2,7 @@ use crate::api_service::api_service::ApiService;
 use crate::database_service::database_service::DatabaseService;
 use crate::document_service::document_service::DocumentService;
 use crate::models::DocumentRevision;
-use crate::models::Run;
+use crate::models::Execution;
 use crate::{file_service::file_service::FileService, protos::ipc::RunDocument};
 use anyhow::anyhow;
 use reqwest::Client;
@@ -18,11 +18,11 @@ impl LoadTestService {
     pub async fn run_load_test_in_background(
         document_revision_id: String,
         run_document_path: String,
-    ) -> anyhow::Result<Run> {
+    ) -> anyhow::Result<Execution> {
         let current_exe: String = env::current_exe()?.to_str().unwrap().to_string();
         let decoded_document_path = DocumentService::decode_document_path(&run_document_path)?;
         let pool = DatabaseService::connection(&decoded_document_path).await?;
-        let mut run = Run::create_new_run(&pool, document_revision_id.clone()).await?;
+        let mut run = Execution::create_new_execution(&pool, document_revision_id.clone()).await?;
         let mut child = Command::new(current_exe)
             .arg("--mode")
             .arg("CLI")
@@ -37,7 +37,7 @@ impl LoadTestService {
         run.pid = Some(child_id.to_string());
         run.started_at = Some(chrono::Utc::now().to_rfc3339());
         run.status = "RUNNING".to_string();
-        Run::update_run(&pool, &run).await?;
+        Execution::update_execution(&pool, &run).await?;
         Ok(run)
     }
 
@@ -94,7 +94,7 @@ impl LoadTestService {
 
         let pid = process::id().to_string();
         println!("pid: {}", pid);
-        Run::complete_run(&pool, pid).await?;
+        Execution::complete_execution(&pool, pid).await?;
         Ok(())
     }
     pub async fn run_load_test_from_cli_args(
