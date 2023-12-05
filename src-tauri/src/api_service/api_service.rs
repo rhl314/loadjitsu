@@ -8,6 +8,8 @@ use std::{f64::consts::E, io::Cursor, time::Instant};
 use uuid::Uuid;
 
 use crate::database_service::database_service::DatabaseService;
+use crate::file_service::file_service::FileService;
+use crate::models::run_response_document::ExecutionStatusCount;
 use crate::models::RunResponseDocument;
 use crate::protos::ipc::{RunConfiguration, RunDocument, RunShape, RunType};
 use crate::protos::{
@@ -111,6 +113,17 @@ impl ApiService {
             configuration: Some(self::ApiService::generateRunConfiguration()),
             api_steps: Vec::new(),
         }
+    }
+
+    pub async fn get_execution_results(
+        run_unique_id: &str,
+        run_document_path: &str,
+    ) -> anyhow::Result<Vec<ExecutionStatusCount>> {
+        let decoded_document_path = FileService::decode_path(run_document_path)?;
+        let pool = DatabaseService::connection(decoded_document_path.as_str()).await?;
+        let aggregated_results =
+            RunResponseDocument::get_execution_results(run_unique_id, &pool).await?;
+        Ok(aggregated_results)
     }
 
     pub async fn run_and_record_response(

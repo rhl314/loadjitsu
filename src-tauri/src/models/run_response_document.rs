@@ -1,5 +1,8 @@
+use serde::Serialize;
 use sqlx::sqlite::{SqlitePool, SqliteQueryResult};
-use sqlx::Error;
+use sqlx::{Error, FromRow};
+
+use crate::schema::RunResponseDocuments::run_unique_id;
 #[derive(Debug)]
 pub struct RunResponseDocument {
     pub unique_id: String,
@@ -11,6 +14,13 @@ pub struct RunResponseDocument {
     pub error: String,
     pub statusCode: u64,
     pub created_at: String,
+}
+
+#[derive(Debug, FromRow, Serialize, serde::Deserialize)]
+pub struct ExecutionStatusCount {
+    pub status: String,
+    pub created_at: i64, // Unix timestamp in seconds
+    pub count: i64,
 }
 
 impl RunResponseDocument {
@@ -31,6 +41,35 @@ impl RunResponseDocument {
             .bind(run_response_document.created_at)
             .execute(pool).await?;
         Ok(())
+    }
+
+    pub async fn get_execution_results(
+        filter_run_unique_id: &str,
+        pool: &SqlitePool,
+    ) -> Result<Vec<ExecutionStatusCount>, sqlx::Error> {
+        let aggregated_results = sqlx::query_as::<_, ExecutionStatusCount>(
+            r#"
+        SELECT 
+            status,
+            strftime('%s', created_at) as "created_at!: i64",
+            COUNT(*) as "count!: i64"
+        FROM 
+            RunResponseDocuments
+        WHERE
+            created_at IS NOT NULL
+            and
+            run_unique_id = ?
+        GROUP BY 
+            status, created_at
+        ORDER BY 
+            created_at ASC
+        "#,
+        )
+        .bind(&filter_run_unique_id)
+        .fetch_all(pool)
+        .await?;
+
+        Ok(aggregated_results)
     }
 }
 
