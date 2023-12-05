@@ -1,5 +1,5 @@
 -- Your SQL goes here
-CREATE TABLE Execution (
+CREATE TABLE ExecutionDocuments (
     id VARCHAR(512) NOT NULL PRIMARY KEY,
     document_revision_id VARCHAR NOT NULL,
     pid VARCHAR,

@@ -13,8 +13,8 @@ use crate::api_service::api_service::ApiService;
 use crate::database_service::database_service::DatabaseService;
 use crate::document_service::document_service::DocumentService;
 use crate::load_test_service::load_test_service::LoadTestService;
-use crate::models::run_response_document::ExecutionStatusCount;
-use crate::models::{DocumentRevision, Execution, RunDocumentFile};
+use crate::models::execution::ExecutionStatusCount;
+use crate::models::{DocumentRevision, ExecutionDocument, RunDocumentFile};
 use crate::protos::ipc::{ApiStep, HttpAction, RunResponse, RunStatus};
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -137,7 +137,7 @@ async fn saveRunDocument(
     runDocumentSerialized: &str,
     runDocumentPath: &str,
     execute: &str,
-) -> Result<Execution, String> {
+) -> Result<ExecutionDocument, String> {
     let savedOrError =
         DocumentRevision::saveSerializedRunDocument(runDocumentPath, runDocumentSerialized).await;
 
@@ -169,8 +169,8 @@ async fn loadRunDocument(runDocumentPath: &str) -> Result<String, String> {
     }
 }
 #[tauri::command]
-async fn getExecutions(runDocumentPath: &str) -> Result<Vec<Execution>, String> {
-    let runs_or_error = Execution::get_all_executions(runDocumentPath).await;
+async fn getExecutions(runDocumentPath: &str) -> Result<Vec<ExecutionDocument>, String> {
+    let runs_or_error = ExecutionDocument::get_all_execution_documents(runDocumentPath).await;
     match runs_or_error {
         Ok(ran) => Ok(ran),
         Err(error) => Err(error.to_string()),
@@ -180,9 +180,10 @@ async fn getExecutions(runDocumentPath: &str) -> Result<Vec<Execution>, String> 
 #[tauri::command]
 async fn getExecutionResults(
     runDocumentPath: &str,
-    runUniqueId: &str,
+    executionDocumentId: &str,
 ) -> Result<Vec<ExecutionStatusCount>, String> {
-    let runs_or_error = ApiService::get_execution_results(runUniqueId, runDocumentPath).await;
+    let runs_or_error =
+        ApiService::get_execution_results(executionDocumentId, runDocumentPath).await;
     match runs_or_error {
         Ok(ran) => Ok(ran),
         Err(error) => Err(error.to_string()),
@@ -205,7 +206,8 @@ pub fn spawnUi(current_exe_signature: String) {
             getTemporaryDocumentPath,
             saveRunDocument,
             loadRunDocument,
-            getExecutions
+            getExecutions,
+            getExecutionResults
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

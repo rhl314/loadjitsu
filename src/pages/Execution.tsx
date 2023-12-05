@@ -1,8 +1,50 @@
 import { useParams } from "react-router-dom";
 import ExecutionGraph from "../frontend_util/react/components/run_document/ExecutionGraph";
+import { useEffect, useReducer } from "react";
+import {
+  INITIAL_EXECUTION_APP_STATE,
+  executionReducer,
+} from "../frontend_util/react/ExecutionContext";
+import { ApiClient } from "../api_client/api_client";
 
 const Execution = () => {
   let { documentPath, executionId } = useParams();
+  const [executionAppState, dispatch] = useReducer(executionReducer, {
+    ...INITIAL_EXECUTION_APP_STATE,
+    runDocumentPath: documentPath as string,
+    executionId: executionId as string,
+  });
+  const loadExecution = async () => {
+    try {
+      const apiClient = new ApiClient();
+      const executionStatusCountsOrError = await apiClient.getExecutionResults({
+        runDocumentPath: documentPath as string,
+        executionDocumentId: executionId as string,
+      });
+      if (executionStatusCountsOrError.isFailure) {
+        return dispatch({
+          state: "ERROR",
+        });
+      }
+      const executionStatusCounts = executionStatusCountsOrError.getValue();
+      console.log({ executionStatusCounts });
+
+      dispatch({
+        executionStatusCounts,
+        state: "READY",
+      });
+    } catch (err) {
+      if (err === "DOCUMENT_NOT_FOUND") {
+        return;
+      }
+      return dispatch({
+        state: "ERROR",
+      });
+    }
+  };
+  useEffect(() => {
+    loadExecution();
+  }, []);
   return (
     <>
       <div className="bg-primary py-8">

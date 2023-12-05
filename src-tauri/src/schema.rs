@@ -20,13 +20,27 @@ diesel::table! {
 }
 
 diesel::table! {
-    Execution (id) {
+    ExecutionDocuments (id) {
         id -> Text,
         document_revision_id -> Text,
         pid -> Nullable<Text>,
         status -> Text,
         started_at -> Nullable<Timestamp>,
         completed_at -> Nullable<Timestamp>,
+    }
+}
+
+diesel::table! {
+    Executions (unique_id) {
+        unique_id -> Nullable<Text>,
+        execution_document_id -> Text,
+        status -> Nullable<Text>,
+        timeMs -> Nullable<BigInt>,
+        latencyMs -> Nullable<BigInt>,
+        stepUniqueId -> Nullable<Text>,
+        error -> Nullable<Text>,
+        statusCode -> Nullable<BigInt>,
+        created_at -> Timestamp,
     }
 }
 
@@ -39,24 +53,10 @@ diesel::table! {
     }
 }
 
-diesel::table! {
-    RunResponseDocuments (unique_id) {
-        unique_id -> Nullable<Text>,
-        run_unique_id -> Text,
-        status -> Nullable<Text>,
-        timeMs -> Nullable<BigInt>,
-        latencyMs -> Nullable<BigInt>,
-        stepUniqueId -> Nullable<Text>,
-        error -> Nullable<Text>,
-        statusCode -> Nullable<BigInt>,
-        created_at -> Timestamp,
-    }
-}
-
 diesel::allow_tables_to_appear_in_same_query!(
     DocumentMeta,
     DocumentRevisions,
-    Execution,
+    ExecutionDocuments,
+    Executions,
     RunDocumentFiles,
-    RunResponseDocuments,
 );

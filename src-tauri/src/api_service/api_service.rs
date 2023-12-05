@@ -9,8 +9,8 @@ use uuid::Uuid;
 
 use crate::database_service::database_service::DatabaseService;
 use crate::file_service::file_service::FileService;
-use crate::models::run_response_document::ExecutionStatusCount;
-use crate::models::RunResponseDocument;
+use crate::models::execution::ExecutionStatusCount;
+use crate::models::Execution;
 use crate::protos::ipc::{RunConfiguration, RunDocument, RunShape, RunType};
 use crate::protos::{
     self,
@@ -116,13 +116,14 @@ impl ApiService {
     }
 
     pub async fn get_execution_results(
-        run_unique_id: &str,
+        execution_document_id: &str,
         run_document_path: &str,
     ) -> anyhow::Result<Vec<ExecutionStatusCount>> {
         let decoded_document_path = FileService::decode_path(run_document_path)?;
         let pool = DatabaseService::connection(decoded_document_path.as_str()).await?;
         let aggregated_results =
-            RunResponseDocument::get_execution_results(run_unique_id, &pool).await?;
+            Execution::aggregate_results_by_execution_document_id(execution_document_id, &pool)
+                .await?;
         Ok(aggregated_results)
     }
 
@@ -133,9 +134,9 @@ impl ApiService {
         pool: &SqlitePool,
     ) {
         let ran = ApiService::run(api_step).await.unwrap();
-        let run_response_document = RunResponseDocument {
+        let run_response_document = Execution {
             unique_id: String::from(&ran.unique_id),
-            run_unique_id: run_unique_id.to_string(),
+            execution_document_id: run_unique_id.to_string(),
             status: ran.status().as_str_name().to_string(),
             timeMs: ran.time,
             latencyMs: ran.latency,
@@ -145,7 +146,7 @@ impl ApiService {
             created_at: chrono::Utc::now().to_rfc3339(),
         };
         dbg!(&run_response_document);
-        RunResponseDocument::insert(run_response_document, pool)
+        Execution::insert(run_response_document, pool)
             .await
             .unwrap();
     }

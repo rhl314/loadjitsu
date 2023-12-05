@@ -120,19 +120,20 @@ export class ApiClient {
 
   public async getExecutionResults(args: {
     runDocumentPath: string;
-    runUniqueId: string;
+    executionDocumentId: string;
   }): Promise<Result<{ status: string; created_at: number; count: number }[]>> {
     try {
       console.log("Getting runs");
       const response = (await invoke("getExecutionResults", {
         runDocumentPath: args.runDocumentPath,
-        runUniqueId: args.runUniqueId,
+        executionDocumentId: args.executionDocumentId,
       })) as { status: string; created_at: number; count: number }[];
-      console.log(response);
+      console.log({ response });
       return Result.ok<{ status: string; created_at: number; count: number }[]>(
         response
       );
     } catch (err: any) {
+      console.log("Errored");
       console.error(err);
       return Result.fail({
         code: "INTERNAL_SERVER_ERROR",

@@ -6,7 +6,7 @@ use uuid::Uuid;
 use crate::database_service::database_service::DatabaseService;
 use crate::file_service::file_service::FileService;
 #[derive(Debug, FromRow, Serialize, Deserialize)]
-pub struct Execution {
+pub struct ExecutionDocument {
     pub id: String,
     pub document_revision_id: String,
     pub pid: Option<String>,
@@ -15,14 +15,14 @@ pub struct Execution {
     pub completed_at: Option<String>,
 }
 
-impl Execution {
-    pub async fn create_new_execution(
+impl ExecutionDocument {
+    pub async fn create_new_execution_document(
         pool: &SqlitePool,
         document_revision_id: String,
-    ) -> anyhow::Result<Execution> {
+    ) -> anyhow::Result<ExecutionDocument> {
         let id = Uuid::new_v4().to_string();
         let status = "PENDING";
-        let run = Execution {
+        let run = ExecutionDocument {
             id: id.clone(),
             document_revision_id: document_revision_id.clone(),
             status: status.to_string(),
@@ -31,7 +31,7 @@ impl Execution {
             completed_at: None,
         };
         let query = sqlx::query(
-            "INSERT INTO Execution (id, document_revision_id, status)
+            "INSERT INTO ExecutionDocuments (id, document_revision_id, status)
          VALUES ($1, $2, $3)",
         )
         .bind(id)
@@ -41,9 +41,12 @@ impl Execution {
         query.execute(pool).await?;
         Ok(run)
     }
-    pub async fn update_execution(pool: &SqlitePool, run: &Execution) -> anyhow::Result<()> {
+    pub async fn update_execution_document(
+        pool: &SqlitePool,
+        run: &ExecutionDocument,
+    ) -> anyhow::Result<()> {
         let query = sqlx::query(
-            "UPDATE Execution SET status = $1, pid = $2, started_at = $3, completed_at = $4 WHERE id = $5",
+            "UPDATE ExecutionDocuments SET status = $1, pid = $2, started_at = $3, completed_at = $4 WHERE id = $5",
         )
         .bind(&run.status)
         .bind(&run.pid)
@@ -54,21 +57,23 @@ impl Execution {
         Ok(())
     }
 
-    pub async fn complete_execution(pool: &SqlitePool, pid: String) -> anyhow::Result<()> {
+    pub async fn complete_execution_document(pool: &SqlitePool, pid: String) -> anyhow::Result<()> {
         println!("Completing run with pid: {}", pid);
         let query = sqlx::query(
-            "UPDATE Execution SET status = 'COMPLETED', completed_at = datetime('now') WHERE pid = $1",
+            "UPDATE ExecutionDocuments SET status = 'COMPLETED', completed_at = datetime('now') WHERE pid = $1",
         )
         .bind(pid);
         query.execute(pool).await?;
         Ok(())
     }
 
-    pub async fn get_all_executions(encoded_document_path: &str) -> anyhow::Result<Vec<Execution>> {
+    pub async fn get_all_execution_documents(
+        encoded_document_path: &str,
+    ) -> anyhow::Result<Vec<ExecutionDocument>> {
         let decoded_document_path = FileService::decode_path(encoded_document_path)?;
         let pool = DatabaseService::connection(decoded_document_path.as_str()).await?;
-        let runs = sqlx::query_as::<_, Execution>(
-            "SELECT id, document_revision_id, pid, status, started_at, completed_at FROM Execution",
+        let runs = sqlx::query_as::<_, ExecutionDocument>(
+            "SELECT id, document_revision_id, pid, status, started_at, completed_at FROM ExecutionDocuments",
         )
         .fetch_all(&pool)
         .await?;
@@ -82,17 +87,18 @@ mod tests {
 
     use crate::{
         database_service::database_service::DatabaseService,
-        file_service::file_service::FileService, models::Execution,
+        file_service::file_service::FileService, models::ExecutionDocument,
     };
 
     #[tokio::test]
-    async fn it_should_create_a_new_execution() {
+    async fn it_should_create_a_new_execution_documents() {
         let document_revision_id = Uuid::new_v4().to_string();
         let path = FileService::get_temporary_file_path().unwrap();
         DatabaseService::run_migrations(&path).unwrap();
         let pool = DatabaseService::connection(&path).await.unwrap();
         let saved_or_error =
-            Execution::create_new_execution(&pool, document_revision_id.clone()).await;
+            ExecutionDocument::create_new_execution_document(&pool, document_revision_id.clone())
+                .await;
         assert!(saved_or_error.is_ok());
         let run = saved_or_error.unwrap();
         assert!(run.document_revision_id == document_revision_id);

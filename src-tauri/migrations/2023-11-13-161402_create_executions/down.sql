@@ -1,3 +1,2 @@
 -- This file should undo anything in `up.sql`
-DROP TABLE Execution;
-
+DROP TABLE IF EXISTS Executions;
