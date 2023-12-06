@@ -8,7 +8,9 @@ CREATE TABLE Executions (
     stepUniqueId TEXT,
     error TEXT,
     statusCode UNSIGNED BIG INT,
-    created_at DATETIME NOT NULL
+    created_at DATETIME NOT NULL,
+    completed_at DATETIME,
+    run_second UNSIGNED BIG INT
 );
 
 CREATE INDEX index_status ON Executions(status);

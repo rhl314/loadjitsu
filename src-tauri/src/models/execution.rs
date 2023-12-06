@@ -13,19 +13,21 @@ pub struct Execution {
     pub error: String,
     pub statusCode: u64,
     pub created_at: String,
+    pub completed_at: String,
+    pub run_second: i32,
 }
 
 #[derive(Debug, FromRow, Serialize, serde::Deserialize)]
 pub struct ExecutionStatusCount {
     pub status: String,
-    pub timestamp: i64, // Unix timestamp in seconds
+    pub run_second: i32, // Unix timestamp in seconds
     pub count: i64,
 }
 
 impl Execution {
     pub async fn insert(run_response_document: Execution, pool: &SqlitePool) -> anyhow::Result<()> {
         sqlx::query(
-            "INSERT INTO Executions (unique_id, execution_document_id, status, timeMs, latencyMs, stepUniqueId, error, statusCode, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)")
+            "INSERT INTO Executions (unique_id, execution_document_id, status, timeMs, latencyMs, stepUniqueId, error, statusCode, created_at, completed_at, run_second) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
             .bind(run_response_document.unique_id)
             .bind(run_response_document.execution_document_id)
             .bind(run_response_document.status)
@@ -35,6 +37,8 @@ impl Execution {
             .bind(run_response_document.error)
             .bind(run_response_document.statusCode as i64)
             .bind(run_response_document.created_at)
+            .bind(run_response_document.completed_at)
+            .bind(run_response_document.run_second)
             .execute(pool).await?;
         Ok(())
     }
@@ -48,16 +52,16 @@ impl Execution {
             r#"
         SELECT 
             status,
-            CAST (strftime('%s', "created_at") as INTEGER) as "timestamp",
+            run_second,
             COUNT(*) as "count"
         FROM 
             Executions
         WHERE
             execution_document_id = ?
         GROUP BY 
-            status, "timestamp"
+            status, run_second
         ORDER BY 
-            "timestamp" ASC
+            run_second ASC
         "#,
         )
         .bind(&execution_document_id)
@@ -70,7 +74,7 @@ impl Execution {
                 // dbg!(&row);
                 ExecutionStatusCount {
                     status: row.get("status"),
-                    timestamp: row.get("timestamp"),
+                    run_second: row.get("run_second"),
                     count: row.get("count"),
                 }
             })
@@ -99,6 +103,8 @@ mod tests {
             error: String::from("hello"),
             statusCode: 200,
             created_at: String::from("2021-01-01"),
+            completed_at: String::from("2021-01-01"),
+            run_second: 0,
         };
         let path = FileService::get_temporary_file_path().unwrap();
         DatabaseService::run_migrations(&path).unwrap();

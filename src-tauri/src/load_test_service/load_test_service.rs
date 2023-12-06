@@ -65,7 +65,7 @@ impl LoadTestService {
         let request_interval = Duration::from_secs(1) / requests_per_second as u32;
         let mut handles = Vec::new();
 
-        for _ in 0..test_duration_in_seconds {
+        for run_second in 0..test_duration_in_seconds {
             let outer_run_document_path = run_document_path.clone();
             let outer_run_unique_id = run_unique_id.clone();
             let outer_api_step = api_step.clone();
@@ -80,7 +80,7 @@ impl LoadTestService {
                     ApiService::run_and_record_response(
                         &inner_api_step,
                         inner_run_unique_id.as_str(),
-                        &inner_run_document_path.as_str(),
+                        run_second,
                         &pool,
                     )
                     .await

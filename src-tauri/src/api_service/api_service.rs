@@ -130,9 +130,10 @@ impl ApiService {
     pub async fn run_and_record_response(
         api_step: &ApiStep,
         run_unique_id: &str,
-        run_document_path: &str,
+        run_second: i32,
         pool: &SqlitePool,
     ) {
+        let created_at = chrono::Utc::now().to_rfc3339();
         let ran = ApiService::run(api_step).await.unwrap();
         let run_response_document = Execution {
             unique_id: String::from(&ran.unique_id),
@@ -143,7 +144,9 @@ impl ApiService {
             stepUniqueId: ran.step_unique_id,
             error: ran.error,
             statusCode: ran.status_code,
-            created_at: chrono::Utc::now().to_rfc3339(),
+            created_at: created_at,
+            completed_at: chrono::Utc::now().to_rfc3339(),
+            run_second: run_second,
         };
         dbg!(&run_response_document);
         Execution::insert(run_response_document, pool)

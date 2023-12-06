@@ -41,6 +41,8 @@ diesel::table! {
         error -> Nullable<Text>,
         statusCode -> Nullable<BigInt>,
         created_at -> Timestamp,
+        completed_at -> Nullable<Timestamp>,
+        run_second -> Nullable<BigInt>,
     }
 }
 
