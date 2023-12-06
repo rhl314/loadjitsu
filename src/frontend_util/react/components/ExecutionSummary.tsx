@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import TimeAgo from "react-time-ago";
 import {
   ApiClient,
-  IRun,
+  IExecution,
   IResponseTimes,
   IResultStatus,
   IStatusGroup,
@@ -15,7 +15,7 @@ import Chart from "./ChartThumb";
 
 JSTimeAgo.addDefaultLocale(en);
 
-export default function ExecutionSummary(props: { execution: IRun }) {
+export default function ExecutionSummary(props: { execution: IExecution }) {
   const document = RunDocument.decode(
     Buffer.from(props.execution.RunDocument, "base64")
   );

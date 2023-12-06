@@ -7,6 +7,7 @@ import { RunDocument } from "../frontend_util/ipc/run_document";
 import { RunResponse } from "../frontend_util/ipc/run_response";
 import { AppUtil } from "./AppUtil";
 import { IBootApiResponse } from "./IBootApiResponse";
+import { IExecutionStatusCount } from "../frontend_util/react/ExecutionContext";
 export interface ICreateAdminUserRequest {
   handle: string;
   password: string;
@@ -65,7 +66,7 @@ export interface IGetLicenseApiResponse {
   buildVersion: string;
 }
 
-export interface IRun {
+export interface IExecution {
   id: string;
 }
 
@@ -101,17 +102,17 @@ export class ApiClient {
 
   public async getExecutions(args: {
     runDocumentPath: string;
-  }): Promise<Result<IRun[]>> {
+  }): Promise<Result<IExecution[]>> {
     try {
       console.log("Getting runs");
       const response = (await invoke("getExecutions", {
         runDocumentPath: args.runDocumentPath,
-      })) as IRun[];
+      })) as IExecution[];
       console.log(response);
-      return Result.ok<IRun[]>(response);
+      return Result.ok<IExecution[]>(response);
     } catch (err: any) {
       console.error(err);
-      return Result.fail<IRun[]>({
+      return Result.fail<IExecution[]>({
         code: "INTERNAL_SERVER_ERROR",
         message: "Please try again",
       });
@@ -121,17 +122,15 @@ export class ApiClient {
   public async getExecutionResults(args: {
     runDocumentPath: string;
     executionDocumentId: string;
-  }): Promise<Result<{ status: string; created_at: number; count: number }[]>> {
+  }): Promise<Result<IExecutionStatusCount[]>> {
     try {
       console.log("Getting runs");
       const response = (await invoke("getExecutionResults", {
         runDocumentPath: args.runDocumentPath,
         executionDocumentId: args.executionDocumentId,
-      })) as { status: string; created_at: number; count: number }[];
+      })) as IExecutionStatusCount[];
       console.log({ response });
-      return Result.ok<{ status: string; created_at: number; count: number }[]>(
-        response
-      );
+      return Result.ok<IExecutionStatusCount[]>(response);
     } catch (err: any) {
       console.log("Errored");
       console.error(err);

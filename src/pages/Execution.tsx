@@ -2,6 +2,7 @@ import { useParams } from "react-router-dom";
 import ExecutionGraph from "../frontend_util/react/components/run_document/ExecutionGraph";
 import { useEffect, useReducer } from "react";
 import {
+  ExecutionAppContext,
   INITIAL_EXECUTION_APP_STATE,
   executionReducer,
 } from "../frontend_util/react/ExecutionContext";
@@ -46,15 +47,13 @@ const Execution = () => {
     loadExecution();
   }, []);
   return (
-    <>
+    <ExecutionAppContext.Provider
+      value={{ state: executionAppState, dispatch }}
+    >
       <div className="bg-primary py-8">
         <div className="app_container mx-auto">
           <div className="mt-10">
-            <ExecutionGraph
-              runDocumentPath={documentPath as string}
-              executionId={executionId as string}
-            />
-            ;
+            <ExecutionGraph />;
           </div>
           <hr className="my-8" />
           <div>
@@ -182,7 +181,7 @@ const Execution = () => {
           </div>
         </div>
       </div>
-    </>
+    </ExecutionAppContext.Provider>
   );
 };
 

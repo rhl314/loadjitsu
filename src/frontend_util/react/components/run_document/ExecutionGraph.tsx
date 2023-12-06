@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import {
   LineChart,
   Line,
@@ -9,10 +9,16 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import { ExecutionAppContext } from "../../ExecutionContext";
 
-interface IExecutionGraphProps {
-  runDocumentPath: string;
-  executionId: string;
+interface IExecutionGraphProps {}
+
+interface IDataPoint {
+  name: string;
+  SUCCESS: number;
+  ERROR: number;
+  EXCEPTION: number;
+  TIMEOUT: number;
 }
 
 const data = [
@@ -85,22 +91,59 @@ const data = [
 ];
 
 const ExecutionGraph = (props: IExecutionGraphProps) => {
+  const { state, dispatch } = useContext(ExecutionAppContext);
+  const dataMapped: IDataPoint[] = [];
+  dataMapped.push({
+    name: "0",
+    SUCCESS: 0,
+    ERROR: 0,
+    EXCEPTION: 0,
+    TIMEOUT: 0,
+  });
+  for (const executionStatusCount of state.executionStatusCounts) {
+    let dataPoint = dataMapped.find((dp) => {
+      return dp.name === executionStatusCount.run_second.toString();
+    });
+    if (!dataPoint) {
+      dataPoint = {
+        name: executionStatusCount.run_second.toString(),
+        SUCCESS: 0,
+        ERROR: 0,
+        EXCEPTION: 0,
+        TIMEOUT: 0,
+      };
+      dataMapped.push(dataPoint);
+    }
+    switch (executionStatusCount.status) {
+      case "SUCCESS":
+        dataPoint.SUCCESS += executionStatusCount.count;
+        break;
+      case "ERROR":
+        dataPoint.ERROR += executionStatusCount.count;
+        break;
+      case "EXCEPTION":
+        dataPoint.EXCEPTION += executionStatusCount.count;
+        break;
+      case "TIMEOUT":
+        dataPoint.TIMEOUT += executionStatusCount.count;
+        break;
+    }
+  }
+  for (let i = 1; i < dataMapped.length; i += 1) {
+    dataMapped[i].SUCCESS += dataMapped[i - 1].SUCCESS;
+    dataMapped[i].ERROR += dataMapped[i - 1].ERROR;
+    dataMapped[i].EXCEPTION += dataMapped[i - 1].EXCEPTION;
+    dataMapped[i].TIMEOUT += dataMapped[i - 1].TIMEOUT;
+  }
   return (
     <>
-      <h1 className="text-white">{props.executionId}</h1>
-      <h1 className="text-white">{props.runDocumentPath}</h1>
-      <LineChart width={960} height={480} data={data}>
+      <LineChart width={960} height={480} data={dataMapped}>
         <XAxis dataKey="name" />
         <YAxis />
         <Tooltip />
         <Legend />
-        <Line
-          type="monotone"
-          dataKey="pv"
-          stroke="#8884d8"
-          activeDot={{ r: 8 }}
-        />
-        <Line type="monotone" dataKey="uv" stroke="#82ca9d" />
+        <Line type="monotone" dataKey="SUCCESS" stroke="#8884d8" dot={false} />
+        <Line type="monotone" dataKey="ERROR" stroke="#82ca9d" dot={false} />
       </LineChart>
     </>
   );

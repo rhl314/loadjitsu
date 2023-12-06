@@ -46,3 +46,9 @@ export const useAutoSaveContext = () => {
     dispatch(partial);
   };
 };
+
+export interface IExecutionStatusCount {
+  status: string;
+  run_second: number;
+  count: number;
+}
