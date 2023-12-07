@@ -45,6 +45,11 @@ const Execution = () => {
         executionStatusCounts,
         state: "READY",
       });
+      if (executionDocument.status === "RUNNING") {
+        setTimeout(() => {
+          loadExecution();
+        }, 1000);
+      }
     } catch (err) {
       if (err === "DOCUMENT_NOT_FOUND") {
         return;

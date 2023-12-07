@@ -9,7 +9,7 @@ use crate::file_service::file_service::FileService;
 pub struct ExecutionDocument {
     pub id: String,
     pub document_revision_id: String,
-    pub pid: Option<String>,
+    pub pid: String,
     pub status: String,
     pub started_at: Option<String>,
     pub completed_at: Option<String>,
@@ -26,7 +26,7 @@ impl ExecutionDocument {
             id: id.clone(),
             document_revision_id: document_revision_id.clone(),
             status: status.to_string(),
-            pid: None,
+            pid: "".to_string(),
             started_at: None,
             completed_at: None,
         };

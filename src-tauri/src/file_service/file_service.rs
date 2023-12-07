@@ -11,9 +11,13 @@ use platform_dirs::AppDirs;
 use sha2::Digest;
 use sha2::Sha256;
 use std::env;
+use sysinfo::Pid;
 
 use std::io::{self, Read};
+use sysinfo::{ProcessExt, System, SystemExt};
 use uuid::Uuid;
+
+use crate::schema::ExecutionDocuments::pid;
 
 pub struct FileService;
 
@@ -118,5 +122,12 @@ impl FileService {
 
         // Convert the hash to a hexadecimal string
         Ok(format!("{:x}", result))
+    }
+
+    pub fn is_process_alive(pid_str: &str) -> anyhow::Result<bool> {
+        let pid_parsed = pid_str.parse::<usize>()?;
+        let mut system = System::new_all();
+        system.refresh_all();
+        Ok(system.process(Pid::from(pid_parsed)).is_some())
     }
 }

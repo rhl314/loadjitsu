@@ -36,7 +36,7 @@ impl LoadTestService {
             .arg(&run.id)
             .spawn()?;
         let child_id = child.id();
-        run.pid = Some(child_id.to_string());
+        run.pid = child_id.to_string();
         run.started_at = Some(chrono::Utc::now().to_rfc3339());
         run.status = "RUNNING".to_string();
         ExecutionDocument::update_execution_document(&pool, &run).await?;
