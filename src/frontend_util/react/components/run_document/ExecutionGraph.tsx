@@ -142,8 +142,8 @@ const ExecutionGraph = (props: IExecutionGraphProps) => {
         <YAxis />
         <Tooltip />
         <Legend />
-        <Line type="monotone" dataKey="SUCCESS" stroke="#8884d8" dot={false} />
-        <Line type="monotone" dataKey="ERROR" stroke="#82ca9d" dot={false} />
+        <Line type="monotone" dataKey="SUCCESS" stroke="green" dot={false} />
+        <Line type="monotone" dataKey="ERROR" stroke="red" dot={false} />
       </LineChart>
     </>
   );

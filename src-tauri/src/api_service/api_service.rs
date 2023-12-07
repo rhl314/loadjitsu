@@ -10,7 +10,7 @@ use uuid::Uuid;
 use crate::database_service::database_service::DatabaseService;
 use crate::file_service::file_service::FileService;
 use crate::models::execution::ExecutionStatusCount;
-use crate::models::Execution;
+use crate::models::{Execution, ExecutionDocument};
 use crate::protos::ipc::{RunConfiguration, RunDocument, RunShape, RunType};
 use crate::protos::{
     self,
@@ -125,6 +125,16 @@ impl ApiService {
             Execution::aggregate_results_by_execution_document_id(execution_document_id, &pool)
                 .await?;
         Ok(aggregated_results)
+    }
+    pub async fn get_execution_document(
+        execution_document_id: &str,
+        run_document_path: &str,
+    ) -> anyhow::Result<ExecutionDocument> {
+        let decoded_document_path = FileService::decode_path(run_document_path)?;
+        let pool = DatabaseService::connection(decoded_document_path.as_str()).await?;
+        let execution_document =
+            Execution::get_execution_document(execution_document_id, &pool).await?;
+        Ok(execution_document)
     }
 
     pub async fn run_and_record_response(

@@ -14,7 +14,7 @@ use crate::database_service::database_service::DatabaseService;
 use crate::document_service::document_service::DocumentService;
 use crate::load_test_service::load_test_service::LoadTestService;
 use crate::models::execution::ExecutionStatusCount;
-use crate::models::{DocumentRevision, ExecutionDocument, RunDocumentFile};
+use crate::models::{DocumentRevision, Execution, ExecutionDocument, RunDocumentFile};
 use crate::protos::ipc::{ApiStep, HttpAction, RunResponse, RunStatus};
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -190,6 +190,19 @@ async fn getExecutionResults(
     }
 }
 
+#[tauri::command]
+async fn getExecutionDocument(
+    runDocumentPath: &str,
+    executionDocumentId: &str,
+) -> Result<ExecutionDocument, String> {
+    let runs_or_error =
+        ApiService::get_execution_document(executionDocumentId, runDocumentPath).await;
+    match runs_or_error {
+        Ok(ran) => Ok(ran),
+        Err(error) => Err(error.to_string()),
+    }
+}
+
 struct AppState {
     current_exe_signature: String,
 }
@@ -207,7 +220,8 @@ pub fn spawnUi(current_exe_signature: String) {
             saveRunDocument,
             loadRunDocument,
             getExecutions,
-            getExecutionResults
+            getExecutionResults,
+            getExecutionDocument
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

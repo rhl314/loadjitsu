@@ -52,3 +52,12 @@ export interface IExecutionStatusCount {
   run_second: number;
   count: number;
 }
+
+export interface IExecutionDocument {
+  id: string;
+  document_revision_id: string;
+  pid: string;
+  status: string;
+  created_at: string;
+  completed_at: string;
+}

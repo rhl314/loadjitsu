@@ -7,7 +7,10 @@ import { RunDocument } from "../frontend_util/ipc/run_document";
 import { RunResponse } from "../frontend_util/ipc/run_response";
 import { AppUtil } from "./AppUtil";
 import { IBootApiResponse } from "./IBootApiResponse";
-import { IExecutionStatusCount } from "../frontend_util/react/ExecutionContext";
+import {
+  IExecutionDocument,
+  IExecutionStatusCount,
+} from "../frontend_util/react/ExecutionContext";
 export interface ICreateAdminUserRequest {
   handle: string;
   password: string;
@@ -113,6 +116,28 @@ export class ApiClient {
     } catch (err: any) {
       console.error(err);
       return Result.fail<IExecution[]>({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Please try again",
+      });
+    }
+  }
+
+  public async getExecutionDocument(args: {
+    runDocumentPath: string;
+    executionDocumentId: string;
+  }): Promise<Result<IExecutionDocument>> {
+    try {
+      console.log("Getting execution document");
+      const response = (await invoke("getExecutionDocument", {
+        runDocumentPath: args.runDocumentPath,
+        executionDocumentId: args.executionDocumentId,
+      })) as IExecutionDocument;
+      console.log({ response });
+      return Result.ok<IExecutionDocument>(response);
+    } catch (err: any) {
+      console.log("Errored");
+      console.error(err);
+      return Result.fail({
         code: "INTERNAL_SERVER_ERROR",
         message: "Please try again",
       });

@@ -2,6 +2,8 @@ use serde::Serialize;
 use sqlx::sqlite::{SqlitePool, SqliteQueryResult};
 use sqlx::{Error, FromRow, Row};
 
+use super::ExecutionDocument;
+
 #[derive(Debug)]
 pub struct Execution {
     pub unique_id: String,
@@ -41,6 +43,28 @@ impl Execution {
             .bind(run_response_document.run_second)
             .execute(pool).await?;
         Ok(())
+    }
+
+    pub async fn get_execution_document(
+        execution_document_id: &str,
+        pool: &SqlitePool,
+    ) -> anyhow::Result<ExecutionDocument> {
+        let default_execution_document = ExecutionDocument {
+            id: "TODO".to_string(),
+            document_revision_id: "TODO".to_string(),
+            pid: None,
+            status: "NOT_FOUND".to_string(),
+            started_at: None,
+            completed_at: None,
+        };
+        let execution_document =
+            ExecutionDocument::get_execution_document_by_id(pool, execution_document_id).await?;
+
+        if let Some(execution_document) = execution_document {
+            Ok(execution_document)
+        } else {
+            Ok(default_execution_document)
+        }
     }
 
     pub async fn aggregate_results_by_execution_document_id(

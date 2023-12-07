@@ -18,6 +18,17 @@ const Execution = () => {
   const loadExecution = async () => {
     try {
       const apiClient = new ApiClient();
+      const executionDocumentOrError = await apiClient.getExecutionDocument({
+        runDocumentPath: documentPath as string,
+        executionDocumentId: executionId as string,
+      });
+      if (executionDocumentOrError.isFailure) {
+        return dispatch({
+          state: "ERROR",
+        });
+      }
+      const executionDocument = executionDocumentOrError.getValue();
+      console.log({ executionDocument });
       const executionStatusCountsOrError = await apiClient.getExecutionResults({
         runDocumentPath: documentPath as string,
         executionDocumentId: executionId as string,

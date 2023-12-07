@@ -79,6 +79,19 @@ impl ExecutionDocument {
         .await?;
         Ok(runs)
     }
+
+    pub async fn get_execution_document_by_id(
+        pool: &SqlitePool,
+        id: &str,
+    ) -> anyhow::Result<Option<ExecutionDocument>> {
+        let execution_document =
+            sqlx::query_as::<_, ExecutionDocument>("SELECT * FROM ExecutionDocuments WHERE id = ?")
+                .bind(id)
+                .fetch_optional(pool)
+                .await?;
+
+        Ok(execution_document)
+    }
 }
 
 #[cfg(test)]
