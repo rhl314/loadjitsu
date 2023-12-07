@@ -220,20 +220,26 @@ export class ApiClient {
     );
   }
 
-  public async saveRunDocument(args: {
+  public async runLoadTest(args: {
     runDocument: RunDocument;
     runDocumentPath: string;
-    execute: boolean;
-  }) {
-    const bytes = RunDocument.encode(args.runDocument).finish();
-    const appUtil = new AppUtil();
-    const serialized = await appUtil.uint8ArrayToBase64(bytes);
-    const response = (await invoke("saveRunDocument", {
-      runDocumentSerialized: serialized,
-      runDocumentPath: args.runDocumentPath,
-      execute: args.execute.toString(),
-    })) as string;
-    console.log(response);
+  }): Promise<Result<IExecutionDocument>> {
+    try {
+      const bytes = RunDocument.encode(args.runDocument).finish();
+      const appUtil = new AppUtil();
+      const serialized = await appUtil.uint8ArrayToBase64(bytes);
+      const response = (await invoke("runLoadTest", {
+        runDocumentSerialized: serialized,
+        runDocumentPath: args.runDocumentPath,
+      })) as IExecutionDocument;
+      return Result.ok(response);
+    } catch (err) {
+      console.error(err);
+      return Result.fail({
+        code: "EXECUTION_ERROR",
+        message: (err as Error)?.message,
+      });
+    }
   }
 
   public async abort(executionUniqueId: string): Promise<Result<void>> {

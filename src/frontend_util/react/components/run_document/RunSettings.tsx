@@ -6,8 +6,10 @@ import { ApiClient } from "../../../../api_client/api_client";
 import PlaySvg from "../../../../assets/svg/play.svg?react";
 import { RunDocument } from "../../../ipc/run_document";
 import { RunDocumentAppContext } from "../../RunDocumentContext";
+import { useNavigate } from "react-router-dom";
 
 export default function RunSettings() {
+  const navigate = useNavigate();
   const [show, setShow] = useState(false);
   const [error, setError] = useState<string>("");
   const handleClose = () => setShow(false);
@@ -35,21 +37,18 @@ export default function RunSettings() {
 
     const apiClient = new ApiClient();
     try {
-      const response = await apiClient.saveRunDocument({
+      const executionDocumentOrError = await apiClient.runLoadTest({
         runDocument: state.runDocument,
         runDocumentPath: state.runDocumentPath as string,
-        execute: false,
       });
-      console.log(response);
-      /*const uniqueId = response?.data?.uniqueId;
-      if (_.isNil(uniqueId)) {
-        throw new Error("Unique id not found in result");
-      }*/
-      /*router.push(
-        `/run/${runTypeToJSON(state.runDocument.type)}/${
-          state.runDocument.uniqueId
-        }/runs/${uniqueId}`
-      );*/
+      if (executionDocumentOrError.isFailure) {
+        console.log(executionDocumentOrError.error);
+        // TODO dispatch error
+        return;
+      }
+      const exce = executionDocumentOrError.getValue();
+      console.log(executionDocumentOrError);
+      navigate(`/runs/api/${state.runDocumentPath}/executions/${exce.id}`);
     } catch (err: any) {
       console.error(err);
       const code = err?.response?.data?.code;

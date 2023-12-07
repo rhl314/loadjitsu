@@ -133,10 +133,9 @@ fn runApiStepOnceOld(serialized: &str) -> String {
 }
 
 #[tauri::command]
-async fn saveRunDocument(
+async fn runLoadTest(
     runDocumentSerialized: &str,
     runDocumentPath: &str,
-    execute: &str,
 ) -> Result<ExecutionDocument, String> {
     let savedOrError =
         DocumentRevision::saveSerializedRunDocument(runDocumentPath, runDocumentSerialized).await;
@@ -217,7 +216,7 @@ pub fn spawnUi(current_exe_signature: String) {
             greet,
             runApiStepOnce,
             getTemporaryDocumentPath,
-            saveRunDocument,
+            runLoadTest,
             loadRunDocument,
             getExecutions,
             getExecutionResults,
