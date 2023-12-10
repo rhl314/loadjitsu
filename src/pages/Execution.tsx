@@ -7,6 +7,8 @@ import {
   executionReducer,
 } from "../frontend_util/react/ExecutionContext";
 import { ApiClient } from "../api_client/api_client";
+import Logo from "../frontend_util/react/components/logo";
+import TopNav from "../frontend_util/react/components/TopNav";
 
 const Execution = () => {
   let { documentPath, executionId } = useParams();
@@ -66,30 +68,40 @@ const Execution = () => {
     <ExecutionAppContext.Provider
       value={{ state: executionAppState, dispatch }}
     >
-      <div className="bg-primary py-8">
-        <div className="app_container mx-auto">
-          <div className="mt-10">
-            <ExecutionGraph />;
+      <div className="bg-primary">
+        <div className="navbar">
+          <div className="flex-1">
+            <a className="btn btn-ghost normal-case text-xl text-white">
+              <Logo height={30} />
+              http://localhost:3000/api
+            </a>
           </div>
-          <hr className="my-8" />
+          <div className="flex-none">
+            <ul className="menu menu-horizontal px-1">
+              <li>
+                <a className="bg-base-200">Download report</a>
+              </li>
+            </ul>
+          </div>
+        </div>
+        <div className="app_container py-8 mx-auto">
+          <ExecutionGraph />
           <div>
             <div className="min-h-[6rem] border-t-0 border-neutral-700">
               <div className="grid grid-cols-12">
                 <div className="col-span-3 items-center content-center mx-auto">
-                  <div>
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="red"
-                      className="w-[60px] mx-auto mt-3"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M4.5 7.5a3 3 0 013-3h9a3 3 0 013 3v9a3 3 0 01-3 3h-9a3 3 0 01-3-3v-9z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  </div>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="red"
+                    className="w-[60px] mx-auto mt-3"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M4.5 7.5a3 3 0 013-3h9a3 3 0 013 3v9a3 3 0 01-3 3h-9a3 3 0 01-3-3v-9z"
+                      clipRule="evenodd"
+                    />
+                  </svg>
                 </div>
                 <div className="col-span-3 flex items-center content-center mx-auto">
                   <p className="text-white text-center mt-2 text-4xl">
@@ -120,19 +132,18 @@ const Execution = () => {
                 </div>
                 <div className="col-span-3">
                   <div>
-                    <p className="text-white text-center">Timeouts</p>
+                    <p className="text-white text-center">Errors</p>
                   </div>
                 </div>
                 <div className="col-span-3">
                   <div>
-                    <p className="text-white text-center">
-                      Errors and Exceptions
-                    </p>
+                    <p className="text-white text-center">Timeouts</p>
                   </div>
                 </div>
               </div>
             </div>
           </div>
+
           <div>
             <div className="min-h-[6rem] border-t-0 border-neutral-700">
               <div className="grid grid-cols-12">

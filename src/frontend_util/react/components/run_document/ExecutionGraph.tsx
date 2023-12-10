@@ -17,7 +17,6 @@ interface IDataPoint {
   name: string;
   SUCCESS: number;
   ERROR: number;
-  EXCEPTION: number;
   TIMEOUT: number;
 }
 
@@ -97,7 +96,6 @@ const ExecutionGraph = (props: IExecutionGraphProps) => {
     name: "0",
     SUCCESS: 0,
     ERROR: 0,
-    EXCEPTION: 0,
     TIMEOUT: 0,
   });
   for (const executionStatusCount of state.executionStatusCounts) {
@@ -109,7 +107,6 @@ const ExecutionGraph = (props: IExecutionGraphProps) => {
         name: executionStatusCount.run_second.toString(),
         SUCCESS: 0,
         ERROR: 0,
-        EXCEPTION: 0,
         TIMEOUT: 0,
       };
       dataMapped.push(dataPoint);
@@ -122,7 +119,7 @@ const ExecutionGraph = (props: IExecutionGraphProps) => {
         dataPoint.ERROR += executionStatusCount.count;
         break;
       case "EXCEPTION":
-        dataPoint.EXCEPTION += executionStatusCount.count;
+        dataPoint.ERROR += executionStatusCount.count;
         break;
       case "TIMEOUT":
         dataPoint.TIMEOUT += executionStatusCount.count;
@@ -132,20 +129,96 @@ const ExecutionGraph = (props: IExecutionGraphProps) => {
   for (let i = 1; i < dataMapped.length; i += 1) {
     dataMapped[i].SUCCESS += dataMapped[i - 1].SUCCESS;
     dataMapped[i].ERROR += dataMapped[i - 1].ERROR;
-    dataMapped[i].EXCEPTION += dataMapped[i - 1].EXCEPTION;
     dataMapped[i].TIMEOUT += dataMapped[i - 1].TIMEOUT;
   }
   return (
-    <>
-      <LineChart width={960} height={480} data={dataMapped}>
-        <XAxis dataKey="name" />
-        <YAxis />
-        <Tooltip />
-        <Legend />
-        <Line type="monotone" dataKey="SUCCESS" stroke="green" dot={false} />
-        <Line type="monotone" dataKey="ERROR" stroke="red" dot={false} />
-      </LineChart>
-    </>
+    <div className="app-container">
+      <div>
+        <div className="mb-8">
+          <div className="grid grid-cols-12">
+            <div className="col-span-12 flex items-center content-center mx-auto">
+              <div className="mr-8 dropdown dropdown-end">
+                <div
+                  tabIndex={0}
+                  role="button"
+                  className="btn-group btn-group-vertical lg:btn-group-horizontal border border-1"
+                >
+                  <button className="btn btn-xs btn-error">Abort test</button>
+                </div>
+                <ul
+                  tabIndex={0}
+                  className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+                >
+                  <li>
+                    <a>Response times</a>
+                  </li>
+                </ul>
+              </div>
+              <div className="dropdown dropdown-end">
+                <div
+                  tabIndex={0}
+                  role="button"
+                  className="btn-group btn-group-vertical lg:btn-group-horizontal border border-1"
+                >
+                  <button className="btn btn-xs">Viewing now</button>
+                  <button className="btn btn-xs btn-active">
+                    Response statuses
+                  </button>
+                </div>
+                <ul
+                  tabIndex={0}
+                  className="dropdown-content z-[1] menu p-2 shadow bg-base-100 rounded-box w-52"
+                >
+                  <li>
+                    <a>Response times</a>
+                  </li>
+                </ul>
+              </div>
+              <div className="ml-8">
+                <p className="text-white">Edit and run again</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div>
+        <LineChart
+          width={960}
+          height={480}
+          data={dataMapped}
+          className="mx-auto"
+        >
+          <XAxis
+            dataKey="name"
+            tickCount={30}
+            interval={"equidistantPreserveStart"}
+          />
+          <YAxis />
+          <Tooltip />
+
+          <Line type="monotone" dataKey="SUCCESS" stroke="green" dot={false} />
+          <Line type="monotone" dataKey="ERROR" stroke="red" dot={false} />
+        </LineChart>
+      </div>
+      <div>
+        <div className="mb-8">
+          <div className="grid grid-cols-12">
+            <div className="col-span-12 items-center content-center mx-auto">
+              <div className="text-center my-4">
+                <h1 className="text-white">
+                  <span>Success</span>
+                  <span> </span>
+                  <span>Errors</span>
+
+                  <span> </span>
+                  <span>Timeouts</span>
+                </h1>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 };
 
