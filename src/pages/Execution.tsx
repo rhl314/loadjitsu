@@ -71,10 +71,9 @@ const Execution = () => {
       <div className="bg-primary">
         <div className="navbar">
           <div className="flex-1">
-            <a className="btn btn-ghost normal-case text-xl text-white">
-              <Logo height={30} />
-              http://localhost:3000/api
-            </a>
+            <button className="btn btn-ghost normal-case text-xl text-white">
+              GET http://localhost:3000/api
+            </button>
           </div>
           <div className="flex-none">
             <ul className="menu menu-horizontal px-1">

@@ -1,10 +1,10 @@
-import * as React from "react"
+import * as React from "react";
 
 const SvgComponent = (props: any) => (
   <svg
     xmlns="http://www.w3.org/2000/svg"
     viewBox="-40 -40 80 80"
-    fill="#C00"
+    fill="#000"
     {...props}
   >
     <circle r={39} />
@@ -15,6 +15,6 @@ const SvgComponent = (props: any) => (
     <circle r={5} cy={19} fill="white" />
     <circle r={5} cy={-19} />
   </svg>
-)
+);
 
-export default SvgComponent
+export default SvgComponent;
