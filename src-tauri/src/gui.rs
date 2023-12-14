@@ -167,6 +167,20 @@ async fn loadRunDocument(runDocumentPath: &str) -> Result<String, String> {
         Err(error) => Err(error.to_string()),
     }
 }
+
+#[tauri::command]
+async fn getRunDocumentByRevisionId(
+    runDocumentPath: &str,
+    documentRevisionId: &str,
+) -> Result<String, String> {
+    let run_document_or_error =
+        DocumentRevision::getSerializedRunDocumentByRevisionId(runDocumentPath, documentRevisionId)
+            .await;
+    match run_document_or_error {
+        Ok(ran) => Ok(ran),
+        Err(error) => Err(error.to_string()),
+    }
+}
 #[tauri::command]
 async fn getExecutions(runDocumentPath: &str) -> Result<Vec<ExecutionDocument>, String> {
     let runs_or_error = ExecutionDocument::get_all_execution_documents(runDocumentPath).await;
@@ -220,7 +234,8 @@ pub fn spawnUi(current_exe_signature: String) {
             loadRunDocument,
             getExecutions,
             getExecutionResults,
-            getExecutionDocument
+            getExecutionDocument,
+            getRunDocumentByRevisionId
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

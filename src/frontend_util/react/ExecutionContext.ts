@@ -1,4 +1,5 @@
 import React, { createContext, useContext } from "react";
+import { RunDocument } from "../ipc/run_document";
 
 export interface IExecutionStatusCount {
   count: number;
@@ -6,6 +7,7 @@ export interface IExecutionStatusCount {
   status: string;
 }
 export interface ExecutionAppState {
+  runDocument?: RunDocument;
   runDocumentPath?: string;
   executionId?: string;
   executionStatusCounts: IExecutionStatusCount[];

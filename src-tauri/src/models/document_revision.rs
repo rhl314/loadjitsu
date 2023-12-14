@@ -144,9 +144,44 @@ impl DocumentRevision {
         }
     }
 
+    pub async fn getRunDocumentByRevisionId(
+        encodedPath: &str,
+        documentRevisionId: &str,
+    ) -> anyhow::Result<RunDocument> {
+        let decoded_document_path = DocumentService::decode_document_path(encodedPath)?;
+        println!("decoded_document_path: {}", decoded_document_path);
+        let file_exists = FileService::does_file_exists(&decoded_document_path)?;
+        if file_exists == false {
+            return Err(anyhow::anyhow!("DOCUMENT_NOT_FOUND"));
+        }
+        DatabaseService::run_migrations(&decoded_document_path)?;
+        println!("ran migrations");
+        let pool = DatabaseService::connection(&decoded_document_path).await?;
+        let document_revision =
+            DocumentRevision::get_document_revision_by_id(&pool, documentRevisionId).await?;
+        if let Some(latest_document_revision) = document_revision {
+            let deserialized_run_document =
+                ApiService::deserialize_run_document(&latest_document_revision.value)?;
+            return Ok(deserialized_run_document);
+        } else {
+            return Ok(ApiService::generateNewRunDocument());
+        }
+    }
+
     pub async fn loadRunDocumentSerialized(encodedPath: &str) -> anyhow::Result<String> {
         println!("encodedPath: {}", encodedPath);
         let run_document = DocumentRevision::loadRunDocument(encodedPath).await?;
+        let serialized_run_document = ApiService::serialize_run_document(&run_document)?;
+        Ok(serialized_run_document)
+    }
+
+    pub async fn getSerializedRunDocumentByRevisionId(
+        encodedPath: &str,
+        documentRevisionId: &str,
+    ) -> anyhow::Result<String> {
+        println!("encodedPath: {}", encodedPath);
+        let run_document =
+            DocumentRevision::getRunDocumentByRevisionId(encodedPath, documentRevisionId).await?;
         let serialized_run_document = ApiService::serialize_run_document(&run_document)?;
         Ok(serialized_run_document)
     }

@@ -144,6 +144,35 @@ export class ApiClient {
     }
   }
 
+  public async getRunDocumentByRevisionId(args: {
+    runDocumentPath: string;
+    documentRevisionId: string;
+  }): Promise<Result<RunDocument>> {
+    try {
+      console.log("Getting execution document");
+      const runDocumentSerialized = (await invoke(
+        "getRunDocumentByRevisionId",
+        {
+          runDocumentPath: args.runDocumentPath,
+          documentRevisionId: args.documentRevisionId,
+        }
+      )) as string;
+      const appUtil = new AppUtil();
+      const runDocument = RunDocument.decode(
+        appUtil.base64ToUint8Array(runDocumentSerialized)
+      );
+
+      return Result.ok(runDocument);
+    } catch (err: any) {
+      console.log("Errored");
+      console.error(err);
+      return Result.fail({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Please try again",
+      });
+    }
+  }
+
   public async getExecutionResults(args: {
     runDocumentPath: string;
     executionDocumentId: string;

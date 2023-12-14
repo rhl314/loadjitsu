@@ -1,16 +1,15 @@
-import { useParams } from "react-router-dom";
-import ExecutionGraph from "../frontend_util/react/components/run_document/ExecutionGraph";
 import { useEffect, useReducer } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { ApiClient } from "../api_client/api_client";
 import {
   ExecutionAppContext,
   INITIAL_EXECUTION_APP_STATE,
   executionReducer,
 } from "../frontend_util/react/ExecutionContext";
-import { ApiClient } from "../api_client/api_client";
-import Logo from "../frontend_util/react/components/logo";
-import TopNav from "../frontend_util/react/components/TopNav";
+import ExecutionGraph from "../frontend_util/react/components/run_document/ExecutionGraph";
 
 const Execution = () => {
+  const navigation = useNavigate();
   let { documentPath, executionId } = useParams();
   const [executionAppState, dispatch] = useReducer(executionReducer, {
     ...INITIAL_EXECUTION_APP_STATE,
@@ -31,6 +30,19 @@ const Execution = () => {
       }
       const executionDocument = executionDocumentOrError.getValue();
       console.log({ executionDocument });
+      const runDocumentOrError = await apiClient.getRunDocumentByRevisionId({
+        runDocumentPath: documentPath as string,
+        documentRevisionId: executionDocument.document_revision_id,
+      });
+      if (runDocumentOrError.isFailure) {
+        return dispatch({
+          state: "ERROR",
+        });
+      }
+      const runDocument = runDocumentOrError.getValue();
+      dispatch({
+        runDocument,
+      });
       const executionStatusCountsOrError = await apiClient.getExecutionResults({
         runDocumentPath: documentPath as string,
         executionDocumentId: executionId as string,
@@ -71,8 +83,13 @@ const Execution = () => {
       <div className="bg-primary">
         <div className="navbar">
           <div className="flex-1">
-            <button className="btn btn-ghost normal-case text-xl text-white">
-              GET http://localhost:3000/api
+            <button
+              className="btn btn-ghost normal-case text-xl text-white"
+              onClick={() => {
+                navigation(`/runs/api/${documentPath}`);
+              }}
+            >
+              {executionAppState.runDocument?.title}
             </button>
           </div>
           <div className="flex-none">
