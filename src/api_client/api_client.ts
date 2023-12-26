@@ -71,6 +71,8 @@ export interface IGetLicenseApiResponse {
 
 export interface IExecution {
   id: string;
+  document_revision_id: string;
+  started_at: string;
 }
 
 export class ApiClient {
@@ -173,7 +175,7 @@ export class ApiClient {
     }
   }
 
-  public async getExecutionResults(args: {
+  public async getExecutionStatusCounts(args: {
     runDocumentPath: string;
     executionDocumentId: string;
   }): Promise<Result<IExecutionStatusCount[]>> {

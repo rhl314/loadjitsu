@@ -28,29 +28,6 @@ export default function Runs() {
     loadExecutions();
   }, []);
 
-  const renderExecutions = () => {
-    return executions.map((execution) => {
-      // return <ExecutionSummary key={execution.id} execution={execution} />;
-      return (
-        <tr
-          style={{ border: "none" }}
-          onClick={() => {
-            navigate(
-              `/runs/api/${runDocumentAppContext.state.runDocumentPath}/executions/${execution.id}`
-            );
-          }}
-        >
-          <td>http://localhost:3000</td>
-          <td>30 rps for 10 seconds</td>
-          <td>A few minutes ago</td>
-          <td>
-            <ThumbnailChart />
-          </td>
-        </tr>
-      );
-    });
-  };
-
   if (executions.length === 0) {
     return <div />;
   }
@@ -65,7 +42,22 @@ export default function Runs() {
             <div className="preview border-base-300 bg-base-100  min-h-[6rem] w-100 gap-2 overflow-x-hidden border bg-cover bg-top p-4">
               <div className="overflow-x-auto">
                 <table className="table">
-                  <tbody>{renderExecutions()}</tbody>
+                  <tbody>
+                    {executions
+                      .sort((a, b) => {
+                        return new Date(a.started_at) > new Date(b.started_at)
+                          ? -1
+                          : 1;
+                      })
+                      .map((execution) => {
+                        return (
+                          <ExecutionSummary
+                            key={execution.id}
+                            execution={execution}
+                          />
+                        );
+                      })}
+                  </tbody>
                 </table>
               </div>
             </div>

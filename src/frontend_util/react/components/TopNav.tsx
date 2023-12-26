@@ -2,8 +2,10 @@ import Logo from "./logo";
 import { useEffect, useState } from "react";
 import ActivateLicense from "./ActivateLicense";
 import { ApiClient, IActivationDetails } from "../../../api_client/api_client";
+import { useNavigate, useNavigation } from "react-router-dom";
 
 export default function TopNav(props: { container: string }) {
+  const navigate = useNavigate();
   const [showLicense, setShowLicense] = useState(false);
   const [licenseState, setLicenseState] = useState("IDLE");
   const [buildVersion, setBuildVersion] = useState("");
@@ -66,10 +68,15 @@ export default function TopNav(props: { container: string }) {
   return (
     <div className="navbar bg-base-100">
       <div className="flex-1">
-        <a className="btn btn-ghost normal-case text-xl">
+        <div
+          className="btn btn-ghost normal-case text-xl"
+          onClick={() => {
+            navigate("/");
+          }}
+        >
           <Logo height={30} />
           Loadjitsu
-        </a>
+        </div>
       </div>
       <div className="flex-none">
         <ul className="menu menu-horizontal px-1">

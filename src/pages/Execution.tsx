@@ -1,3 +1,4 @@
+import * as _ from "lodash";
 import { useEffect, useReducer } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ApiClient } from "../api_client/api_client";
@@ -7,6 +8,7 @@ import {
   executionReducer,
 } from "../frontend_util/react/ExecutionContext";
 import ExecutionGraph from "../frontend_util/react/components/run_document/ExecutionGraph";
+import { ScrollToTop } from "../ScrollToTop";
 
 const Execution = () => {
   const navigation = useNavigate();
@@ -16,6 +18,13 @@ const Execution = () => {
     runDocumentPath: documentPath as string,
     executionId: executionId as string,
   });
+  let title = executionAppState.runDocument?.title;
+  if (_.isEmpty(title)) {
+    title = executionAppState.runDocument?.apiSteps[0].endpoint;
+  }
+  title =
+    "into that heaven of freedom my fathet let my country awake https://meet.google.com/wnf-exxq-kzy https://meet.google.com/wnf-exxq-kzy https://meet.google.com/wnf-exxq-kzy";
+  title = _.truncate(title, { length: 40 });
   const loadExecution = async () => {
     try {
       const apiClient = new ApiClient();
@@ -43,10 +52,11 @@ const Execution = () => {
       dispatch({
         runDocument,
       });
-      const executionStatusCountsOrError = await apiClient.getExecutionResults({
-        runDocumentPath: documentPath as string,
-        executionDocumentId: executionId as string,
-      });
+      const executionStatusCountsOrError =
+        await apiClient.getExecutionStatusCounts({
+          runDocumentPath: documentPath as string,
+          executionDocumentId: executionId as string,
+        });
       if (executionStatusCountsOrError.isFailure) {
         return dispatch({
           state: "ERROR",
@@ -80,22 +90,23 @@ const Execution = () => {
     <ExecutionAppContext.Provider
       value={{ state: executionAppState, dispatch }}
     >
+      <ScrollToTop />
       <div className="bg-primary">
         <div className="navbar">
           <div className="flex-1">
-            <button
-              className="btn btn-ghost normal-case text-xl text-white"
+            <p
+              className="btn btn-ghost normal-case text-xl text-white text-ellipsis"
               onClick={() => {
                 navigation(`/runs/api/${documentPath}`);
               }}
             >
-              {executionAppState.runDocument?.title}
-            </button>
+              {title}
+            </p>
           </div>
           <div className="flex-none">
             <ul className="menu menu-horizontal px-1">
               <li>
-                <a className="bg-base-200">Download report</a>
+                <a className="btn btn-sm">Download report</a>
               </li>
             </ul>
           </div>

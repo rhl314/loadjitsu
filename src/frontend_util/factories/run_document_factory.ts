@@ -23,22 +23,21 @@ curl --location --request POST 'http://localhost:3000/api/members/organisation-i
 --data-raw '{
     "hello": "world"
 }'
-`
-
+`;
 
 export class RunDocumentFactory {
-    public static newRunDocument(type: RunType, uniqueId: string): RunDocument {
-        const runDocument: RunDocument = {
-            uniqueId,
-            title: "Untitled load test",
-            type,
-            configuration: RunConfigurationFactory.newRunConfiguration(),
-            apiSteps: [],
-        }
-        if (type === RunType.API) {
-            //runDocument.apiSteps = [ApiStepFactory.fromCurl(curlPayload).getValue()]
-            runDocument.apiSteps = [ApiStepFactory.new()]
-        }
-        return runDocument;
+  public static newRunDocument(type: RunType, uniqueId: string): RunDocument {
+    const runDocument: RunDocument = {
+      uniqueId,
+      title: "",
+      type,
+      configuration: RunConfigurationFactory.newRunConfiguration(),
+      apiSteps: [],
+    };
+    if (type === RunType.API) {
+      //runDocument.apiSteps = [ApiStepFactory.fromCurl(curlPayload).getValue()]
+      runDocument.apiSteps = [ApiStepFactory.new()];
     }
+    return runDocument;
+  }
 }

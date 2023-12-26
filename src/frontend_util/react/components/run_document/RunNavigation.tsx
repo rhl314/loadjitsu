@@ -47,6 +47,7 @@ export default function RunNavigation() {
               type="text"
               className="fs-4 w-full"
               value={state.runDocument.title}
+              placeholder="Untitled test"
               onChange={(event: any) => {
                 (state.runDocument.title = event?.target?.value),
                   dispatch({
