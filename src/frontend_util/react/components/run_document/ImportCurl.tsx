@@ -102,18 +102,18 @@ export default function Example({
                     <div className="absolute left-0 top-0 -ml-8 flex pr-2 pt-4 sm:-ml-10 sm:pr-4"></div>
                   </Transition.Child>
 
-                  <form className="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
-                    <div className="flex-1">
+                  <div className="flex h-full flex-col overflow-y-scroll bg-white shadow-xl">
+                    <div className="flex-1 h-full flex flex-col">
                       {/* Header */}
                       <div className="bg-gray-50 px-4 py-6 sm:px-6">
                         <div className="flex items-start justify-between space-x-3">
                           <div className="space-y-1">
                             <Dialog.Title className="text-base font-semibold leading-6 text-gray-900">
-                              New project
+                              Import curl
                             </Dialog.Title>
                             <p className="text-sm text-gray-500">
-                              Get started by filling in the information below to
-                              create your new project.
+                              Paste your curl command here to import it into a
+                              load test
                             </p>
                           </div>
                           <div className="flex h-7 items-center">
@@ -132,207 +132,8 @@ export default function Example({
                           </div>
                         </div>
                       </div>
-
-                      {/* Divider container */}
-                      <div className="space-y-6 py-6 sm:space-y-0 sm:divide-y sm:divide-gray-200 sm:py-0">
-                        {/* Project name */}
-                        <div className="space-y-2 px-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:space-y-0 sm:px-6 sm:py-5">
-                          <div>
-                            <label
-                              htmlFor="project-name"
-                              className="block text-sm font-medium leading-6 text-gray-900 sm:mt-1.5"
-                            >
-                              Project name
-                            </label>
-                          </div>
-                          <div className="sm:col-span-2">
-                            <input
-                              type="text"
-                              name="project-name"
-                              id="project-name"
-                              className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                            />
-                          </div>
-                        </div>
-
-                        {/* Project description */}
-                        <div className="space-y-2 px-4 sm:grid sm:grid-cols-3 sm:gap-4 sm:space-y-0 sm:px-6 sm:py-5">
-                          <div>
-                            <label
-                              htmlFor="project-description"
-                              className="block text-sm font-medium leading-6 text-gray-900 sm:mt-1.5"
-                            >
-                              Description
-                            </label>
-                          </div>
-                          <div className="sm:col-span-2">
-                            <textarea
-                              id="project-description"
-                              name="project-description"
-                              rows={3}
-                              className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                              defaultValue={""}
-                            />
-                          </div>
-                        </div>
-
-                        {/* Team members */}
-                        <div className="space-y-2 px-4 sm:grid sm:grid-cols-3 sm:items-center sm:gap-4 sm:space-y-0 sm:px-6 sm:py-5">
-                          <div>
-                            <h3 className="text-sm font-medium leading-6 text-gray-900">
-                              Team Members
-                            </h3>
-                          </div>
-                          <div className="sm:col-span-2">
-                            <div className="flex space-x-2">
-                              {team.map((person) => (
-                                <a
-                                  key={person.email}
-                                  href={person.href}
-                                  className="flex-shrink-0 rounded-full hover:opacity-75"
-                                >
-                                  <img
-                                    className="inline-block h-8 w-8 rounded-full"
-                                    src={person.imageUrl}
-                                    alt={person.name}
-                                  />
-                                </a>
-                              ))}
-
-                              <button
-                                type="button"
-                                className="relative inline-flex h-8 w-8 flex-shrink-0 items-center justify-center rounded-full border-2 border-dashed border-gray-200 bg-white text-gray-400 hover:border-gray-300 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                              >
-                                <span className="absolute -inset-2" />
-                                <span className="sr-only">Add team member</span>
-                                <PlusIcon
-                                  className="h-5 w-5"
-                                  aria-hidden="true"
-                                />
-                              </button>
-                            </div>
-                          </div>
-                        </div>
-
-                        {/* Privacy */}
-                        <fieldset className="space-y-2 px-4 sm:grid sm:grid-cols-3 sm:items-start sm:gap-4 sm:space-y-0 sm:px-6 sm:py-5">
-                          <legend className="sr-only">Privacy</legend>
-                          <div
-                            className="text-sm font-medium leading-6 text-gray-900"
-                            aria-hidden="true"
-                          >
-                            Privacy
-                          </div>
-                          <div className="space-y-5 sm:col-span-2">
-                            <div className="space-y-5 sm:mt-0">
-                              <div className="relative flex items-start">
-                                <div className="absolute flex h-6 items-center">
-                                  <input
-                                    id="public-access"
-                                    name="privacy"
-                                    aria-describedby="public-access-description"
-                                    type="radio"
-                                    className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                                    defaultChecked
-                                  />
-                                </div>
-                                <div className="pl-7 text-sm leading-6">
-                                  <label
-                                    htmlFor="public-access"
-                                    className="font-medium text-gray-900"
-                                  >
-                                    Public access
-                                  </label>
-                                  <p
-                                    id="public-access-description"
-                                    className="text-gray-500"
-                                  >
-                                    Everyone with the link will see this project
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="relative flex items-start">
-                                <div className="absolute flex h-6 items-center">
-                                  <input
-                                    id="restricted-access"
-                                    name="privacy"
-                                    aria-describedby="restricted-access-description"
-                                    type="radio"
-                                    className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                                  />
-                                </div>
-                                <div className="pl-7 text-sm leading-6">
-                                  <label
-                                    htmlFor="restricted-access"
-                                    className="font-medium text-gray-900"
-                                  >
-                                    Private to Project Members
-                                  </label>
-                                  <p
-                                    id="restricted-access-description"
-                                    className="text-gray-500"
-                                  >
-                                    Only members of this project would be able
-                                    to access
-                                  </p>
-                                </div>
-                              </div>
-                              <div className="relative flex items-start">
-                                <div className="absolute flex h-6 items-center">
-                                  <input
-                                    id="private-access"
-                                    name="privacy"
-                                    aria-describedby="private-access-description"
-                                    type="radio"
-                                    className="h-4 w-4 border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                                  />
-                                </div>
-                                <div className="pl-7 text-sm leading-6">
-                                  <label
-                                    htmlFor="private-access"
-                                    className="font-medium text-gray-900"
-                                  >
-                                    Private to you
-                                  </label>
-                                  <p
-                                    id="private-access-description"
-                                    className="text-gray-500"
-                                  >
-                                    You are the only one able to access this
-                                    project
-                                  </p>
-                                </div>
-                              </div>
-                            </div>
-                            <hr className="border-gray-200" />
-                            <div className="flex flex-col items-start space-y-4 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-                              <div>
-                                <a
-                                  href="#"
-                                  className="group flex items-center space-x-2.5 text-sm font-medium text-indigo-600 hover:text-indigo-900"
-                                >
-                                  <LinkIcon
-                                    className="h-5 w-5 text-indigo-500 group-hover:text-indigo-900"
-                                    aria-hidden="true"
-                                  />
-                                  <span>Copy link</span>
-                                </a>
-                              </div>
-                              <div>
-                                <a
-                                  href="#"
-                                  className="group flex items-center space-x-2.5 text-sm text-gray-500 hover:text-gray-900"
-                                >
-                                  <QuestionMarkCircleIcon
-                                    className="h-5 w-5 text-gray-400 group-hover:text-gray-500"
-                                    aria-hidden="true"
-                                  />
-                                  <span>Learn more about sharing</span>
-                                </a>
-                              </div>
-                            </div>
-                          </div>
-                        </fieldset>
+                      <div className="px-4 py-6 sm:px-6 grow">
+                        <textarea className="rounded-md w-full  h-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"></textarea>
                       </div>
                     </div>
 
@@ -354,7 +155,7 @@ export default function Example({
                         </button>
                       </div>
                     </div>
-                  </form>
+                  </div>
                 </Dialog.Panel>
               </Transition.Child>
             </div>
