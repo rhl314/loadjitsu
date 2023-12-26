@@ -16,6 +16,7 @@
     "@tauri-apps/api": "^1.5.0",
     "axios": "^1.6.0",
     "chart.js": "^4.4.0",
+    "curlconverter": "^4.8.1",
     "dayjs": "^1.11.10",
     "javascript-time-ago": "^2.5.9",
     "lodash": "^4.17.21",
