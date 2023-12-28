@@ -149,28 +149,26 @@ export default function ApiStepComponent(props: {
 
   const subSectionsCtas = () => {
     const sections = ["HEADERS", "BODY"];
-
     return (
-      <li className="nav-item d-flex">
+      <div className="tabs z-10 -mb-px">
         {sections.map((section) => {
-          let className = "nav-link cursor-pointer";
+          let className = "tab tab-lifted";
           if (section === subSection) {
-            className = className + " active active-nested";
+            className = className + " tab-active";
           }
           return (
-            <div
-              style={{ cursor: "pointer" }}
+            <button
+              className={className}
               onClick={() => {
                 setSubSection(section);
               }}
-              className={className}
               key={section}
             >
               {startCase(section.toLowerCase())}
-            </div>
+            </button>
           );
         })}
-      </li>
+      </div>
     );
   };
 
@@ -530,6 +528,17 @@ export default function ApiStepComponent(props: {
                   </span>
                 </div>
               )}
+            </div>
+          </div>
+        </div>
+      </div>
+      <div className="app_container mx-auto">
+        <div className="my-4"></div>
+        <div className="grid">
+          {subSectionsCtas()}
+          <div className="relative overflow-x-auto">
+            <div className="preview border-base-300 bg-base-100  w-100 gap-2 overflow-x-hidden border bg-cover bg-top p-4">
+              {section()}
             </div>
           </div>
         </div>

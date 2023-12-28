@@ -28,7 +28,6 @@ const Run = (args: { documentPath: string }) => {
     runDocumentPath: args.documentPath,
   });
   const loadRunDocument = async () => {
-    debugger;
     try {
       const runDocumentSerialized = (await invoke("loadRunDocument", {
         runDocumentPath: args.documentPath,
