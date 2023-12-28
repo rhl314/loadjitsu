@@ -12,56 +12,23 @@
   }
   ```
 */
-import { Fragment, useState } from "react";
 import { Dialog, Transition } from "@headlessui/react";
-import { HeartIcon, XMarkIcon } from "@heroicons/react/24/outline";
-import { PencilIcon, PlusIcon } from "@heroicons/react/20/solid";
-import { LinkIcon, QuestionMarkCircleIcon } from "@heroicons/react/20/solid";
-const team = [
-  {
-    name: "Tom Cook",
-    email: "tom.cook@example.com",
-    href: "#",
-    imageUrl:
-      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-  {
-    name: "Whitney Francis",
-    email: "whitney.francis@example.com",
-    href: "#",
-    imageUrl:
-      "https://images.unsplash.com/photo-1517365830460-955ce3ccd263?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-  {
-    name: "Leonard Krasner",
-    email: "leonard.krasner@example.com",
-    href: "#",
-    imageUrl:
-      "https://images.unsplash.com/photo-1519345182560-3f2917c472ef?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-  {
-    name: "Floyd Miles",
-    email: "floyd.miles@example.com",
-    href: "#",
-    imageUrl:
-      "https://images.unsplash.com/photo-1463453091185-61582044d556?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-  {
-    name: "Emily Selman",
-    email: "emily.selman@example.com",
-    href: "#",
-    imageUrl:
-      "https://images.unsplash.com/photo-1502685104226-ee32379fefbe?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80",
-  },
-];
+import { XMarkIcon } from "@heroicons/react/24/outline";
+import { Fragment, useState } from "react";
+import CodeEditor from "./CodeEditor";
+import { CurlParser } from "../../../factories/CurlParser";
+import { ApiStep } from "../../../ipc/api";
 
-export default function Example({
+export default function ImportCurl({
   open,
   setOpen,
+  onData,
 }: {
   open: boolean;
   setOpen: (open: boolean) => void;
+  onData: (apiStep: ApiStep) => void;
 }) {
+  const [curlCommand, setCurlCommand] = useState<string>("");
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={setOpen}>
@@ -133,7 +100,10 @@ export default function Example({
                         </div>
                       </div>
                       <div className="px-4 py-6 sm:px-6 grow">
-                        <textarea className="rounded-md w-full  h-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"></textarea>
+                        <CodeEditor
+                          text={curlCommand}
+                          setText={setCurlCommand}
+                        />
                       </div>
                     </div>
 
@@ -149,6 +119,22 @@ export default function Example({
                         </button>
                         <button
                           type="submit"
+                          onClick={() => {
+                            try {
+                              const curlParser = new CurlParser(curlCommand);
+                              const apiStepOrError = curlParser.parse();
+                              if (apiStepOrError.isFailure) {
+                                console.error(apiStepOrError.error);
+                                return;
+                              }
+                              const apiStep = apiStepOrError.getValue();
+                              console.log(apiStep);
+                              onData(apiStep);
+                              setOpen(false);
+                            } catch (e) {
+                              console.error(e);
+                            }
+                          }}
                           className="inline-flex justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                         >
                           Create

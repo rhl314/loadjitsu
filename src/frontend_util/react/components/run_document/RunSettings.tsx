@@ -258,7 +258,13 @@ export default function RunSettings() {
         </div>
       </div>
       <TitleModal />
-      <ImportCurl open={openCurlImporter} setOpen={setOpenCurlImporter} />
+      <ImportCurl
+        open={openCurlImporter}
+        setOpen={setOpenCurlImporter}
+        onData={(curlAsJson: any) => {
+          console.log(curlAsJson);
+        }}
+      />
     </>
   );
 }

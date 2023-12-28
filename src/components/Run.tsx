@@ -19,6 +19,7 @@ import RunNavigation from "../frontend_util/react/components/run_document/RunNav
 import RunSettings from "../frontend_util/react/components/run_document/RunSettings";
 import { invoke } from "@tauri-apps/api/tauri";
 import { AppUtil } from "../api_client/AppUtil";
+import { ApiStep } from "../frontend_util/ipc/api";
 
 const Run = (args: { documentPath: string }) => {
   const type = RunType.API;
@@ -27,6 +28,7 @@ const Run = (args: { documentPath: string }) => {
     runDocumentPath: args.documentPath,
   });
   const loadRunDocument = async () => {
+    debugger;
     try {
       const runDocumentSerialized = (await invoke("loadRunDocument", {
         runDocumentPath: args.documentPath,
@@ -41,9 +43,25 @@ const Run = (args: { documentPath: string }) => {
       });
     } catch (err) {
       if (err === "DOCUMENT_NOT_FOUND") {
+        let apiStepFromLocalStorage: ApiStep | null = null;
+        try {
+          const importedCurl = localStorage.getItem("importedCurl");
+          if (importedCurl) {
+            const base64ToUint8Array = Uint8Array.from(
+              atob(importedCurl),
+              (c) => c.charCodeAt(0)
+            );
+            apiStepFromLocalStorage = ApiStep.decode(base64ToUint8Array);
+            console.log({ apiStepFromLocalStorage });
+          }
+        } catch (err) {
+          console.error(err);
+          apiStepFromLocalStorage = null;
+        }
         const runDocument = RunDocumentFactory.newRunDocument(
           RunType.API,
-          shortid.generate()
+          shortid.generate(),
+          apiStepFromLocalStorage as ApiStep
         );
         dispatch({
           runDocument,
