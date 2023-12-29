@@ -1,4 +1,4 @@
-import _ from "lodash";
+import _, { head } from "lodash";
 import minimist from "minimist";
 import sh from "mvdan-sh";
 import queryString from "query-string";
@@ -74,6 +74,11 @@ export class CurlParser {
         };
         apiStep.headers.push(apiHeader);
       }
+
+      let contentType = apiStep.headers.find((header) => {
+        return header.key.toLowerCase() === "content-type";
+      })?.value;
+
       const headerPriorities: Record<string, number> = {
         "content-type": 1,
         authorization: 2,
@@ -99,8 +104,24 @@ export class CurlParser {
           urlEncodedData = [urlEncodedData];
         }
 
-        if (!_.isEmpty(rawData)) {
-          apiStep.body.type = EnumApiBodyType.JSON;
+        if (contentType === "application/x-www-form-urlencoded") {
+          apiStep.body.type = EnumApiBodyType.X_URL_FORM_ENCODED;
+          const parsedQueryString = queryString.parse(rawData);
+          for (const key of _.keys(parsedQueryString)) {
+            const value = _.trim(parsedQueryString[key] as string);
+            const apiFormData: ApiBodyFormData = {
+              uniqueId: shortid.generate(),
+              key,
+              value,
+              description: "",
+              active: true,
+              deleted: false,
+              validationErrors: [],
+            };
+            apiStep.body.formData.push(apiFormData);
+          }
+        } else if (!_.isEmpty(rawData)) {
+          apiStep.body.type = EnumApiBodyType.TEXT;
           apiStep.body.data = rawData;
         } else if (!_.isEmpty(urlEncodedData)) {
           apiStep.body.type = EnumApiBodyType.X_URL_FORM_ENCODED;
