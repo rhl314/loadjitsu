@@ -103,6 +103,7 @@ export default function ImportCurl({
                         <CodeEditor
                           text={curlCommand}
                           setText={setCurlCommand}
+                          heightClass="h-full"
                         />
                       </div>
                     </div>

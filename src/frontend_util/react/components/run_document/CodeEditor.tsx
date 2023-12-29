@@ -4,6 +4,7 @@ import CodeMirror from "@uiw/react-codemirror";
 import React, { useLayoutEffect, useRef, useState } from "react";
 
 const CodeEditor = (props: {
+  heightClass: string;
   text: string;
   setText: (text: string) => void;
 }) => {
@@ -19,7 +20,7 @@ const CodeEditor = (props: {
   }, []);
 
   return (
-    <div className="h-full" ref={ref}>
+    <div className={props.heightClass} ref={ref}>
       <CodeMirror
         className="h-full"
         height={`${editorHeight}px`}
