@@ -4,17 +4,17 @@ extern crate base64;
 
 use prost::Message;
 use std::time::Duration;
-use std::{collections::HashMap, error::Error};
-use ureq::{Agent, AgentBuilder};
 
-use serde::{Deserialize, Serialize};
+use ureq::{Agent};
+
+
 
 use crate::api_service::api_service::ApiService;
-use crate::database_service::database_service::DatabaseService;
+
 use crate::document_service::document_service::DocumentService;
 use crate::load_test_service::load_test_service::LoadTestService;
 use crate::models::execution::ExecutionStatusCount;
-use crate::models::{DocumentRevision, Execution, ExecutionDocument, RunDocumentFile};
+use crate::models::{DocumentRevision, ExecutionDocument, RunDocumentFile};
 use crate::protos::ipc::{ApiStep, HttpAction, RunResponse, RunStatus};
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -100,7 +100,7 @@ fn runApiStepOnceOld(serialized: &str) -> String {
             let status = response.status();
 
             println!("{}", status);
-            let runResponse = super::protos::ipc::RunResponse {
+            let _runResponse = super::protos::ipc::RunResponse {
                 unique_id: String::from("uniqueid"),
                 has_logs: false,
                 logs: [].to_vec(),
@@ -114,8 +114,8 @@ fn runApiStepOnceOld(serialized: &str) -> String {
             };
             String::from("gello")
         }
-        Err(E) => {
-            let runResponse = super::protos::ipc::RunResponse {
+        Err(_E) => {
+            let _runResponse = super::protos::ipc::RunResponse {
                 unique_id: String::from("uniqueid"),
                 has_logs: false,
                 logs: [].to_vec(),

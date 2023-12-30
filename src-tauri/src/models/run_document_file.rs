@@ -1,4 +1,4 @@
-use sqlx::{Database, Row, SqlitePool};
+use sqlx::{Row, SqlitePool};
 
 use crate::{
     database_service::database_service::DatabaseService, file_service::file_service::FileService,

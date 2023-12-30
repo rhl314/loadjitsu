@@ -75,7 +75,7 @@ export default function ExecutionSummary({
         );
       }}
     >
-      <td>https://test.loadjitsu.io</td>
+      <td>{localState?.runDocument?.title || "Untitled load test"}</td>
       <td>
         {localState?.runDocument?.configuration?.rps} rps for{" "}
         {localState?.runDocument?.configuration?.durationInSeconds} seconds

@@ -20,10 +20,8 @@ const Execution = () => {
   });
   let title = executionAppState.runDocument?.title;
   if (_.isEmpty(title)) {
-    title = executionAppState.runDocument?.apiSteps[0].endpoint;
+    title = executionAppState.runDocument?.title || "Untitled test";
   }
-  title =
-    "into that heaven of freedom my fathet let my country awake https://meet.google.com/wnf-exxq-kzy https://meet.google.com/wnf-exxq-kzy https://meet.google.com/wnf-exxq-kzy";
   title = _.truncate(title, { length: 40 });
   const loadExecution = async () => {
     try {

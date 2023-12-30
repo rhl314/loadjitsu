@@ -1,10 +1,10 @@
 use serde::Serialize;
-use sqlx::sqlite::{SqlitePool, SqliteQueryResult};
-use sqlx::{Error, FromRow, Row};
+use sqlx::sqlite::{SqlitePool};
+use sqlx::{FromRow, Row};
 
 use crate::file_service::file_service::FileService;
 
-use super::{execution_document, ExecutionDocument};
+use super::{ExecutionDocument};
 
 #[derive(Debug, Clone)]
 pub struct Execution {

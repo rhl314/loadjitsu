@@ -1,5 +1,5 @@
-use serde::{de, Deserialize, Serialize};
-use sqlx::sqlite::{SqlitePool, SqliteQueryResult};
+use serde::{Deserialize, Serialize};
+use sqlx::sqlite::{SqlitePool};
 use sqlx::FromRow;
 use uuid::Uuid;
 

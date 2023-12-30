@@ -1,10 +1,10 @@
 use base64;
-use base64::{engine::general_purpose, Engine as _};
+use base64::{Engine as _};
 use prost::Message;
 use reqwest::header::{HeaderMap, HeaderValue};
 use sqlx::SqlitePool;
 use std::time::Duration;
-use std::{f64::consts::E, io::Cursor, time::Instant};
+use std::{io::Cursor, time::Instant};
 use uuid::Uuid;
 
 use crate::database_service::database_service::DatabaseService;
@@ -253,7 +253,7 @@ impl ApiService {
         // Send the request
         let response_or_error = request_builder.send().await;
         let response_unique_id = uuid::Uuid::new_v4().to_string();
-        let mut statusCode = 0;
+        let _statusCode = 0;
         let mut status = protos::ipc::RunStatus::Success;
         let mut error = String::from("");
         let mut responseSize = 0;

@@ -1,18 +1,18 @@
 use diesel::Connection;
 use diesel::SqliteConnection;
-use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationError, MigrationHarness};
+use diesel_migrations::{embed_migrations, EmbeddedMigrations, MigrationHarness};
 pub const MIGRATIONS: EmbeddedMigrations = embed_migrations!("./migrations");
 use anyhow::anyhow;
 use sqlx::sqlite::SqlitePool;
 use sqlx::Pool;
-use sqlx::Row;
+
 use sqlx::Sqlite;
 
-use crate::api_service::api_service::ApiService;
-use crate::file_service::file_service::FileService;
 
-use crate::models::DocumentRevision;
-use crate::protos::ipc::RunDocument;
+
+
+
+
 
 pub struct DatabaseService;
 impl DatabaseService {
@@ -21,7 +21,7 @@ impl DatabaseService {
         let ranOrError = connection.run_pending_migrations(MIGRATIONS);
         match ranOrError {
             Ok(_) => Ok(connection),
-            Err(e) => Err(anyhow!("Error in migration")),
+            Err(_e) => Err(anyhow!("Error in migration")),
         }
     }
     pub async fn connection(database_path: &str) -> anyhow::Result<Pool<Sqlite>> {

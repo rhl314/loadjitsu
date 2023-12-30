@@ -1,23 +1,23 @@
-use std::f32::consts::E;
+
 use std::fs;
 use std::fs::File;
 
 use anyhow::anyhow;
 use anyhow::Result;
 use base64::decode;
-use base64::engine::general_purpose;
-use base64::Engine;
+
+
 use platform_dirs::AppDirs;
 use sha2::Digest;
 use sha2::Sha256;
 use std::env;
 use sysinfo::Pid;
 
-use std::io::{self, Read};
-use sysinfo::{ProcessExt, System, SystemExt};
-use uuid::Uuid;
+use std::io::{Read};
+use sysinfo::{System, SystemExt};
 
-use crate::schema::ExecutionDocuments::pid;
+
+
 
 pub struct FileService;
 
@@ -43,14 +43,14 @@ impl FileService {
             .into_string();
         match file_path_or_error {
             Ok(file_path) => Ok(file_path),
-            Err(e) => Err(anyhow::anyhow!("Error in getting file path")),
+            Err(_e) => Err(anyhow::anyhow!("Error in getting file path")),
         }
     }
     pub fn ensure_file_exists(file_path: &str) -> Result<()> {
         if fs::metadata(file_path).is_ok() {
             Ok(())
         } else {
-            let file = File::create(file_path)?;
+            let _file = File::create(file_path)?;
             Ok(())
         }
     }
@@ -70,7 +70,7 @@ impl FileService {
             let data_dir = &app_dirs.data_dir;
             let data_dir = data_dir.to_str();
             fs::create_dir_all(&app_dirs.data_dir)?;
-            if let Some(data_dir) = data_dir {
+            if let Some(_data_dir) = data_dir {
                 let file_path = app_dirs.data_dir.join("run_document_files");
                 if file_path.exists() != true {
                     File::create(&file_path)?;
@@ -79,7 +79,7 @@ impl FileService {
                 let result = file_path.into_os_string().into_string();
                 match result {
                     Ok(file_path) => Ok(file_path),
-                    Err(e) => Err(anyhow::anyhow!("Error in getting file path")),
+                    Err(_e) => Err(anyhow::anyhow!("Error in getting file path")),
                 }
             } else {
                 Err(anyhow::anyhow!("Could not get data directory"))

@@ -5,13 +5,13 @@ use crate::models::DocumentRevision;
 use crate::models::ExecutionDocument;
 use crate::{file_service::file_service::FileService, protos::ipc::RunDocument};
 use anyhow::anyhow;
-use reqwest::Client;
+
 use std::env;
-use std::io;
+
 use std::process;
-use std::process::{Child, Command};
+use std::process::{Command};
 use std::time::Duration;
-use tokio::time::{sleep, timeout};
+use tokio::time::{sleep};
 
 pub struct LoadTestService;
 impl LoadTestService {
@@ -25,7 +25,7 @@ impl LoadTestService {
         let mut run =
             ExecutionDocument::create_new_execution_document(&pool, document_revision_id.clone())
                 .await?;
-        let mut child = Command::new(current_exe)
+        let child = Command::new(current_exe)
             .arg("--mode")
             .arg("CLI")
             .arg("--document-revision-id")
