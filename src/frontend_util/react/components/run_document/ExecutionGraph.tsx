@@ -98,7 +98,8 @@ const ExecutionGraph = (props: IExecutionGraphProps) => {
     ERROR: 0,
     TIMEOUT: 0,
   });
-  for (const executionStatusCount of state.executionStatusCounts) {
+  for (const executionStatusCount of state.executionResults
+    ?.execution_count_by_status_and_run_second || []) {
     let dataPoint = dataMapped.find((dp) => {
       return dp.name === executionStatusCount.run_second.toString();
     });

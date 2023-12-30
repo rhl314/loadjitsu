@@ -50,21 +50,20 @@ const Execution = () => {
       dispatch({
         runDocument,
       });
-      const executionStatusCountsOrError =
-        await apiClient.getExecutionStatusCounts({
-          runDocumentPath: documentPath as string,
-          executionDocumentId: executionId as string,
-        });
-      if (executionStatusCountsOrError.isFailure) {
+      const executionResultsOrError = await apiClient.getExecutionResults({
+        runDocumentPath: documentPath as string,
+        executionDocumentId: executionId as string,
+      });
+      if (executionResultsOrError.isFailure) {
         return dispatch({
           state: "ERROR",
         });
       }
-      const executionStatusCounts = executionStatusCountsOrError.getValue();
-      console.log({ executionStatusCounts });
+      const executionResults = executionResultsOrError.getValue();
+      console.log({ ready: executionResults });
 
       dispatch({
-        executionStatusCounts,
+        executionResults: executionResults,
         state: "READY",
       });
       if (executionDocument.status === "RUNNING") {

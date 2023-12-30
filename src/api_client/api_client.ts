@@ -9,7 +9,8 @@ import { AppUtil } from "./AppUtil";
 import { IBootApiResponse } from "./IBootApiResponse";
 import {
   IExecutionDocument,
-  IExecutionStatusCount,
+  IExecutionCountByStatusAndRunSecond,
+  IExecutionResults,
 } from "../frontend_util/react/ExecutionContext";
 export interface ICreateAdminUserRequest {
   handle: string;
@@ -175,18 +176,18 @@ export class ApiClient {
     }
   }
 
-  public async getExecutionStatusCounts(args: {
+  public async getExecutionResults(args: {
     runDocumentPath: string;
     executionDocumentId: string;
-  }): Promise<Result<IExecutionStatusCount[]>> {
+  }): Promise<Result<IExecutionResults>> {
     try {
       console.log("Getting runs");
       const response = (await invoke("getExecutionResults", {
         runDocumentPath: args.runDocumentPath,
         executionDocumentId: args.executionDocumentId,
-      })) as IExecutionStatusCount[];
-      console.log({ response });
-      return Result.ok<IExecutionStatusCount[]>(response);
+      })) as IExecutionResults;
+      console.log({ ready: response });
+      return Result.ok<IExecutionResults>(response);
     } catch (err: any) {
       console.log("Errored");
       console.error(err);

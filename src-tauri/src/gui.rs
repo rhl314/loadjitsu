@@ -11,7 +11,7 @@ use crate::api_service::api_service::ApiService;
 
 use crate::document_service::document_service::DocumentService;
 use crate::load_test_service::load_test_service::LoadTestService;
-use crate::models::execution::ExecutionStatusCount;
+use crate::models::execution::{ExecutionCountByStatusAndRunSecond, ExecutionResults};
 use crate::models::{DocumentRevision, ExecutionDocument, RunDocumentFile};
 use crate::protos::ipc::{ApiStep, HttpAction, RunResponse, RunStatus};
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
@@ -193,7 +193,7 @@ async fn getExecutions(runDocumentPath: &str) -> Result<Vec<ExecutionDocument>, 
 async fn getExecutionResults(
     runDocumentPath: &str,
     executionDocumentId: &str,
-) -> Result<Vec<ExecutionStatusCount>, String> {
+) -> Result<ExecutionResults, String> {
     let runs_or_error =
         ApiService::get_execution_results(executionDocumentId, runDocumentPath).await;
     match runs_or_error {

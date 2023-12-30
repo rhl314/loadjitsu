@@ -1,16 +1,15 @@
-import * as _ from "lodash";
 import { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import TimeAgo from "react-time-ago";
 import { ApiClient, IExecution } from "../../../api_client/api_client";
 import { RunDocument } from "../../ipc/run_document";
-import { IExecutionStatusCount } from "../ExecutionContext";
 import { RunDocumentAppContext } from "../RunDocumentContext";
 import ThumbnailChart from "./ThumbnailChart";
+import { IExecutionResults } from "../ExecutionContext";
 interface ILocalState {
   status: "IDLE" | "LOADING" | "ERROR";
   runDocument?: RunDocument;
-  executionStatusCounts?: IExecutionStatusCount[];
+  executionResults?: IExecutionResults;
 }
 
 export default function ExecutionSummary({
@@ -37,23 +36,21 @@ export default function ExecutionSummary({
         });
         return;
       }
-      const executionStatusCountsOrError =
-        await apiClient.getExecutionStatusCounts({
-          runDocumentPath: runDocumentAppContext.state
-            .runDocumentPath as string,
-          executionDocumentId: execution.id,
-        });
-      if (executionStatusCountsOrError.isFailure) {
+      const executionResultOrError = await apiClient.getExecutionResults({
+        runDocumentPath: runDocumentAppContext.state.runDocumentPath as string,
+        executionDocumentId: execution.id,
+      });
+      if (executionResultOrError.isFailure) {
         setLocalState({
           ...localState,
           status: "ERROR",
         });
         return;
       }
-      const executionStatusCounts = executionStatusCountsOrError.getValue();
+      const executionStatusCounts = executionResultOrError.getValue();
       setLocalState({
         ...localState,
-        executionStatusCounts,
+        executionResults: executionStatusCounts,
         runDocument: runDocumentOrError.getValue(),
       });
     } catch (err) {
@@ -82,9 +79,14 @@ export default function ExecutionSummary({
       </td>
       <td>{<TimeAgo date={new Date(execution.started_at)} />}</td>
 
-      {localState.executionStatusCounts && (
+      {localState.executionResults && (
         <td>
-          <ThumbnailChart statusCounts={localState.executionStatusCounts} />
+          <ThumbnailChart
+            statusCounts={
+              localState.executionResults
+                ?.execution_count_by_status_and_run_second
+            }
+          />
         </td>
       )}
     </tr>

@@ -1,10 +1,10 @@
 use serde::Serialize;
-use sqlx::sqlite::{SqlitePool};
+use sqlx::sqlite::SqlitePool;
 use sqlx::{FromRow, Row};
 
 use crate::file_service::file_service::FileService;
 
-use super::{ExecutionDocument};
+use super::ExecutionDocument;
 
 #[derive(Debug, Clone)]
 pub struct Execution {
@@ -22,10 +22,31 @@ pub struct Execution {
 }
 
 #[derive(Debug, FromRow, Serialize, serde::Deserialize)]
-pub struct ExecutionStatusCount {
+pub struct ExecutionCountByStatusAndRunSecond {
     pub status: String,
     pub run_second: i32, // Unix timestamp in seconds
     pub count: i64,
+}
+#[derive(Debug, FromRow, Serialize, serde::Deserialize)]
+pub struct ExecutionCountByStatus {
+    pub status: String,
+    pub count: i64, // Unix timestamp in seconds
+}
+#[derive(Debug, FromRow, Serialize, serde::Deserialize)]
+pub struct ExecutionSummary {
+    pub max_response_time: i64,
+    pub avg_response_time: f64,
+    pub min_response_time: i64,
+    pub max_latency: i64,
+    pub avg_latency: f64,
+    pub min_latency: i64,
+}
+
+#[derive(Debug, FromRow, Serialize, serde::Deserialize)]
+pub struct ExecutionResults {
+    pub execution_count_by_status: Vec<ExecutionCountByStatus>,
+    pub execution_count_by_status_and_run_second: Vec<ExecutionCountByStatusAndRunSecond>,
+    pub execution_summary: Vec<ExecutionSummary>,
 }
 
 impl Execution {
@@ -75,10 +96,84 @@ impl Execution {
         Ok(execution_document)
     }
 
-    pub async fn aggregate_results_by_execution_document_id(
+    pub async fn get_execution_summary(
         execution_document_id: &str,
         pool: &SqlitePool,
-    ) -> Result<Vec<ExecutionStatusCount>, sqlx::Error> {
+    ) -> Result<Vec<ExecutionSummary>, sqlx::Error> {
+        println!("execution_document_id: {}", execution_document_id);
+        let rows = sqlx::query(
+            r#"
+                SELECT
+                MAX(timeMs) as max_response_time, MIN(timeMs) as min_response_time, AVG(timeMs) as avg_response_time,
+		        MAX(latencyMs) as max_latency, MIN(latencyMs) as min_latency, AVG(latencyMs) as avg_latency
+                FROM 
+            Executions
+                WHERE
+            execution_document_id = ?
+        "#,
+        )
+        .bind(&execution_document_id)
+        .fetch_all(pool)
+        .await?;
+
+        let results = rows
+            .into_iter()
+            .map(|row| {
+                // dbg!(&row);
+                ExecutionSummary {
+                    max_response_time: row.get("max_response_time"),
+                    avg_response_time: row.get("avg_response_time"),
+                    min_response_time: row.get("min_response_time"),
+                    max_latency: row.get("max_latency"),
+                    avg_latency: row.get("avg_latency"),
+                    min_latency: row.get("min_latency"),
+                }
+            })
+            .collect();
+
+        Ok(results)
+    }
+
+    pub async fn get_execution_count_by_status(
+        execution_document_id: &str,
+        pool: &SqlitePool,
+    ) -> Result<Vec<ExecutionCountByStatus>, sqlx::Error> {
+        println!("execution_document_id: {}", execution_document_id);
+        let rows = sqlx::query(
+            r#"
+        SELECT 
+            status,
+            COUNT(*) as "count"
+        FROM 
+            Executions
+        WHERE
+            execution_document_id = ?
+        GROUP BY 
+            status
+        "#,
+        )
+        .bind(&execution_document_id)
+        .fetch_all(pool)
+        .await?;
+
+        let results = rows
+            .into_iter()
+            .map(|row| {
+                // dbg!(&row);
+                ExecutionCountByStatus {
+                    status: row.get("status"),
+                    count: row.get("count"),
+                }
+            })
+            .collect();
+
+        Ok(results)
+    }
+
+    pub async fn get_execution_count_by_status_and_run_second(
+        execution_document_id: &str,
+        pool: &SqlitePool,
+    ) -> Result<Vec<ExecutionCountByStatusAndRunSecond>, sqlx::Error> {
         println!("execution_document_id: {}", execution_document_id);
         let rows = sqlx::query(
             r#"
@@ -104,7 +199,7 @@ impl Execution {
             .into_iter()
             .map(|row| {
                 // dbg!(&row);
-                ExecutionStatusCount {
+                ExecutionCountByStatusAndRunSecond {
                     status: row.get("status"),
                     run_second: row.get("run_second"),
                     count: row.get("count"),

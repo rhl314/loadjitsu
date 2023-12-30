@@ -10,7 +10,7 @@ use uuid::Uuid;
 
 use crate::database_service::database_service::DatabaseService;
 use crate::file_service::file_service::FileService;
-use crate::models::execution::ExecutionStatusCount;
+use crate::models::execution::{ExecutionCountByStatusAndRunSecond, ExecutionResults};
 use crate::models::{Execution, ExecutionDocument};
 use crate::protos::ipc::{RunConfiguration, RunDocument, RunShape, RunType};
 use crate::protos::{
@@ -119,13 +119,24 @@ impl ApiService {
     pub async fn get_execution_results(
         execution_document_id: &str,
         run_document_path: &str,
-    ) -> anyhow::Result<Vec<ExecutionStatusCount>> {
+    ) -> anyhow::Result<ExecutionResults> {
         let decoded_document_path = FileService::decode_path(run_document_path)?;
         let pool = DatabaseService::connection(decoded_document_path.as_str()).await?;
-        let aggregated_results =
-            Execution::aggregate_results_by_execution_document_id(execution_document_id, &pool)
+        let execution_count_by_status_and_run_seconds =
+            Execution::get_execution_count_by_status_and_run_second(execution_document_id, &pool)
                 .await?;
-        Ok(aggregated_results)
+        let execution_count_by_status =
+            Execution::get_execution_count_by_status(execution_document_id, &pool).await?;
+        let execution_summary =
+            Execution::get_execution_summary(execution_document_id, &pool).await?;
+
+        Ok({
+            ExecutionResults {
+                execution_count_by_status_and_run_second: execution_count_by_status_and_run_seconds,
+                execution_count_by_status: execution_count_by_status,
+                execution_summary: execution_summary,
+            }
+        })
     }
     pub async fn get_execution_document(
         execution_document_id: &str,
@@ -287,6 +298,7 @@ impl ApiService {
 
         if error.matches("timed out").count() > 0 {
             status = protos::ipc::RunStatus::Timeout;
+            status_code = 504;
         }
 
         // Here, you'd typically convert the response into a RunResponse object

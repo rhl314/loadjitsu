@@ -1,5 +1,5 @@
 import { Line, LineChart } from "recharts";
-import { IExecutionStatusCount } from "../ExecutionContext";
+import { IExecutionCountByStatusAndRunSecond } from "../ExecutionContext";
 
 interface IDataPoint {
   name: string;
@@ -8,7 +8,9 @@ interface IDataPoint {
   TIMEOUT: number;
 }
 
-const ThumbnailChart = (props: { statusCounts: IExecutionStatusCount[] }) => {
+const ThumbnailChart = (props: {
+  statusCounts: IExecutionCountByStatusAndRunSecond[];
+}) => {
   const dataMapped: IDataPoint[] = [];
   dataMapped.push({
     name: "0",
