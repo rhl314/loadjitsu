@@ -5,9 +5,7 @@ extern crate base64;
 use prost::Message;
 use std::time::Duration;
 
-use ureq::{Agent};
-
-
+use ureq::Agent;
 
 use crate::api_service::api_service::ApiService;
 
@@ -80,6 +78,7 @@ async fn run_api_step_once_core(serialized: &str) -> Result<String, Box<dyn std:
     let api_step = super::protos::ipc::ApiStep::decode(base64::decode(serialized)?.as_slice())?;
     let response = ApiService::run(&api_step).await?;
     let serialized = ApiService::serialize_run_response(&response)?;
+    dbg!(response);
     Ok(serialized)
 }
 #[tauri::command]

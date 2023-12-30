@@ -1,10 +1,11 @@
 use base64;
-use base64::{Engine as _};
+use base64::Engine as _;
 use prost::Message;
 use reqwest::header::{HeaderMap, HeaderValue};
 use sqlx::SqlitePool;
 use std::time::Duration;
 use std::{io::Cursor, time::Instant};
+use tauri::api;
 use uuid::Uuid;
 
 use crate::database_service::database_service::DatabaseService;
@@ -175,7 +176,6 @@ impl ApiService {
             HttpAction::Delete => reqwest::Method::DELETE,
             HttpAction::Patch => reqwest::Method::PATCH,
             HttpAction::Head => reqwest::Method::HEAD,
-            // ... add cases for other HTTP actions here ...
             _ => {
                 return Err(Box::new(std::io::Error::new(
                     std::io::ErrorKind::InvalidInput,
@@ -257,9 +257,9 @@ impl ApiService {
         let mut status = protos::ipc::RunStatus::Success;
         let mut error = String::from("");
         let mut responseSize = 0;
-        let mut latency = 0;
-        let mut time = 0;
-        let mut status_code = 200;
+        let mut latency = api_step.timeout_in_ms as u64;
+        let mut time = api_step.timeout_in_ms as u64;
+        let mut status_code = 500;
         match response_or_error {
             Ok(response) => {
                 latency = start.elapsed().as_millis() as u64;
@@ -283,6 +283,10 @@ impl ApiService {
                 status = protos::ipc::RunStatus::Exception;
                 error = e.to_string();
             }
+        }
+
+        if error.matches("timed out").count() > 0 {
+            status = protos::ipc::RunStatus::Timeout;
         }
 
         // Here, you'd typically convert the response into a RunResponse object
