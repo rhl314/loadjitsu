@@ -60,7 +60,7 @@ const ThumbnailChart = (props: {
     >
       <Line type="monotone" dataKey="SUCCESS" stroke="green" dot={false} />
       <Line type="monotone" dataKey="ERROR" stroke="red" dot={false} />
-      <Line type="monotone" dataKey="TIMEOUT" stroke="gray" dot={false} />
+      <Line type="monotone" dataKey="TIMEOUT" stroke="orange" dot={false} />
     </LineChart>
   );
 };

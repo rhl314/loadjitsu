@@ -396,7 +396,7 @@ export default function ApiStepComponent(props: {
                     className="btn join-item w-full"
                     onClick={testConnection}
                   >
-                    {testConnectionCta()} {testConnectionState}
+                    {testConnectionCta()}
                   </button>
                 </div>
               </div>
