@@ -1,15 +1,12 @@
 // @ts-ignore
-import _ from "lodash";
 import shortid from "shortid";
 import { Result } from "../common/Result";
 import {
   ApiBody,
-  ApiHeader,
   ApiStep,
   EnumApiBodyType,
   HttpAction,
   HttpAuthType,
-  httpActionFromJSON,
 } from "../ipc/api";
 import { CurlParser } from "./CurlParser";
 

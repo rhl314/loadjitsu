@@ -1,8 +1,7 @@
-import { capitalize, findIndex, startCase } from "lodash";
+import { findIndex, startCase } from "lodash";
 import { useState } from "react";
-import { Button, Modal } from "react-bootstrap";
+import { ApiClient } from "../../../../api_client/api_client";
 import { ProtoHelper } from "../../../common/ProtoHelper";
-import { CurlParser } from "../../../factories/CurlParser";
 import {
   ApiStep,
   HttpAction,
@@ -13,11 +12,9 @@ import {
   RunResponse,
   RunStatus,
   runStatusFromJSON,
-  runStatusToJSON,
 } from "../../../ipc/run_response";
 import ApiBodyElement from "./ApiBody";
 import ApiHeaders from "./ApiHeaders";
-import { ApiClient } from "../../../../api_client/api_client";
 
 export interface ApiStepComponentUpdated {
   (apiStep: ApiStep): void;
@@ -26,11 +23,11 @@ export interface ApiStepComponentUpdated {
 export interface ApiStepValidate {
   (apiStep: ApiStep): boolean;
 }
-interface ICurlImport {
+/*interface ICurlImport {
   show: boolean;
   data: string;
   error: string | null;
-}
+}*/
 
 export default function ApiStepComponent(props: {
   apiStep: ApiStep;
@@ -38,11 +35,12 @@ export default function ApiStepComponent(props: {
   validate: ApiStepValidate;
 }) {
   const { apiStep } = props;
+  /*
   const [curlImport, setCurlImport] = useState<ICurlImport>({
     show: false,
     data: "",
     error: null,
-  });
+  });*/
 
   const [testConnectionState, setTestConnectionState] = useState("IDLE");
   const [testConnectionResponse, setTestConnectionResponse] =
@@ -57,6 +55,7 @@ export default function ApiStepComponent(props: {
     return "Test connection";
   };
 
+  /*
   const testConnectionException = () => {
     if (testConnectionState !== "EXCEPTION") {
       return;
@@ -124,7 +123,7 @@ export default function ApiStepComponent(props: {
         </div>
       </div>
     );
-  };
+  };*/
 
   const testConnection = async () => {
     if (testConnectionState === "RUNNING") {
@@ -214,6 +213,7 @@ export default function ApiStepComponent(props: {
     }
   };
 
+  /*
   const curlImportModal = () => {
     return (
       <Modal
@@ -289,7 +289,7 @@ export default function ApiStepComponent(props: {
         </Modal.Footer>
       </Modal>
     );
-  };
+  };*/
   const endpointValidationErrors = (field: string) => {
     const errors = (apiStep.validationErrors || []).filter((error) => {
       return error.field === field;
@@ -572,80 +572,3 @@ export default function ApiStepComponent(props: {
     </>
   );
 }
-/*
-const Old = () => {
-  <div className="container container-narrow mx-auto mt-5">
-    <div className="row">
-      <ul className="nav nav-tabs">
-        <li className="nav-item d-flex">
-          <div className="nav-link active">Api details</div>
-          <div
-            onClick={() => {
-              setCurlImport({
-                ...curlImport,
-                show: true,
-              });
-            }}
-            className="nav-link d-flex ps-1 text-warning cursor-pointer"
-          >
-            <div
-              style={{
-                width: "20px",
-                marginTop: "-2px",
-                marginRight: "5px",
-              }}
-            >
-              <PlusButton />
-            </div>
-            Import curl
-          </div>
-        </li>
-      </ul>
-      <div className="card">
-        <div className="card-body pt-4 pb-4">
-          <div className="row">
-            <div className="col-12">
-              <>
-                <InputGroup>
-                  <Button
-                    onClick={testConnection}
-                    variant="secondary"
-                    title="Dropdown"
-                    id="input-group-dropdown-4"
-                  >
-                    Timeout(ms)
-                  </Button>
-
-                  <Button
-                    variant="secondary"
-                    title="Dropdown"
-                    id="input-group-dropdown-4"
-                  >
-                    {}
-                  </Button>
-                </InputGroup>
-              </>
-            </div>
-          </div>
-          {testConnectionException()}
-          {testConnectionResults()}
-          <div className="row mt-4">
-            <div className="col-12">
-              <ul className="nav nav-tabs">{subSectionsCtas()}</ul>
-              <div
-                className="card"
-                style={{ backgroundColor: "black", marginTop: "-5px" }}
-              >
-                <div className="card-body" style={{ backgroundColor: "black" }}>
-                  {section()}
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    {curlImportModal()}
-  </div>;
-};
-*/

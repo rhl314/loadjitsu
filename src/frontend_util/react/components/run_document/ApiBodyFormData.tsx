@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import shortid from "shortid";
 import { ApiBody, ApiBodyFormData } from "../../../ipc/api";
 import PlusButton from "./PlusButton";

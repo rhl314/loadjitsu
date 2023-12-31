@@ -1,4 +1,3 @@
-import React from 'react';
 import * as _ from "lodash";
 import {
   Chart as ChartJS,
@@ -9,10 +8,9 @@ import {
   Title,
   Tooltip,
   Legend,
-} from 'chart.js';
-import { Line } from 'react-chartjs-2';
-import faker from 'faker';
-import { IResultStatus } from '../../../api_client/api_client';
+} from "chart.js";
+import { Line } from "react-chartjs-2";
+import { IResultStatus } from "../../../api_client/api_client";
 
 ChartJS.register(
   CategoryScale,
@@ -28,11 +26,11 @@ export const options = {
   responsive: true,
   plugins: {
     legend: {
-      position: 'top' as const,
+      position: "top" as const,
     },
     title: {
       display: true,
-      text: 'Load test results',
+      text: "Load test results",
     },
   },
 };
@@ -40,30 +38,32 @@ export const options = {
 const colorMap: any = {
   ERROR: {
     border: "rgba(255, 99, 132, 1)",
-    background: "rgba(255, 99, 132, 0.5)"
+    background: "rgba(255, 99, 132, 0.5)",
   },
   SUCCESS: {
     border: "rgba(106, 216, 104, 1)",
-    background: "rgba(106, 216, 104, 0.5)"
+    background: "rgba(106, 216, 104, 0.5)",
   },
   TIMEOUT: {
     border: "rgba(254, 206, 26, 1)",
-    background: "rgba(254, 206, 26, 0.5)"
-  }
-}
+    background: "rgba(254, 206, 26, 0.5)",
+  },
+};
 
-
-export default function Chart(props: { statuses: IResultStatus[]}) {
+export default function Chart(props: { statuses: IResultStatus[] }) {
   let uniqueStatuses: string[] = [];
-  
-  const timestamps = _.uniq(props.statuses.map((s) => {
-    uniqueStatuses.push(s.Status);
-    return s.Timestamp
-  }));
+
+  const timestamps = _.uniq(
+    props.statuses.map((s) => {
+      uniqueStatuses.push(s.Status);
+      return s.Timestamp;
+    })
+  );
 
   const minTimestamp = _.min(timestamps) || timestamps[0];
-  const normalizedTimestamps = _.map(timestamps, (t) => {return (t - minTimestamp)});
-  
+  const normalizedTimestamps = _.map(timestamps, (t) => {
+    return t - minTimestamp;
+  });
 
   uniqueStatuses = _.uniq(uniqueStatuses);
   const datasets = [];
@@ -72,22 +72,22 @@ export default function Chart(props: { statuses: IResultStatus[]}) {
     const data = _.map(timestamps, (t) => {
       const result = _.find(props.statuses, (s) => {
         return s.Timestamp === t && s.Status === status;
-      })
+      });
       if (_.isNil(result)) {
-        return cumulative
+        return cumulative;
       }
       cumulative += result.Count;
       return cumulative;
-    })
+    });
     datasets.push({
       label: status,
       data,
       borderColor: colorMap[status]?.border,
       backgroundColor: colorMap[status]?.background,
-    })
+    });
   }
 
-  
-
-  return <Line options={options} data={{ labels: normalizedTimestamps, datasets}} />;
+  return (
+    <Line options={options} data={{ labels: normalizedTimestamps, datasets }} />
+  );
 }

@@ -5,13 +5,12 @@ import { Result } from "../frontend_util/common/Result";
 import { ApiStep } from "../frontend_util/ipc/api";
 import { RunDocument } from "../frontend_util/ipc/run_document";
 import { RunResponse } from "../frontend_util/ipc/run_response";
-import { AppUtil } from "./AppUtil";
-import { IBootApiResponse } from "./IBootApiResponse";
 import {
   IExecutionDocument,
-  IExecutionCountByStatusAndRunSecond,
   IExecutionResults,
 } from "../frontend_util/react/ExecutionContext";
+import { AppUtil } from "./AppUtil";
+import { IBootApiResponse } from "./IBootApiResponse";
 export interface ICreateAdminUserRequest {
   handle: string;
   password: string;
@@ -245,13 +244,13 @@ export class ApiClient {
     localStorage.removeItem(ApiClient.LOADJITSU_TOKEN);
   }
 
-  public async save(payload: string) {
-    const response = await this.client().post(
+  public async save(_payload: string) {
+    /*const response = await this.client().post(
       `${this.apiHost}/api/v1/private/saveDocument`,
       {
         payload,
       }
-    );
+    );*/
   }
 
   public async runLoadTest(args: {

@@ -1,5 +1,4 @@
 import * as _ from "lodash";
-import { useContext, useState } from "react";
 import { ProtoHelper } from "../../../common/ProtoHelper";
 import {
   ApiBody,
@@ -7,7 +6,6 @@ import {
   EnumApiBodyType,
   enumApiBodyTypeToJSON,
 } from "../../../ipc/api";
-import { RunDocumentAppContext } from "../../RunDocumentContext";
 import ApiBodyFormDataElement from "./ApiBodyFormData";
 import ApiBodyRawData from "./ApiBodyRawData";
 
@@ -18,14 +16,6 @@ export default function ApiBodyElement(props: {
   apiStep: ApiStep;
   bodyUpdated: ApiBodyUpdated;
 }) {
-  const [show, setShow] = useState(false);
-  const [error, setError] = useState<string>("");
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
-
-  const { state, dispatch } = useContext(RunDocumentAppContext);
-  const configuration = state.runDocument?.configuration;
-
   const typeDropDown = () => {
     return (
       <div className="w-full flex flex-row">

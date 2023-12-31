@@ -1,8 +1,6 @@
-import _ from "lodash";
-import { useContext, useState } from "react";
+import { useState } from "react";
 import shortid from "shortid";
 import { ApiHeader, ApiStep } from "../../../ipc/api";
-import { RunDocumentAppContext } from "../../RunDocumentContext";
 import PlusButton from "./PlusButton";
 import TrashButton from "./TrashButton";
 
@@ -23,13 +21,13 @@ export default function ApiHeaders(props: {
     key: "",
     value: "",
   });
-  const [show, setShow] = useState(false);
-  const [error, setError] = useState<string>("");
-  const handleClose = () => setShow(false);
-  const handleShow = () => setShow(true);
+  const [_show, _setShow] = useState(false);
+  const [_error, _setError] = useState<string>("");
+  // const handleClose = () => setShow(false);
+  // const handleShow = () => setShow(true);
 
-  const { state, dispatch } = useContext(RunDocumentAppContext);
-  const configuration = state.runDocument?.configuration;
+  /*const { state, _dispatch } = useContext(RunDocumentAppContext);
+  //const configuration = state.runDocument?.configuration;
   const displayError = () => {
     if (_.isEmpty(_.trim(error))) {
       return null;
@@ -41,7 +39,7 @@ export default function ApiHeaders(props: {
         </div>
       </div>
     );
-  };
+  };*/
 
   return (
     <div className="container mx-auto">

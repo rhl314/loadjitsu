@@ -1,4 +1,4 @@
-import _, { head } from "lodash";
+import _ from "lodash";
 import minimist from "minimist";
 import sh from "mvdan-sh";
 import queryString from "query-string";
