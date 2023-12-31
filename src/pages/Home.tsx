@@ -26,7 +26,7 @@ const Home = () => {
   return (
     <>
       <div>
-        <TopNav container="container-fluid" />
+        <TopNav />
         <div className="app_container mx-auto">
           <div className="px-4 sm:px-6 lg:px-8">
             <div className="sm:flex sm:items-center">

@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from "react";
+import React, { createContext } from "react";
 import { RunDocument } from "../ipc/run_document";
 
 export interface IExecutionCountByStatusAndRunSecond {
@@ -40,13 +40,6 @@ export const ExecutionAppContext = createContext<IExecutionAppContext>({
   state: INITIAL_EXECUTION_APP_STATE,
   dispatch: () => undefined,
 });
-
-export const useAutoSaveContext = () => {
-  const { state, dispatch } = useContext(ExecutionAppContext);
-  const autoSaveDispatch = (partial: Partial<ExecutionAppState>) => {
-    dispatch(partial);
-  };
-};
 
 export interface IExecutionResults {
   execution_count_by_status: IExecutionCountByStatus[];

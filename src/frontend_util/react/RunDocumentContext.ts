@@ -1,5 +1,4 @@
-import { isNil } from "lodash";
-import React, { createContext, useContext } from "react";
+import React, { createContext } from "react";
 import shortid from "shortid";
 import { RunDocumentFactory } from "../factories/run_document_factory";
 import { RunDocument, RunType } from "../ipc/run_document";
@@ -40,10 +39,3 @@ export const RunDocumentAppContext = createContext<IRunDocumentAppContext>({
   state: INITIAL_RUN_DOCUMENT_APP_STATE,
   dispatch: () => undefined,
 });
-
-export const useAutoSaveContext = () => {
-  const { state, dispatch } = useContext(RunDocumentAppContext);
-  const autoSaveDispatch = (partial: Partial<RunDocumentAppState>) => {
-    dispatch(partial);
-  };
-};

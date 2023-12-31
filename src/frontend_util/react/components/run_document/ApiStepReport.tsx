@@ -1,14 +1,5 @@
-import { capitalize, findIndex, startCase } from "lodash";
-import React, { useState } from "react";
-import { Button, Dropdown, DropdownButton, InputGroup, Modal } from 'react-bootstrap';
-import { StepClient } from "../../../../api_client/ApiStepClient";
-import { ProtoHelper } from "../../../common/ProtoHelper";
-import { CurlParser } from "../../../factories/CurlParser";
-import { ApiStep, HttpAction, httpActionToJSON } from "../../../ipc/api";
-import { RunResponse, RunResponse_Status, runResponse_StatusToJSON } from "../../../ipc/run_response";
-import ApiBodyElement from "./ApiBody";
-import ApiHeaders from "./ApiHeaders";
-import PlusButton from "./PlusButton";
+import { Button, DropdownButton, InputGroup } from "react-bootstrap";
+import { ApiStep, httpActionToJSON } from "../../../ipc/api";
 
 export interface ApiStepComponentUpdated {
   (apiStep: ApiStep): void;
@@ -21,15 +12,6 @@ interface ICurlImport {
 
 export default function ApiStepReport(props: { step: ApiStep }) {
   const { step: apiStep } = props;
-
-
-
-
-
-
-
-
-
 
   return (
     <div className="container container-narrow mx-auto mt-5">
@@ -45,17 +27,16 @@ export default function ApiStepReport(props: { step: ApiStep }) {
               <div className="row">
                 <div className="col-12">
                   <>
-
                     <InputGroup>
                       <DropdownButton
                         variant="secondary"
                         title={httpActionToJSON(props.step.action)}
                         id="input-group-dropdown-3"
-                      >
-                      </DropdownButton>
+                      ></DropdownButton>
                       <input
                         value={props.step.endpoint}
-                        className="form-control" />
+                        className="form-control"
+                      />
                       <Button
                         variant="secondary"
                         title="Dropdown"
@@ -65,18 +46,17 @@ export default function ApiStepReport(props: { step: ApiStep }) {
                       </Button>
                       <input
                         value={props.step.timeoutInMs}
-                        style={{ width: '10%', maxWidth: '10%' }}
-                        className="form-control" />
+                        style={{ width: "10%", maxWidth: "10%" }}
+                        className="form-control"
+                      />
                     </InputGroup>
                   </>
                 </div>
               </div>
-
             </div>
           </div>
         </div>
-
-
       </div>
-    </div>)
+    </div>
+  );
 }

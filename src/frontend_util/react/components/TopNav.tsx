@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Logo from "./logo";
 
-export default function TopNav(props: { container: string }) {
+export default function TopNav() {
   const navigate = useNavigate();
   const [version, setVersion] = useState("");
   useEffect(() => {

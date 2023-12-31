@@ -1,26 +1,20 @@
 import _ from "lodash";
 import { useContext, useState } from "react";
-import { Button, Modal } from "react-bootstrap";
 import { ApiClient } from "../../../../api_client/api_client";
-// @ts-ignore
-import PlaySvg from "../../../../assets/svg/play.svg?react";
-import { RunDocument } from "../../../ipc/run_document";
-import { RunDocumentAppContext } from "../../RunDocumentContext";
 import { useNavigate } from "react-router-dom";
-import { show } from "@tauri-apps/api/app";
+import { RunDocumentAppContext } from "../../RunDocumentContext";
 
-import { Fragment, useRef } from "react";
 import { Dialog, Transition } from "@headlessui/react";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
+import { Fragment } from "react";
 import ImportCurl from "./ImportCurl";
 
 export default function RunSettings() {
   const navigate = useNavigate();
   const [showTitleModal, setShowTitleModal] = useState(false);
   const [openCurlImporter, setOpenCurlImporter] = useState(false);
-  const [error, setError] = useState<string>("");
+  const [_error, setError] = useState<string>("");
   const handleClose = () => setShowTitleModal(false);
-  const handleShow = () => setShowTitleModal(true);
 
   const { state, dispatch } = useContext(RunDocumentAppContext);
   const configuration = state.runDocument?.configuration;
@@ -111,18 +105,7 @@ export default function RunSettings() {
       </Transition.Root>
     );
   }
-  const displayError = () => {
-    if (_.isEmpty(_.trim(error))) {
-      return null;
-    }
-    return (
-      <div className="row mt-4">
-        <div className="col-12">
-          <div className="alert alert-warning">{error}</div>
-        </div>
-      </div>
-    );
-  };
+
   const startExecution = async () => {
     if (_.isEmpty(_.trim(state?.runDocument?.title))) {
       setShowTitleModal(true);
@@ -268,72 +251,3 @@ export default function RunSettings() {
     </>
   );
 }
-
-const Old = () => {
-  return (
-    <div className="container container-narrow mx-auto">
-      <div className="row">
-        <ul className="nav nav-tabs">
-          <li className="nav-item">
-            <a className="nav-link active" href="#">
-              Settings
-            </a>
-          </li>
-        </ul>
-        <div className="card">
-          <div className="card-body pt-4 pb-4">
-            <div className="row w-100">
-              <div className="col-5">
-                <div className="text-center mt-4">Requests per second</div>
-              </div>
-              <div className="col-4">
-                <div className="text-center mt-4">Test duration in seconds</div>
-              </div>
-              <div className="col-3">
-                <div className="mx-auto" style={{ width: "4rem" }}>
-                  <PlaySvg />
-                </div>
-                <div className="text-center mt-4">Start Test</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <Modal show={true} onHide={() => {}} centered size="lg">
-        <Modal.Header closeButton>
-          <Modal.Title>Please confirm</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-          <p>
-            Loadjitsu is a powerful tool. You can easily ddos your own apis and
-            cause production outages.
-          </p>
-          <p>Are you sure you want to run this load test ?</p>
-          <div className="text-center">
-            <h4 className="text-warning">
-              {/*state?.runDocument?.configuration?.rps*/} Requests per second{" "}
-            </h4>
-            <h4> for </h4>
-            <h4 className="text-warning">
-              {" "}
-              {/*state?.runDocument?.configuration?.durationInSeconds*/} Seconds{" "}
-            </h4>
-          </div>
-        </Modal.Body>
-        <Modal.Footer>
-          <Button variant="secondary" onClick={() => {}}>
-            Close
-          </Button>
-          <Button
-            variant="primary"
-            onClick={() => {
-              //startExecution();
-            }}
-          >
-            Start load test
-          </Button>
-        </Modal.Footer>
-      </Modal>
-    </div>
-  );
-};

@@ -1,16 +1,12 @@
-import _ from "lodash";
 import { useContext, useEffect, useState } from "react";
 import { ApiClient, IExecution } from "../../../api_client/api_client";
-import ExecutionSummary from "./ExecutionSummary";
 import { RunDocumentAppContext } from "../RunDocumentContext";
-import ThumbnailChart from "./ThumbnailChart";
-import { useNavigate } from "react-router-dom";
+import ExecutionSummary from "./ExecutionSummary";
 
 export default function Runs() {
-  const navigate = useNavigate();
   const runDocumentAppContext = useContext(RunDocumentAppContext);
   const [executions, setExecutions] = useState<IExecution[]>([]);
-  const [state, setState] = useState("IDLE");
+  const [_state, setState] = useState("IDLE");
   const loadExecutions = async () => {
     const apiClient = new ApiClient();
 

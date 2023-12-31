@@ -10,8 +10,7 @@ const CodeEditor = (props: {
 }) => {
   const ref = useRef<HTMLDivElement>(null);
   const [editorHeight, setEditorHeight] = useState<number>(100);
-  const onChange = React.useCallback((val: any, viewUpdate: any) => {
-    console.log("val:", val);
+  const onChange = React.useCallback((val: any) => {
     props.setText(val);
   }, []);
   useLayoutEffect(() => {
