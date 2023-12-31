@@ -1,11 +1,16 @@
-import { useState } from "react";
+import { getVersion } from "@tauri-apps/api/app";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { IActivationDetails } from "../../../api_client/api_client";
 import Logo from "./logo";
 
 export default function TopNav(props: { container: string }) {
   const navigate = useNavigate();
-  useState<IActivationDetails | null>(null);
+  const [version, setVersion] = useState("");
+  useEffect(() => {
+    getVersion().then((version) => {
+      setVersion(version);
+    });
+  });
 
   return (
     <div className="navbar bg-base-100">
@@ -23,7 +28,7 @@ export default function TopNav(props: { container: string }) {
       <div className="flex-none">
         <ul className="menu menu-horizontal px-1">
           <li>
-            <a className="bg-base-200">v0.01</a>
+            <a className="bg-base-200">{version}</a>
           </li>
         </ul>
       </div>
