@@ -150,6 +150,7 @@ export class ApiClient {
   public async getRunDocumentByRevisionId(args: {
     runDocumentPath: string;
     documentRevisionId: string;
+    runMigrations: boolean;
   }): Promise<Result<RunDocument>> {
     try {
       console.log("Getting execution document");
@@ -158,6 +159,7 @@ export class ApiClient {
         {
           runDocumentPath: args.runDocumentPath,
           documentRevisionId: args.documentRevisionId,
+          runMigrations: args.runMigrations,
         }
       )) as string;
       const appUtil = new AppUtil();

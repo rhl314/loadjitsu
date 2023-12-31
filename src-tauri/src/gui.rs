@@ -171,10 +171,14 @@ async fn loadRunDocument(runDocumentPath: &str) -> Result<String, String> {
 async fn getRunDocumentByRevisionId(
     runDocumentPath: &str,
     documentRevisionId: &str,
+    runMigrations: bool,
 ) -> Result<String, String> {
-    let run_document_or_error =
-        DocumentRevision::getSerializedRunDocumentByRevisionId(runDocumentPath, documentRevisionId)
-            .await;
+    let run_document_or_error = DocumentRevision::getSerializedRunDocumentByRevisionId(
+        runDocumentPath,
+        documentRevisionId,
+        runMigrations,
+    )
+    .await;
     match run_document_or_error {
         Ok(ran) => Ok(ran),
         Err(error) => Err(error.to_string()),

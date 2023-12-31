@@ -40,6 +40,7 @@ const Execution = () => {
       const runDocumentOrError = await apiClient.getRunDocumentByRevisionId({
         runDocumentPath: documentPath as string,
         documentRevisionId: executionDocument.document_revision_id,
+        runMigrations: false,
       });
       if (runDocumentOrError.isFailure) {
         return dispatch({
@@ -110,116 +111,6 @@ const Execution = () => {
         </div>
         <div className="app_container py-8 mx-auto">
           <ExecutionGraph />
-          <div>
-            <div className="min-h-[6rem] border-t-0 border-neutral-700">
-              <div className="grid grid-cols-12">
-                <div className="col-span-3 items-center content-center mx-auto">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 24 24"
-                    fill="red"
-                    className="w-[60px] mx-auto mt-3"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M4.5 7.5a3 3 0 013-3h9a3 3 0 013 3v9a3 3 0 01-3 3h-9a3 3 0 01-3-3v-9z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div className="col-span-3 flex items-center content-center mx-auto">
-                  <p className="text-white text-center mt-2 text-4xl">
-                    9999999
-                  </p>
-                </div>
-                <div className="col-span-3 flex items-center content-center mx-auto">
-                  <p className="text-white text-center mt-2 text-4xl">
-                    9999999
-                  </p>
-                </div>
-                <div className="col-span-3 flex items-center content-center mx-auto">
-                  <p className="text-white text-center mt-2 text-4xl">
-                    9999999
-                  </p>
-                </div>
-              </div>
-              <div className="grid grid-cols-12 mb-8">
-                <div className="col-span-3">
-                  <div>
-                    <p className="text-white text-center">Abort test</p>
-                  </div>
-                </div>
-                <div className="col-span-3">
-                  <div>
-                    <p className="text-white text-center">Success</p>
-                  </div>
-                </div>
-                <div className="col-span-3">
-                  <div>
-                    <p className="text-white text-center">Errors</p>
-                  </div>
-                </div>
-                <div className="col-span-3">
-                  <div>
-                    <p className="text-white text-center">Timeouts</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div>
-            <div className="min-h-[6rem] border-t-0 border-neutral-700">
-              <div className="grid grid-cols-12">
-                <div className="col-span-3 items-center content-center mx-auto">
-                  <p className="text-white text-center mt-2 text-4xl">
-                    9999999
-                  </p>
-                </div>
-                <div className="col-span-3 flex items-center content-center mx-auto">
-                  <p className="text-white text-center mt-2 text-4xl">
-                    9999999
-                  </p>
-                </div>
-                <div className="col-span-3 flex items-center content-center mx-auto">
-                  <p className="text-white text-center mt-2 text-4xl">
-                    9999999
-                  </p>
-                </div>
-                <div className="col-span-3 flex items-center content-center mx-auto">
-                  <p className="text-white text-center mt-2 text-4xl">
-                    9999999
-                  </p>
-                </div>
-              </div>
-              <div className="grid grid-cols-12 mb-8">
-                <div className="col-span-3">
-                  <div>
-                    <p className="text-white text-center">
-                      Avg response time (ms)
-                    </p>
-                  </div>
-                </div>
-                <div className="col-span-3">
-                  <div>
-                    <p className="text-white text-center">
-                      Max response time (ms)
-                    </p>
-                  </div>
-                </div>
-                <div className="col-span-3">
-                  <div>
-                    <p className="text-white text-center">Avg latency (ms)</p>
-                  </div>
-                </div>
-                <div className="col-span-3">
-                  <div>
-                    <p className="text-white text-center">Max latency (ms)</p>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
         </div>
       </div>
       <div className="app_container mx-auto mt-10">

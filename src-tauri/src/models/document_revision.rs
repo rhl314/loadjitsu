@@ -1,9 +1,6 @@
-
 use sqlx::FromRow;
 use sqlx::Row;
 use sqlx::SqlitePool;
-
-
 
 use crate::api_service::api_service::ApiService;
 use crate::database_service::database_service::DatabaseService;
@@ -147,6 +144,7 @@ impl DocumentRevision {
     pub async fn getRunDocumentByRevisionId(
         encodedPath: &str,
         documentRevisionId: &str,
+        runMigrations: bool,
     ) -> anyhow::Result<RunDocument> {
         let decoded_document_path = DocumentService::decode_document_path(encodedPath)?;
         println!("decoded_document_path: {}", decoded_document_path);
@@ -154,8 +152,11 @@ impl DocumentRevision {
         if file_exists == false {
             return Err(anyhow::anyhow!("DOCUMENT_NOT_FOUND"));
         }
-        DatabaseService::run_migrations(&decoded_document_path)?;
-        println!("ran migrations");
+        if runMigrations == true {
+            DatabaseService::run_migrations(&decoded_document_path)?;
+            println!("ran migrations");
+        }
+
         let pool = DatabaseService::connection(&decoded_document_path).await?;
         let document_revision =
             DocumentRevision::get_document_revision_by_id(&pool, documentRevisionId).await?;
@@ -178,10 +179,15 @@ impl DocumentRevision {
     pub async fn getSerializedRunDocumentByRevisionId(
         encodedPath: &str,
         documentRevisionId: &str,
+        runMigrations: bool,
     ) -> anyhow::Result<String> {
         println!("encodedPath: {}", encodedPath);
-        let run_document =
-            DocumentRevision::getRunDocumentByRevisionId(encodedPath, documentRevisionId).await?;
+        let run_document = DocumentRevision::getRunDocumentByRevisionId(
+            encodedPath,
+            documentRevisionId,
+            runMigrations,
+        )
+        .await?;
         let serialized_run_document = ApiService::serialize_run_document(&run_document)?;
         Ok(serialized_run_document)
     }

@@ -28,6 +28,7 @@ export default function ExecutionSummary({
       const runDocumentOrError = await apiClient.getRunDocumentByRevisionId({
         runDocumentPath: runDocumentAppContext.state.runDocumentPath as string,
         documentRevisionId: execution.document_revision_id,
+        runMigrations: false,
       });
       if (runDocumentOrError.isFailure) {
         setLocalState({
