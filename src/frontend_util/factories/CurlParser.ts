@@ -1,6 +1,6 @@
 import _ from "lodash";
 import minimist from "minimist";
-import sh from "mvdan-sh";
+// import sh from "mvdan-sh";
 import queryString from "query-string";
 import shortid from "shortid";
 import { Result } from "../common/Result";
@@ -21,16 +21,17 @@ export class CurlParser {
   public parse(): Result<ApiStep> {
     const apiStep = ApiStepFactory.new();
     try {
-      const parser = sh.syntax.NewParser();
+      /*const parser = sh.syntax.NewParser();
 
-      const f = parser.Parse(this.payload, "curl.sh");
-      const arr: string[] = [];
-      sh.syntax.Walk(f, function (node: any) {
+      const f = parser.Parse(this.payload, "curl.sh");*/
+      //const arr: string[] = [];
+      /*sh.syntax.Walk(f, function (node: any) {
         if (node) {
           arr.push(node.Value as string);
         }
         return true;
-      });
+      });*/
+      const arr = _.split(this.payload, " ");
       const argv = minimist(_.compact(arr));
       let [command, url] = argv._;
       if (command !== "curl") {
