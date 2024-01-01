@@ -7,8 +7,8 @@
     "withGlobalTauri": false
   },
   "package": {
-    "productName": "loadjitsu",
-    "version": "0.0.1"
+    "productName": "Loadjitsu",
+    "version": "0.0.2"
   },
   "tauri": {
     "allowlist": {
