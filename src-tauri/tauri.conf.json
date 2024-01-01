@@ -44,6 +44,14 @@
         "minWidth": 800,
         "minHeight": 600
       }
-    ]
+    ],
+    "updater": {
+      "active": true,
+      "endpoints": [
+        "https://releases.loadjitsu.io/{{target}}/{{arch}}/{{current_version}}"
+      ],
+      "dialog": true,
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDYyRjZBOUIxOTAyRThFMjgKUldRb2ppNlFzYW4yWW93dVBWSy85WVhWaHA3YmJXQk8xaFpPMk1PZFE3em5uSk9PblZ4VVVYK3YK"
+    }
   }
 }
