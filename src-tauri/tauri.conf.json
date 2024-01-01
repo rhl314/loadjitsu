@@ -48,7 +48,7 @@
     "updater": {
       "active": true,
       "endpoints": [
-        "https://releases.loadjitsu.io/{{target}}/{{arch}}/{{current_version}}"
+        "https://gist.githubusercontent.com/rhl314/8ed831deaddefe9336e6d4292ced5d1e/raw/50645ec5e860298bae262e467ff1ff45031c0e4b/gistfile1.txt"
       ],
       "dialog": true,
       "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDYyRjZBOUIxOTAyRThFMjgKUldRb2ppNlFzYW4yWW93dVBWSy85WVhWaHA3YmJXQk8xaFpPMk1PZFE3em5uSk9PblZ4VVVYK3YK"
