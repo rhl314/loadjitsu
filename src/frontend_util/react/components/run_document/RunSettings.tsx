@@ -7,7 +7,7 @@ import { RunDocumentAppContext } from "../../RunDocumentContext";
 import { Dialog, Transition } from "@headlessui/react";
 import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import { Fragment } from "react";
-import ImportCurl from "./ImportCurl";
+import ImportCurl from "../ImportCurl";
 
 export default function RunSettings() {
   const navigate = useNavigate();

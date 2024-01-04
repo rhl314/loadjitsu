@@ -15,9 +15,9 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { Fragment, useState } from "react";
-import CodeEditor from "./CodeEditor";
-import { CurlParser } from "../../../factories/CurlParser";
-import { ApiStep } from "../../../ipc/api";
+import CodeEditor from "./run_document/CodeEditor";
+import { CurlParser } from "../../factories/CurlParser";
+import { ApiStep } from "../../ipc/api";
 
 export default function ImportCurl({
   open,

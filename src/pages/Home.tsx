@@ -4,7 +4,7 @@ import { IRunDocumentFile } from "../types/common";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import dayjs from "dayjs";
-import ImportCurl from "../frontend_util/react/components/run_document/ImportCurl";
+import ImportCurl from "../frontend_util/react/components/ImportCurl";
 import { ApiStep } from "../frontend_util/ipc/api";
 
 const Home = () => {

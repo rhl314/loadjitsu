@@ -1,5 +1,5 @@
 import * as _ from "lodash";
-import { useEffect, useReducer } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { ApiClient } from "../api_client/api_client";
 import {
@@ -9,10 +9,12 @@ import {
 } from "../frontend_util/react/ExecutionContext";
 import ExecutionGraph from "../frontend_util/react/components/run_document/ExecutionGraph";
 import { ScrollToTop } from "../ScrollToTop";
+import DownloadReport from "../frontend_util/react/components/DownloadReport";
 
 const Execution = () => {
   const navigation = useNavigate();
   let { documentPath, executionId } = useParams();
+  const [showDownloadReport, setShowDownloadReport] = useState(false);
   const [executionAppState, dispatch] = useReducer(executionReducer, {
     ...INITIAL_EXECUTION_APP_STATE,
     runDocumentPath: documentPath as string,
@@ -103,8 +105,12 @@ const Execution = () => {
           </div>
           <div className="flex-none">
             <ul className="menu menu-horizontal px-1">
-              <li>
-                <a className="btn btn-sm">Download report</a>
+              <li
+                onClick={() => {
+                  setShowDownloadReport(true);
+                }}
+              >
+                <a className="btn btn-sm">Download Results</a>
               </li>
             </ul>
           </div>
@@ -123,6 +129,10 @@ const Execution = () => {
           </div>
         </div>
       </div>
+      <DownloadReport
+        open={showDownloadReport}
+        setOpen={setShowDownloadReport}
+      />
     </ExecutionAppContext.Provider>
   );
 };
