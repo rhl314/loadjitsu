@@ -403,4 +403,38 @@ export class ApiClient {
       });
     }
   }
+
+  public async saveMetaDataString(
+    key: string,
+    value: string
+  ): Promise<Result<void>> {
+    try {
+      await invoke("saveMetaDataString", {
+        key,
+        value,
+      });
+      return Result.ok<void>();
+    } catch (err) {
+      console.error(err);
+      return Result.fail<void>({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Something went wrong. Please try again",
+      });
+    }
+  }
+
+  public async getMetaDataString(key: string): Promise<Result<string>> {
+    try {
+      const response = (await invoke("getMetaDataString", {
+        key,
+      })) as string;
+      return Result.ok<string>(response);
+    } catch (err) {
+      console.error(err);
+      return Result.fail<string>({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Something went wrong. Please try again",
+      });
+    }
+  }
 }

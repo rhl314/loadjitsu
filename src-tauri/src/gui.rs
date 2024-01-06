@@ -12,7 +12,7 @@ use crate::api_service::api_service::ApiService;
 use crate::document_service::document_service::DocumentService;
 use crate::load_test_service::load_test_service::LoadTestService;
 use crate::models::execution::{ExecutionCountByStatusAndRunSecond, ExecutionResults};
-use crate::models::{DocumentRevision, ExecutionDocument, RunDocumentFile};
+use crate::models::{DocumentMeta, DocumentRevision, ExecutionDocument, RunDocumentFile};
 use crate::protos::ipc::{ApiStep, HttpAction, RunResponse, RunStatus};
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -219,6 +219,24 @@ async fn getExecutionDocument(
     }
 }
 
+#[tauri::command]
+async fn saveMetaDataString(key: &str, value: &str) -> Result<(), String> {
+    let saved_or_error = DocumentMeta::save_string(key, value).await;
+    match saved_or_error {
+        Ok(saved) => Ok(saved),
+        Err(error) => Err(error.to_string()),
+    }
+}
+
+#[tauri::command]
+async fn getMetaDataString(key: &str) -> Result<String, String> {
+    let saved_or_error = DocumentMeta::get_string(key).await;
+    match saved_or_error {
+        Ok(saved) => Ok(saved),
+        Err(error) => Err(error.to_string()),
+    }
+}
+
 struct AppState {
     current_exe_signature: String,
 }
@@ -238,7 +256,9 @@ pub fn spawnUi(current_exe_signature: String) {
             getExecutions,
             getExecutionResults,
             getExecutionDocument,
-            getRunDocumentByRevisionId
+            getRunDocumentByRevisionId,
+            saveMetaDataString,
+            getMetaDataString
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

@@ -17,7 +17,7 @@ pub struct RunDocumentFile {
 
 impl RunDocumentFile {
     pub async fn get_recent_runs() -> anyhow::Result<Vec<RunDocumentFile>> {
-        let path = FileService::get_run_documents_file_path()?;
+        let path = FileService::get_metadata_file_path()?;
         FileService::ensure_file_exists(&path)?;
         DatabaseService::run_migrations(&path)?;
         let pool = DatabaseService::connection(&path).await?;
@@ -40,7 +40,7 @@ impl RunDocumentFile {
         run_document: &RunDocument,
         path_of_run_document: &str,
     ) -> anyhow::Result<RunDocumentFile> {
-        let path = FileService::get_run_documents_file_path()?;
+        let path = FileService::get_metadata_file_path()?;
         DatabaseService::run_migrations(&path)?;
         let run_document_file = RunDocumentFile {
             id: run_document.unique_id.clone(),
@@ -109,7 +109,7 @@ mod tests {
             super::RunDocumentFile::register_run_document(&run_document, &path).await;
         // dbg!(saved_or_error.err());
         assert!(&saved_or_error.is_ok());
-        let path = FileService::get_run_documents_file_path().unwrap();
+        let path = FileService::get_metadata_file_path().unwrap();
         println!("Path is {}", path);
     }
 

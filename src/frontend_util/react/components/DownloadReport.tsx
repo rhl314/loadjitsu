@@ -1,7 +1,10 @@
 import { Dialog, Transition } from "@headlessui/react";
-import { Fragment } from "react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
-import { PhotoIcon, UserCircleIcon } from "@heroicons/react/24/solid";
+import { UserCircleIcon, SwatchIcon } from "@heroicons/react/24/solid";
+import { Fragment, useEffect, useState } from "react";
+import { ApiClient } from "../../../api_client/api_client";
+import { Result } from "../../common/Result";
+import FileUploader from "./FileUploader";
 
 const styles: Record<string, React.CSSProperties> = {
   root: {
@@ -27,6 +30,13 @@ const styles: Record<string, React.CSSProperties> = {
   },
 };
 
+interface IDownloadReportState {
+  testerProfilePhoto?: string;
+  testerName?: string;
+  organisationName?: string;
+  organisationLogo?: string;
+}
+
 export default function DownloadReport({
   open,
   setOpen,
@@ -34,6 +44,48 @@ export default function DownloadReport({
   open: boolean;
   setOpen: (open: boolean) => void;
 }) {
+  const [state, setState] = useState<IDownloadReportState>({});
+  const apiClient = new ApiClient();
+  const loadDetails = async () => {
+    const newState: IDownloadReportState = {};
+    try {
+      const testerNameOrError = await apiClient.getMetaDataString(
+        "TESTER_NAME"
+      );
+      if (testerNameOrError.isSuccess) {
+        newState.testerName = testerNameOrError.getValue();
+      }
+      const testerProfilePhotoOrError = await apiClient.getMetaDataString(
+        "TESTER_PROFILE_PHOTO"
+      );
+      if (testerProfilePhotoOrError.isSuccess) {
+        newState.testerProfilePhoto = testerProfilePhotoOrError.getValue();
+      }
+
+      const organisationNameOrError = await apiClient.getMetaDataString(
+        "ORGANISATION_NAME"
+      );
+      if (organisationNameOrError.isSuccess) {
+        newState.organisationName = organisationNameOrError.getValue();
+      }
+      const organisaitonLogo = await apiClient.getMetaDataString(
+        "ORGANISATION_LOGO"
+      );
+      if (organisaitonLogo.isSuccess) {
+        newState.organisationLogo = organisaitonLogo.getValue();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+    setState({
+      ...state,
+      ...newState,
+    });
+  };
+
+  useEffect(() => {
+    loadDetails();
+  }, []);
   return (
     <Transition.Root show={open} as={Fragment}>
       <Dialog as="div" className="relative z-10" onClose={setOpen}>
@@ -162,6 +214,27 @@ export default function DownloadReport({
                                           </p>
                                         </div>
                                       </div>
+                                      <div className="col-span-full">
+                                        <label
+                                          htmlFor="about"
+                                          className="block text-sm font-medium leading-6 text-gray-900"
+                                        >
+                                          Comments about the test
+                                        </label>
+                                        <div className="mt-2">
+                                          <textarea
+                                            id="about"
+                                            name="about"
+                                            rows={3}
+                                            className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                            defaultValue={""}
+                                          />
+                                        </div>
+                                        <p className="mt-3 text-sm leading-6 text-gray-600">
+                                          These comments will be included in the
+                                          report
+                                        </p>
+                                      </div>
                                     </div>
                                   </fieldset>
                                 </div>
@@ -176,33 +249,24 @@ export default function DownloadReport({
                                       htmlFor="first-name"
                                       className="block text-sm font-medium leading-6 text-gray-900"
                                     >
-                                      First name
+                                      Name
                                     </label>
                                     <div className="mt-2">
                                       <input
+                                        value={state.testerName}
+                                        onChange={(e) => {
+                                          setState({
+                                            ...state,
+                                            testerName: e.target.value,
+                                          });
+                                          apiClient.saveMetaDataString(
+                                            "TESTER_NAME",
+                                            e.target.value
+                                          );
+                                        }}
                                         type="text"
-                                        name="first-name"
-                                        id="first-name"
-                                        autoComplete="given-name"
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                      />
-                                    </div>
-                                  </div>
-
-                                  <div className="sm:col-span-3">
-                                    <label
-                                      htmlFor="last-name"
-                                      className="block text-sm font-medium leading-6 text-gray-900"
-                                    >
-                                      Last name
-                                    </label>
-                                    <div className="mt-2">
-                                      <input
-                                        type="text"
-                                        name="last-name"
-                                        id="last-name"
-                                        autoComplete="family-name"
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                                        name="name"
+                                        className="input input-bordered w-full max-w-xs"
                                       />
                                     </div>
                                   </div>
@@ -211,80 +275,132 @@ export default function DownloadReport({
                                 <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
                                   <div className="col-span-full">
                                     <label
-                                      htmlFor="about"
-                                      className="block text-sm font-medium leading-6 text-gray-900"
-                                    >
-                                      About
-                                    </label>
-                                    <div className="mt-2">
-                                      <textarea
-                                        id="about"
-                                        name="about"
-                                        rows={3}
-                                        className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
-                                        defaultValue={""}
-                                      />
-                                    </div>
-                                    <p className="mt-3 text-sm leading-6 text-gray-600">
-                                      Write a few sentences about yourself.
-                                    </p>
-                                  </div>
-
-                                  <div className="col-span-full">
-                                    <label
                                       htmlFor="photo"
                                       className="block text-sm font-medium leading-6 text-gray-900"
                                     >
                                       Photo
                                     </label>
                                     <div className="mt-2 flex items-center gap-x-3">
-                                      <UserCircleIcon
-                                        className="h-12 w-12 text-gray-300"
-                                        aria-hidden="true"
-                                      />
-                                      <button
-                                        type="button"
-                                        className="rounded-md bg-white px-2.5 py-1.5 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50"
-                                      >
-                                        Change
-                                      </button>
-                                    </div>
-                                  </div>
-
-                                  <div className="col-span-full">
-                                    <label
-                                      htmlFor="cover-photo"
-                                      className="block text-sm font-medium leading-6 text-gray-900"
-                                    >
-                                      Cover photo
-                                    </label>
-                                    <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
-                                      <div className="text-center">
-                                        <PhotoIcon
-                                          className="mx-auto h-12 w-12 text-gray-300"
+                                      {!state.testerProfilePhoto && (
+                                        <UserCircleIcon
+                                          className="h-12 w-12 text-gray-300"
                                           aria-hidden="true"
                                         />
-                                        <div className="mt-4 flex text-sm leading-6 text-gray-600">
-                                          <label
-                                            htmlFor="file-upload"
-                                            className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
-                                          >
-                                            <span>Upload a file</span>
-                                            <input
-                                              id="file-upload"
-                                              name="file-upload"
-                                              type="file"
-                                              className="sr-only"
-                                            />
-                                          </label>
-                                          <p className="pl-1">
-                                            or drag and drop
-                                          </p>
-                                        </div>
-                                        <p className="text-xs leading-5 text-gray-600">
-                                          PNG, JPG, GIF up to 10MB
-                                        </p>
-                                      </div>
+                                      )}
+                                      {state.testerProfilePhoto && (
+                                        <div
+                                          className="w-[40px] h-[40px] rounded-full border border-gray"
+                                          style={{
+                                            backgroundImage: `url(${state.testerProfilePhoto})`,
+                                            backgroundSize: "cover",
+                                          }}
+                                        ></div>
+                                      )}
+                                      <FileUploader
+                                        allowedContentTypes={[
+                                          "image/png",
+                                          "image/jpg",
+                                          "image/jpeg",
+                                        ]}
+                                        uploadFile={async (base64) => {
+                                          const client = new ApiClient();
+
+                                          setState({
+                                            ...state,
+                                            testerProfilePhoto: base64,
+                                          });
+
+                                          await client.saveMetaDataString(
+                                            "TESTER_PROFILE_PHOTO",
+                                            base64
+                                          );
+                                          return Result.ok();
+                                        }}
+                                        sizeLimtInKiloBytes={300}
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="border-b border-gray-900/10 pb-12">
+                                <h2 className="text-base font-semibold leading-7 text-gray-900">
+                                  Organisation Profile
+                                </h2>
+                                <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                                  <div className="sm:col-span-3">
+                                    <label
+                                      htmlFor="first-name"
+                                      className="block text-sm font-medium leading-6 text-gray-900"
+                                    >
+                                      Organisation name
+                                    </label>
+                                    <div className="mt-2">
+                                      <input
+                                        value={state.organisationName}
+                                        onChange={(e) => {
+                                          setState({
+                                            ...state,
+                                            organisationName: e.target.value,
+                                          });
+                                          apiClient.saveMetaDataString(
+                                            "ORGANISATION_NAME",
+                                            e.target.value
+                                          );
+                                        }}
+                                        type="text"
+                                        name="name"
+                                        className="input input-bordered w-full max-w-xs"
+                                      />
+                                    </div>
+                                  </div>
+                                </div>
+
+                                <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                                  <div className="col-span-full">
+                                    <label
+                                      htmlFor="photo"
+                                      className="block text-sm font-medium leading-6 text-gray-900"
+                                    >
+                                      Logo
+                                    </label>
+                                    <div className="mt-2 flex items-center gap-x-3">
+                                      {!state.organisationLogo && (
+                                        <SwatchIcon
+                                          className="h-10 w-10 text-gray-300"
+                                          aria-hidden="true"
+                                        />
+                                      )}
+                                      {state.organisationLogo && (
+                                        <div
+                                          className="w-[40px] h-[40px]  border border-gray"
+                                          style={{
+                                            backgroundImage: `url(${state.organisationLogo})`,
+                                            backgroundSize: "cover",
+                                          }}
+                                        ></div>
+                                      )}
+                                      <FileUploader
+                                        allowedContentTypes={[
+                                          "image/png",
+                                          "image/jpg",
+                                          "image/jpeg",
+                                        ]}
+                                        uploadFile={async (base64) => {
+                                          const client = new ApiClient();
+                                          setState({
+                                            ...state,
+                                            organisationLogo: base64,
+                                          });
+                                          const responseOrErrror =
+                                            await client.saveMetaDataString(
+                                              "ORGANISATION_LOGO",
+                                              base64
+                                            );
+
+                                          return Result.ok();
+                                        }}
+                                        sizeLimtInKiloBytes={300}
+                                      />
                                     </div>
                                   </div>
                                 </div>

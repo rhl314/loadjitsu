@@ -1,4 +1,3 @@
-
 use std::fs;
 use std::fs::File;
 
@@ -6,18 +5,14 @@ use anyhow::anyhow;
 use anyhow::Result;
 use base64::decode;
 
-
 use platform_dirs::AppDirs;
 use sha2::Digest;
 use sha2::Sha256;
 use std::env;
 use sysinfo::Pid;
 
-use std::io::{Read};
+use std::io::Read;
 use sysinfo::{System, SystemExt};
-
-
-
 
 pub struct FileService;
 
@@ -63,7 +58,7 @@ impl FileService {
         }
     }
 
-    pub fn get_run_documents_file_path() -> anyhow::Result<String> {
+    pub fn get_metadata_file_path() -> anyhow::Result<String> {
         let app_name = FileService::get_app_name();
         let app_dirs = AppDirs::new(Some(app_name.as_str()), false);
         if let Some(app_dirs) = app_dirs {
@@ -71,7 +66,7 @@ impl FileService {
             let data_dir = data_dir.to_str();
             fs::create_dir_all(&app_dirs.data_dir)?;
             if let Some(_data_dir) = data_dir {
-                let file_path = app_dirs.data_dir.join("run_document_files");
+                let file_path = app_dirs.data_dir.join("metadata");
                 if file_path.exists() != true {
                     File::create(&file_path)?;
                 } else {
