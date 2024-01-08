@@ -33,14 +33,19 @@ const styles: Record<string, React.CSSProperties> = {
 interface IDownloadReportState {
   testerProfilePhoto?: string;
   testerName?: string;
+  testerEmail?: string;
   organisationName?: string;
   organisationLogo?: string;
+  exportVideo?: string;
+  exportPdf?: string;
 }
 
 export default function DownloadReport({
   open,
   setOpen,
+  runDocumentPath,
 }: {
+  runDocumentPath: string;
   open: boolean;
   setOpen: (open: boolean) => void;
 }) {
@@ -62,6 +67,13 @@ export default function DownloadReport({
         newState.testerProfilePhoto = testerProfilePhotoOrError.getValue();
       }
 
+      const testerEmailOrError = await apiClient.getMetaDataString(
+        "TESTER_EMAIL"
+      );
+      if (testerEmailOrError.isSuccess) {
+        newState.testerEmail = testerEmailOrError.getValue();
+      }
+
       const organisationNameOrError = await apiClient.getMetaDataString(
         "ORGANISATION_NAME"
       );
@@ -74,7 +86,28 @@ export default function DownloadReport({
       if (organisaitonLogo.isSuccess) {
         newState.organisationLogo = organisaitonLogo.getValue();
       }
+
+      const exportVideoOrError = await apiClient.getDocumentMetaDataString(
+        runDocumentPath,
+        "EXPORT_VIDEO"
+      );
+      console.log("What is happening here", exportVideoOrError);
+      if (exportVideoOrError.isSuccess) {
+        newState.exportVideo = exportVideoOrError.getValue() || "TRUE";
+      } else {
+        newState.exportVideo = "TRUE";
+      }
+      const exportPdfOrError = await apiClient.getDocumentMetaDataString(
+        runDocumentPath,
+        "EXPORT_PDF"
+      );
+      if (exportPdfOrError.isSuccess) {
+        newState.exportPdf = exportPdfOrError.getValue() || "TRUE";
+      } else {
+        newState.exportPdf = "TRUE";
+      }
     } catch (err) {
+      console.log("Errored");
       console.error(err);
     }
     setState({
@@ -175,8 +208,24 @@ export default function DownloadReport({
                                       <div className="relative flex gap-x-3">
                                         <div className="flex h-6 items-center">
                                           <input
-                                            id="comments"
-                                            name="comments"
+                                            checked={
+                                              state.exportVideo === "TRUE"
+                                            }
+                                            onChange={(e) => {
+                                              setState({
+                                                ...state,
+                                                exportVideo: e.target.checked
+                                                  ? "TRUE"
+                                                  : "FALSE",
+                                              });
+                                              apiClient.saveDocumentMetaDataString(
+                                                runDocumentPath,
+                                                "EXPORT_VIDEO",
+                                                e.target.checked
+                                                  ? "TRUE"
+                                                  : "FALSE"
+                                              );
+                                            }}
                                             type="checkbox"
                                             className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                                           />
@@ -196,8 +245,22 @@ export default function DownloadReport({
                                       <div className="relative flex gap-x-3">
                                         <div className="flex h-6 items-center">
                                           <input
-                                            id="candidates"
-                                            name="candidates"
+                                            checked={state.exportPdf === "TRUE"}
+                                            onChange={(e) => {
+                                              setState({
+                                                ...state,
+                                                exportPdf: e.target.checked
+                                                  ? "TRUE"
+                                                  : "FALSE",
+                                              });
+                                              apiClient.saveDocumentMetaDataString(
+                                                runDocumentPath,
+                                                "EXPORT_PDF",
+                                                e.target.checked
+                                                  ? "TRUE"
+                                                  : "FALSE"
+                                              );
+                                            }}
                                             type="checkbox"
                                             className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                                           />
@@ -418,12 +481,20 @@ export default function DownloadReport({
                               </Dialog.Title>
 
                               <input
-                                type="text"
-                                name="username"
-                                id="username"
-                                autoComplete="username"
-                                className="rounded w-full py-1.5 pl-1 text-black placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-                                placeholder="janesmith@work.com"
+                                value={state.testerEmail}
+                                onChange={(e) => {
+                                  setState({
+                                    ...state,
+                                    testerEmail: e.target.value,
+                                  });
+                                  apiClient.saveMetaDataString(
+                                    "TESTER_EMAIL",
+                                    e.target.value
+                                  );
+                                }}
+                                type="email"
+                                name="name"
+                                className="input input-bordered w-full"
                               />
                               <p className="text-sm text-gray-50">
                                 The reports will be generated and sent to this

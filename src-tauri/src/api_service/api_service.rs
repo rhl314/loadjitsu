@@ -11,7 +11,7 @@ use uuid::Uuid;
 use crate::database_service::database_service::DatabaseService;
 use crate::file_service::file_service::FileService;
 use crate::models::execution::{ExecutionCountByStatusAndRunSecond, ExecutionResults};
-use crate::models::{Execution, ExecutionDocument};
+use crate::models::{DocumentMeta, Execution, ExecutionDocument};
 use crate::protos::ipc::{RunConfiguration, RunDocument, RunShape, RunType};
 use crate::protos::{
     self,
@@ -114,6 +114,40 @@ impl ApiService {
             configuration: Some(self::ApiService::generateRunConfiguration()),
             api_steps: Vec::new(),
         }
+    }
+    pub async fn save_global_meta_string(key: &str, value: &str) -> anyhow::Result<()> {
+        let path = FileService::get_metadata_file_path()?;
+        let pool = DatabaseService::connection(&path).await?;
+        let saved = DocumentMeta::save_string(&pool, key, value).await?;
+        return Ok(saved);
+    }
+
+    pub async fn get_global_meta_string(key: &str) -> anyhow::Result<String> {
+        let path = FileService::get_metadata_file_path()?;
+        let pool = DatabaseService::connection(&path).await?;
+        let value = DocumentMeta::get_string(&pool, key).await?;
+        return Ok(value);
+    }
+
+    pub async fn save_document_meta_string(
+        run_document_path: &str,
+        key: &str,
+        value: &str,
+    ) -> anyhow::Result<()> {
+        let decoded_document_path = FileService::decode_path(run_document_path)?;
+        let pool = DatabaseService::connection(decoded_document_path.as_str()).await?;
+        let saved = DocumentMeta::save_string(&pool, key, value).await?;
+        return Ok(saved);
+    }
+
+    pub async fn get_document_meta_string(
+        run_document_path: &str,
+        key: &str,
+    ) -> anyhow::Result<String> {
+        let decoded_document_path = FileService::decode_path(run_document_path)?;
+        let pool = DatabaseService::connection(decoded_document_path.as_str()).await?;
+        let value = DocumentMeta::get_string(&pool, key).await?;
+        return Ok(value);
     }
 
     pub async fn get_execution_results(

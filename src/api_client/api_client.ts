@@ -437,4 +437,47 @@ export class ApiClient {
       });
     }
   }
+
+  public async saveDocumentMetaDataString(
+    runDocumentPath: string,
+    key: string,
+    value: string
+  ): Promise<Result<void>> {
+    try {
+      await invoke("saveDocumentMetaDataString", {
+        runDocumentPath,
+        key,
+        value,
+      });
+      return Result.ok<void>();
+    } catch (err) {
+      console.error(err);
+      return Result.fail<void>({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Something went wrong. Please try again",
+      });
+    }
+  }
+
+  public async getDocumentMetaDataString(
+    runDocumentPath: string,
+    key: string
+  ): Promise<Result<string>> {
+    try {
+      console.log("Getting document meta data string", runDocumentPath, key);
+      const response = (await invoke("getDocumentMetaDataString", {
+        runDocumentPath,
+        key,
+      })) as string;
+      console.log(response);
+      return Result.ok<string>(response);
+    } catch (err) {
+      console.log(err);
+      console.error(err);
+      return Result.fail<string>({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Something went wrong. Please try again",
+      });
+    }
+  }
 }

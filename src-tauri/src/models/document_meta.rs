@@ -18,12 +18,10 @@ pub struct DocumentMeta {
 }
 
 impl DocumentMeta {
-    pub async fn save_string(key: &str, value: &str) -> anyhow::Result<()> {
-        let path = FileService::get_metadata_file_path()?;
-        let pool = DatabaseService::connection(&path).await?;
+    pub async fn save_string(pool: &SqlitePool, key: &str, value: &str) -> anyhow::Result<()> {
         let existing = sqlx::query("SELECT EXISTS(SELECT 1 FROM DocumentMeta WHERE key = ?)")
             .bind(key)
-            .fetch_one(&pool)
+            .fetch_one(pool)
             .await?
             .get::<i32, _>(0);
 
@@ -32,7 +30,7 @@ impl DocumentMeta {
             sqlx::query("UPDATE DocumentMeta SET value_string = ? WHERE key = ?")
                 .bind(value)
                 .bind(key)
-                .execute(&pool)
+                .execute(pool)
                 .await?;
         } else {
             // Record does not exist, so insert it
@@ -40,20 +38,22 @@ impl DocumentMeta {
                 .bind(uuid::Uuid::new_v4().to_string())
                 .bind(key)
                 .bind(value)
-                .execute(&pool)
+                .execute(pool)
                 .await?;
         }
 
         Ok(())
     }
-    pub async fn get_string(key: &str) -> anyhow::Result<String> {
-        let path = FileService::get_metadata_file_path()?;
-        let pool = DatabaseService::connection(&path).await?;
+    pub async fn get_string(pool: &SqlitePool, key: &str) -> anyhow::Result<String> {
         let document_meta =
             sqlx::query_as::<_, DocumentMeta>("SELECT * FROM DocumentMeta WHERE key = ?")
                 .bind(key)
-                .fetch_optional(&pool)
+                .fetch_optional(pool)
                 .await?;
+
+        if document_meta.is_none() {
+            return Err(anyhow::anyhow!("No document meta found for key {}", key));
+        }
 
         Ok(document_meta.unwrap().value_string.unwrap())
     }

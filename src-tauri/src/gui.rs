@@ -221,7 +221,7 @@ async fn getExecutionDocument(
 
 #[tauri::command]
 async fn saveMetaDataString(key: &str, value: &str) -> Result<(), String> {
-    let saved_or_error = DocumentMeta::save_string(key, value).await;
+    let saved_or_error = ApiService::save_global_meta_string(key, value).await;
     match saved_or_error {
         Ok(saved) => Ok(saved),
         Err(error) => Err(error.to_string()),
@@ -230,7 +230,29 @@ async fn saveMetaDataString(key: &str, value: &str) -> Result<(), String> {
 
 #[tauri::command]
 async fn getMetaDataString(key: &str) -> Result<String, String> {
-    let saved_or_error = DocumentMeta::get_string(key).await;
+    let saved_or_error = ApiService::get_global_meta_string(key).await;
+    match saved_or_error {
+        Ok(saved) => Ok(saved),
+        Err(error) => Err(error.to_string()),
+    }
+}
+
+#[tauri::command]
+async fn saveDocumentMetaDataString(
+    runDocumentPath: &str,
+    key: &str,
+    value: &str,
+) -> Result<(), String> {
+    let saved_or_error = ApiService::save_document_meta_string(runDocumentPath, key, value).await;
+    match saved_or_error {
+        Ok(saved) => Ok(saved),
+        Err(error) => Err(error.to_string()),
+    }
+}
+
+#[tauri::command]
+async fn getDocumentMetaDataString(runDocumentPath: &str, key: &str) -> Result<String, String> {
+    let saved_or_error = ApiService::get_document_meta_string(runDocumentPath, key).await;
     match saved_or_error {
         Ok(saved) => Ok(saved),
         Err(error) => Err(error.to_string()),
@@ -258,7 +280,9 @@ pub fn spawnUi(current_exe_signature: String) {
             getExecutionDocument,
             getRunDocumentByRevisionId,
             saveMetaDataString,
-            getMetaDataString
+            getMetaDataString,
+            saveDocumentMetaDataString,
+            getDocumentMetaDataString
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

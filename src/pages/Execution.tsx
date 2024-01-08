@@ -130,6 +130,7 @@ const Execution = () => {
         </div>
       </div>
       <DownloadReport
+        runDocumentPath={documentPath as string}
         open={showDownloadReport}
         setOpen={setShowDownloadReport}
       />
