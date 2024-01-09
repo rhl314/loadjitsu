@@ -10,7 +10,7 @@ use uuid::Uuid;
 
 use crate::database_service::database_service::DatabaseService;
 use crate::file_service::file_service::FileService;
-use crate::models::execution::{ExecutionCountByStatusAndRunSecond, ExecutionResults};
+use crate::models::execution::{self, ExecutionCountByStatusAndRunSecond, ExecutionResults};
 use crate::models::{DocumentMeta, Execution, ExecutionDocument};
 use crate::protos::ipc::{RunConfiguration, RunDocument, RunShape, RunType};
 use crate::protos::{
@@ -172,6 +172,17 @@ impl ApiService {
             }
         })
     }
+
+    pub async fn get_executions(
+        execution_document_id: &str,
+        run_document_path: &str,
+    ) -> anyhow::Result<Vec<Execution>> {
+        let decoded_document_path = FileService::decode_path(run_document_path)?;
+        let pool = DatabaseService::connection(decoded_document_path.as_str()).await?;
+        let executions = Execution::get_executions(execution_document_id, &pool).await?;
+        Ok(executions)
+    }
+
     pub async fn get_execution_document(
         execution_document_id: &str,
         run_document_path: &str,
@@ -195,11 +206,11 @@ impl ApiService {
             unique_id: String::from(&ran.unique_id),
             execution_document_id: run_unique_id.to_string(),
             status: ran.status().as_str_name().to_string(),
-            timeMs: ran.time,
-            latencyMs: ran.latency,
+            timeMs: ran.time as i64,
+            latencyMs: ran.latency as i64,
             stepUniqueId: ran.step_unique_id,
             error: ran.error,
-            statusCode: ran.status_code,
+            statusCode: ran.status_code as i64,
             created_at: created_at,
             completed_at: chrono::Utc::now().to_rfc3339(),
             run_second: run_second,

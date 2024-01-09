@@ -6,16 +6,16 @@ use crate::file_service::file_service::FileService;
 
 use super::ExecutionDocument;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, FromRow, Serialize, serde::Deserialize)]
 pub struct Execution {
     pub unique_id: String,
     pub execution_document_id: String,
     pub status: String,
-    pub timeMs: u64,
-    pub latencyMs: u64,
+    pub timeMs: i64,
+    pub latencyMs: i64,
     pub stepUniqueId: String,
     pub error: String,
-    pub statusCode: u64,
+    pub statusCode: i64,
     pub created_at: String,
     pub completed_at: String,
     pub run_second: i32,
@@ -168,6 +168,21 @@ impl Execution {
             .collect();
 
         Ok(results)
+    }
+
+    pub async fn get_executions(
+        execution_document_id: &str,
+        pool: &SqlitePool,
+    ) -> Result<Vec<Execution>, sqlx::Error> {
+        println!("execution_document_id: {}", execution_document_id);
+        let executions = sqlx::query_as::<_, Execution>(
+            "SELECT * FROM Execution WHERE execution_document_id = ?",
+        )
+        .bind(execution_document_id)
+        .fetch_all(pool)
+        .await?;
+
+        Ok(executions)
     }
 
     pub async fn get_execution_count_by_status_and_run_second(

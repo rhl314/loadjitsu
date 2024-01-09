@@ -10,7 +10,7 @@ export default function Runs() {
   const loadExecutions = async () => {
     const apiClient = new ApiClient();
 
-    const executionsOrError = await apiClient.getExecutions({
+    const executionsOrError = await apiClient.getRuns({
       runDocumentPath: runDocumentAppContext.state.runDocumentPath as string,
     });
     if (executionsOrError.isFailure) {

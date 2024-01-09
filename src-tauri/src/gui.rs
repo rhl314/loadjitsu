@@ -12,7 +12,9 @@ use crate::api_service::api_service::ApiService;
 use crate::document_service::document_service::DocumentService;
 use crate::load_test_service::load_test_service::LoadTestService;
 use crate::models::execution::{ExecutionCountByStatusAndRunSecond, ExecutionResults};
-use crate::models::{DocumentMeta, DocumentRevision, ExecutionDocument, RunDocumentFile};
+use crate::models::{
+    DocumentMeta, DocumentRevision, Execution, ExecutionDocument, RunDocumentFile,
+};
 use crate::protos::ipc::{ApiStep, HttpAction, RunResponse, RunStatus};
 // Learn more about Tauri commands at https://tauri.app/v1/guides/features/command
 #[tauri::command]
@@ -185,9 +187,21 @@ async fn getRunDocumentByRevisionId(
     }
 }
 #[tauri::command]
-async fn getExecutions(runDocumentPath: &str) -> Result<Vec<ExecutionDocument>, String> {
+async fn getRuns(runDocumentPath: &str) -> Result<Vec<ExecutionDocument>, String> {
     let runs_or_error = ExecutionDocument::get_all_execution_documents(runDocumentPath).await;
     match runs_or_error {
+        Ok(ran) => Ok(ran),
+        Err(error) => Err(error.to_string()),
+    }
+}
+#[tauri::command]
+async fn getExecutions(
+    runDocumentPath: &str,
+    executionDocumentId: &str,
+) -> Result<Vec<Execution>, String> {
+    let executions_or_error =
+        ApiService::get_executions(executionDocumentId, runDocumentPath).await;
+    match executions_or_error {
         Ok(ran) => Ok(ran),
         Err(error) => Err(error.to_string()),
     }
@@ -275,14 +289,15 @@ pub fn spawnUi(current_exe_signature: String) {
             getTemporaryDocumentPath,
             runLoadTest,
             loadRunDocument,
-            getExecutions,
+            getRuns,
             getExecutionResults,
             getExecutionDocument,
             getRunDocumentByRevisionId,
             saveMetaDataString,
             getMetaDataString,
             saveDocumentMetaDataString,
-            getDocumentMetaDataString
+            getDocumentMetaDataString,
+            getExecutions
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

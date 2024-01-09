@@ -105,12 +105,12 @@ export class ApiClient {
     return response.data as IGetLicenseApiResponse;
   }
 
-  public async getExecutions(args: {
+  public async getRuns(args: {
     runDocumentPath: string;
   }): Promise<Result<IExecution[]>> {
     try {
       console.log("Getting runs");
-      const response = (await invoke("getExecutions", {
+      const response = (await invoke("getRuns", {
         runDocumentPath: args.runDocumentPath,
       })) as IExecution[];
       console.log(response);
@@ -167,6 +167,28 @@ export class ApiClient {
       );
 
       return Result.ok(runDocument);
+    } catch (err: any) {
+      console.log("Errored");
+      console.error(err);
+      return Result.fail({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Please try again",
+      });
+    }
+  }
+
+  public async getExecutions(args: {
+    runDocumentPath: string;
+    executionDocumentId: string;
+  }): Promise<Result<IExecutionResults>> {
+    try {
+      console.log("Getting runs");
+      const response = (await invoke("getExecutions", {
+        runDocumentPath: args.runDocumentPath,
+        executionDocumentId: args.executionDocumentId,
+      })) as IExecutionResults;
+      console.log({ ready: response });
+      return Result.ok<IExecutionResults>(response);
     } catch (err: any) {
       console.log("Errored");
       console.error(err);
