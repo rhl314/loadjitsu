@@ -37,6 +37,8 @@ hex = "0.4.3"
 sqlx = { version = "0.7.2", features = ["runtime-tokio", "sqlite"] }
 thiserror = "1.0.50"
 sysinfo = "0.29.11"
+machine-uid = "0.5.1"
+sys-info = "0.9.1"
 
 [features]
 # this feature is used for production builds or when `devPath` points to the filesystem

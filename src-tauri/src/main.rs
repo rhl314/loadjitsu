@@ -3,10 +3,8 @@
 #[macro_use]
 extern crate diesel;
 
-
-
 use clap::Parser;
-use file_service::file_service::FileService;
+use file_service::app_service::AppService;
 use load_test_service::load_test_service::LoadTestService;
 mod api_service;
 mod database_service;
@@ -36,7 +34,7 @@ mod gui;
 async fn main() {
     let args = CLIArgs::parse();
     let _v: Vec<types::common::IRunFile> = Vec::new();
-    let current_exe_signature = FileService::current_exe_signature().unwrap();
+    let current_exe_signature = AppService::current_exe_signature().unwrap();
     println!("current_exe_signature: {}", current_exe_signature);
     if args.mode == "GUI" {
         gui::spawnUi(current_exe_signature)

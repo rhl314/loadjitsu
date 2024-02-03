@@ -11,14 +11,47 @@ use sha2::Sha256;
 use std::env;
 use sysinfo::Pid;
 
+use machine_uid;
 use std::io::Read;
+use sys_info;
 use sysinfo::{System, SystemExt};
+pub struct AppService;
 
-pub struct FileService;
+#[derive(Debug, Clone, serde::Serialize, serde::Deserialize)]
+pub struct MachineInfo {
+    uid: String,
+    memory: u64,
+    num_cores: usize,
+    kernal_version: Option<String>,
+    os_version: Option<String>,
+    host_name: Option<String>,
+    name: Option<String>,
+    distribution_id: String,
+}
 
-impl FileService {
+impl AppService {
     pub fn get_app_name() -> String {
         return String::from("loadjitsu");
+    }
+    pub fn get_machine_info() -> Result<MachineInfo> {
+        let uidOrError = machine_uid::get();
+        let uid = match uidOrError {
+            Ok(uid) => uid,
+            Err(e) => "".to_string(),
+        };
+        let mut system = System::new_all();
+        system.refresh_all();
+
+        Ok(MachineInfo {
+            uid,
+            memory: system.total_memory(),
+            num_cores: system.cpus().len(),
+            kernal_version: system.kernel_version(),
+            os_version: system.long_os_version(),
+            host_name: system.host_name(),
+            name: system.name(),
+            distribution_id: system.distribution_id(),
+        })
     }
     pub fn decode_path(encoded: &str) -> Result<String> {
         match decode(encoded) {
@@ -59,7 +92,7 @@ impl FileService {
     }
 
     pub fn get_metadata_file_path() -> anyhow::Result<String> {
-        let app_name = FileService::get_app_name();
+        let app_name = AppService::get_app_name();
         let app_dirs = AppDirs::new(Some(app_name.as_str()), false);
         if let Some(app_dirs) = app_dirs {
             let data_dir = &app_dirs.data_dir;

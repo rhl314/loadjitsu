@@ -5,7 +5,7 @@ use sqlx::SqlitePool;
 use crate::api_service::api_service::ApiService;
 use crate::database_service::database_service::DatabaseService;
 use crate::document_service::document_service::DocumentService;
-use crate::file_service::file_service::FileService;
+use crate::file_service::app_service::AppService;
 use crate::protos::ipc::RunDocument;
 
 use super::RunDocumentFile;
@@ -87,7 +87,7 @@ impl DocumentRevision {
     ) -> anyhow::Result<RunDocument> {
         let pool = DatabaseService::connection(path).await?;
         let serialized = ApiService::serialize_run_document(&run_document)?;
-        let id = FileService::get_hash(&serialized)?;
+        let id = AppService::get_hash(&serialized)?;
         let document_revision = DocumentRevision {
             id: id.clone(),
             value: serialized,
@@ -103,12 +103,12 @@ impl DocumentRevision {
         seralizedRunDocument: &str,
     ) -> anyhow::Result<String> {
         let decoded_document_path = DocumentService::decode_document_path(encodedPath)?;
-        FileService::ensure_file_exists(&decoded_document_path)?;
+        AppService::ensure_file_exists(&decoded_document_path)?;
         DatabaseService::run_migrations(&decoded_document_path)?;
         println!("decoded_document_path: {}", decoded_document_path);
         let deserialized_run_document = ApiService::deserialize_run_document(seralizedRunDocument)?;
         let pool = DatabaseService::connection(&decoded_document_path).await?;
-        let id = FileService::get_hash(&seralizedRunDocument)?;
+        let id = AppService::get_hash(&seralizedRunDocument)?;
         let document_revision = DocumentRevision {
             id: id.clone(),
             value: String::from(seralizedRunDocument),
@@ -123,7 +123,7 @@ impl DocumentRevision {
     pub async fn loadRunDocument(encodedPath: &str) -> anyhow::Result<RunDocument> {
         let decoded_document_path = DocumentService::decode_document_path(encodedPath)?;
         println!("decoded_document_path: {}", decoded_document_path);
-        let file_exists = FileService::does_file_exists(&decoded_document_path)?;
+        let file_exists = AppService::does_file_exists(&decoded_document_path)?;
         if file_exists == false {
             return Err(anyhow::anyhow!("DOCUMENT_NOT_FOUND"));
         }
@@ -148,7 +148,7 @@ impl DocumentRevision {
     ) -> anyhow::Result<RunDocument> {
         let decoded_document_path = DocumentService::decode_document_path(encodedPath)?;
         println!("decoded_document_path: {}", decoded_document_path);
-        let file_exists = FileService::does_file_exists(&decoded_document_path)?;
+        let file_exists = AppService::does_file_exists(&decoded_document_path)?;
         if file_exists == false {
             return Err(anyhow::anyhow!("DOCUMENT_NOT_FOUND"));
         }
@@ -195,12 +195,12 @@ impl DocumentRevision {
 
 #[cfg(test)]
 mod tests {
-    use crate::{api_service::api_service::ApiService, file_service::file_service::FileService};
+    use crate::{api_service::api_service::ApiService, file_service::app_service::AppService};
 
     #[tokio::test]
     async fn it_should_save_run_document_correctly() {
         let run_document = ApiService::generateNewRunDocument();
-        let path = FileService::get_temporary_file_path().unwrap();
+        let path = AppService::get_temporary_file_path().unwrap();
         super::DatabaseService::run_migrations(&path).unwrap();
         let saved_or_error = super::DocumentRevision::saveRunDocument(&path, run_document).await;
         assert!(saved_or_error.is_ok());

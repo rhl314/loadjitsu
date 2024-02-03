@@ -1,10 +1,10 @@
 use serde::{Deserialize, Serialize};
-use sqlx::sqlite::{SqlitePool};
+use sqlx::sqlite::SqlitePool;
 use sqlx::FromRow;
 use uuid::Uuid;
 
 use crate::database_service::database_service::DatabaseService;
-use crate::file_service::file_service::FileService;
+use crate::file_service::app_service::AppService;
 #[derive(Debug, FromRow, Serialize, Deserialize)]
 pub struct ExecutionDocument {
     pub id: String,
@@ -70,7 +70,7 @@ impl ExecutionDocument {
     pub async fn get_all_execution_documents(
         encoded_document_path: &str,
     ) -> anyhow::Result<Vec<ExecutionDocument>> {
-        let decoded_document_path = FileService::decode_path(encoded_document_path)?;
+        let decoded_document_path = AppService::decode_path(encoded_document_path)?;
         let pool = DatabaseService::connection(decoded_document_path.as_str()).await?;
         let runs = sqlx::query_as::<_, ExecutionDocument>(
             "SELECT id, document_revision_id, pid, status, started_at, completed_at FROM ExecutionDocuments",
@@ -99,14 +99,14 @@ mod tests {
     use uuid::Uuid;
 
     use crate::{
-        database_service::database_service::DatabaseService,
-        file_service::file_service::FileService, models::ExecutionDocument,
+        database_service::database_service::DatabaseService, file_service::app_service::AppService,
+        models::ExecutionDocument,
     };
 
     #[tokio::test]
     async fn it_should_create_a_new_execution_documents() {
         let document_revision_id = Uuid::new_v4().to_string();
-        let path = FileService::get_temporary_file_path().unwrap();
+        let path = AppService::get_temporary_file_path().unwrap();
         DatabaseService::run_migrations(&path).unwrap();
         let pool = DatabaseService::connection(&path).await.unwrap();
         let saved_or_error =

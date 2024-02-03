@@ -10,6 +10,7 @@ use ureq::Agent;
 use crate::api_service::api_service::ApiService;
 
 use crate::document_service::document_service::DocumentService;
+use crate::file_service::app_service::{AppService, MachineInfo};
 use crate::load_test_service::load_test_service::LoadTestService;
 use crate::models::execution::{ExecutionCountByStatusAndRunSecond, ExecutionResults};
 use crate::models::{
@@ -195,7 +196,7 @@ async fn getRuns(runDocumentPath: &str) -> Result<Vec<ExecutionDocument>, String
     }
 }
 #[tauri::command]
-async fn getExecutions(
+async fn get_executions(
     runDocumentPath: &str,
     executionDocumentId: &str,
 ) -> Result<Vec<Execution>, String> {
@@ -273,6 +274,15 @@ async fn getDocumentMetaDataString(runDocumentPath: &str, key: &str) -> Result<S
     }
 }
 
+#[tauri::command]
+async fn get_machine_info() -> Result<MachineInfo, String> {
+    let machine_info_or_error = AppService::get_machine_info();
+    match machine_info_or_error {
+        Ok(saved) => Ok(saved),
+        Err(error) => Err(error.to_string()),
+    }
+}
+
 struct AppState {
     current_exe_signature: String,
 }
@@ -297,7 +307,8 @@ pub fn spawnUi(current_exe_signature: String) {
             getMetaDataString,
             saveDocumentMetaDataString,
             getDocumentMetaDataString,
-            getExecutions
+            get_executions,
+            get_machine_info,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

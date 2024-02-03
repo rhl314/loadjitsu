@@ -3,15 +3,15 @@ use crate::database_service::database_service::DatabaseService;
 use crate::document_service::document_service::DocumentService;
 use crate::models::DocumentRevision;
 use crate::models::ExecutionDocument;
-use crate::{file_service::file_service::FileService, protos::ipc::RunDocument};
+use crate::{file_service::app_service::AppService, protos::ipc::RunDocument};
 use anyhow::anyhow;
 
 use std::env;
 
 use std::process;
-use std::process::{Command};
+use std::process::Command;
 use std::time::Duration;
-use tokio::time::{sleep};
+use tokio::time::sleep;
 
 pub struct LoadTestService;
 impl LoadTestService {
@@ -104,8 +104,8 @@ impl LoadTestService {
         document_revision_id: String,
         run_unique_id: String,
     ) -> anyhow::Result<()> {
-        let decoded_run_document_path = FileService::decode_path(&run_document_path_encoded)?;
-        let file_exists = FileService::does_file_exists(&decoded_run_document_path)?;
+        let decoded_run_document_path = AppService::decode_path(&run_document_path_encoded)?;
+        let file_exists = AppService::does_file_exists(&decoded_run_document_path)?;
         if file_exists != true {
             return Err(anyhow!("Loadjitsu file not found"));
         }

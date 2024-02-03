@@ -2,7 +2,7 @@ use serde::Serialize;
 use sqlx::sqlite::SqlitePool;
 use sqlx::{FromRow, Row};
 
-use crate::file_service::file_service::FileService;
+use crate::file_service::app_service::AppService;
 
 use super::ExecutionDocument;
 
@@ -87,7 +87,7 @@ impl Execution {
             execution_document = some_execution_document;
         }
 
-        let is_process_alive = FileService::is_process_alive(execution_document.pid.as_str())?;
+        let is_process_alive = AppService::is_process_alive(execution_document.pid.as_str())?;
         if is_process_alive {
             execution_document.status = "RUNNING".to_string();
         } else if !is_process_alive & execution_document.status.ne("COMPLETED") {
@@ -176,7 +176,7 @@ impl Execution {
     ) -> Result<Vec<Execution>, sqlx::Error> {
         println!("execution_document_id: {}", execution_document_id);
         let executions = sqlx::query_as::<_, Execution>(
-            "SELECT * FROM Execution WHERE execution_document_id = ?",
+            "SELECT * FROM Executions WHERE execution_document_id = ?",
         )
         .bind(execution_document_id)
         .fetch_all(pool)
@@ -229,8 +229,8 @@ impl Execution {
 #[cfg(test)]
 mod tests {
     use crate::{
-        database_service::database_service::DatabaseService,
-        file_service::file_service::FileService, models::Execution,
+        database_service::database_service::DatabaseService, file_service::app_service::AppService,
+        models::Execution,
     };
 
     #[tokio::test]
@@ -248,7 +248,7 @@ mod tests {
             completed_at: String::from("2021-01-01"),
             run_second: 0,
         };
-        let path = FileService::get_temporary_file_path().unwrap();
+        let path = AppService::get_temporary_file_path().unwrap();
         DatabaseService::run_migrations(&path).unwrap();
         let pool = DatabaseService::connection(&path).await.unwrap();
         let saved_or_error = Execution::insert(run_response_document, &pool).await;

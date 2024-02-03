@@ -1,10 +1,12 @@
 import { Dialog, Transition } from "@headlessui/react";
 import { XMarkIcon } from "@heroicons/react/24/outline";
 import { UserCircleIcon, SwatchIcon } from "@heroicons/react/24/solid";
-import { Fragment, useEffect, useState } from "react";
+import { Fragment, useContext, useEffect, useState } from "react";
 import { ApiClient } from "../../../api_client/api_client";
-import { Result } from "../../common/Result";
+import { Result, ResultError } from "../../common/Result";
 import FileUploader from "./FileUploader";
+import { ExecutionAppContext } from "../ExecutionContext";
+import axios from "axios";
 
 const styles: Record<string, React.CSSProperties> = {
   root: {
@@ -38,21 +40,30 @@ interface IDownloadReportState {
   organisationLogo?: string;
   exportVideo?: string;
   exportPdf?: string;
+  status: "IDLE" | "PROCESSING" | "ERROR" | "SUCCESS";
+  message?: string;
 }
 
 export default function DownloadReport({
   open,
   setOpen,
   runDocumentPath,
+  executionId,
 }: {
   runDocumentPath: string;
+  executionId: string;
   open: boolean;
   setOpen: (open: boolean) => void;
 }) {
-  const [state, setState] = useState<IDownloadReportState>({});
+  const [state, setState] = useState<IDownloadReportState>({
+    status: "IDLE",
+  });
+  const executionAppContext = useContext(ExecutionAppContext);
   const apiClient = new ApiClient();
   const loadDetails = async () => {
-    const newState: IDownloadReportState = {};
+    const newState: IDownloadReportState = {
+      status: "IDLE",
+    };
     try {
       const testerNameOrError = await apiClient.getMetaDataString(
         "TESTER_NAME"
@@ -114,6 +125,99 @@ export default function DownloadReport({
       ...state,
       ...newState,
     });
+  };
+
+  const requestDownload = async (): Promise<Result<void>> => {
+    if (state.status === "PROCESSING") {
+      return Result.ok();
+    }
+    setState({
+      ...state,
+      status: "PROCESSING",
+    });
+    try {
+      const apiClient = new ApiClient();
+      const executionsOrError = await apiClient.getExecutions({
+        runDocumentPath: runDocumentPath,
+        executionDocumentId: executionId,
+      });
+      if (executionsOrError.isFailure) {
+        return Result.fail(executionsOrError.error as ResultError);
+      }
+      const executions = executionsOrError.getValue();
+
+      const machineInfoOrError = await apiClient.getMachineInfo();
+      if (machineInfoOrError.isFailure) {
+        return Result.fail(machineInfoOrError.error as ResultError);
+      }
+      const machineInfo = machineInfoOrError.getValue();
+      console.log("Machine info", machineInfo);
+      const payload = {
+        runDocument: {
+          title: executionAppContext.state.runDocument?.title,
+          runDocumentId: executionAppContext.state.runDocument?.uniqueId,
+          executionId,
+          tester: {
+            email: state.testerEmail,
+            profile: "TODO",
+            name: state.testerName,
+            about: "TODO",
+            photo: state.testerProfilePhoto,
+          },
+          organisation: {
+            name: state.organisationName || "",
+            logo: state.organisationLogo || "",
+            about: "TODO",
+          },
+          executions,
+          exportVideo: state.exportVideo,
+          exportPdf: state.exportPdf,
+          machine: machineInfo,
+        },
+      };
+
+      console.log({ payload });
+      // @ts-ignore
+      window.payload = payload;
+
+      const response = await axios.post(
+        "http://localhost:9090/api/v1/report/generate",
+        payload
+      );
+
+      setState({
+        ...state,
+        status: "SUCCESS",
+        message: `Your report will be delivered to ${state.testerEmail}`,
+      });
+
+      return Result.ok();
+    } catch (err) {
+      setState({
+        ...state,
+        status: "ERROR",
+        message: `Something went wrong. Please try again`,
+      });
+      return Result.fail({
+        code: "UNKNOWN_ERROR",
+        message: (err as Error)?.message,
+      });
+    }
+  };
+
+  const downloadCta = (): string => {
+    switch (state.status) {
+      case "IDLE":
+        return "Download";
+      case "PROCESSING":
+        return "Downloading ...";
+      case "ERROR":
+        return "Try again";
+      case "SUCCESS":
+        return "Download again";
+      default:
+        return "Download";
+    }
   };
 
   useEffect(() => {
@@ -509,15 +613,18 @@ export default function DownloadReport({
                           <div className="flex  space-x-3">
                             <button
                               type="submit"
-                              onClick={() => {
+                              onClick={async () => {
                                 try {
+                                  const requestDownloadOrError =
+                                    await requestDownload();
+                                  console.log(requestDownloadOrError);
                                 } catch (e) {
                                   console.error(e);
                                 }
                               }}
                               className="inline-flex justify-center rounded-md bg-indigo-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
                             >
-                              Download Results
+                              {downloadCta()}
                             </button>
                             <button
                               type="button"
@@ -526,6 +633,13 @@ export default function DownloadReport({
                             >
                               Cancel
                             </button>
+                            {state.message && (
+                              <div>
+                                <p className="text-sm text-gray-800 py-2">
+                                  {state.message}
+                                </p>
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>

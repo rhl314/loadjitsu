@@ -8,12 +8,6 @@ use sqlx::Pool;
 
 use sqlx::Sqlite;
 
-
-
-
-
-
-
 pub struct DatabaseService;
 impl DatabaseService {
     pub fn run_migrations(database_path: &str) -> anyhow::Result<SqliteConnection> {
@@ -31,7 +25,7 @@ impl DatabaseService {
 }
 #[cfg(test)]
 mod tests {
-    use crate::{api_service::api_service::ApiService, file_service::file_service::FileService};
+    use crate::{api_service::api_service::ApiService, file_service::app_service::AppService};
 
     #[test]
     fn it_should_correctly_setup_database_connection() {
@@ -41,7 +35,7 @@ mod tests {
     #[test]
     fn it_should_create_file_on_disk_on_setting_up_connection() {
         use std::fs;
-        let file_path = FileService::get_temporary_file_path().unwrap();
+        let file_path = AppService::get_temporary_file_path().unwrap();
         println!("{}", file_path);
         let connection = super::DatabaseService::run_migrations(&file_path);
         assert!(connection.is_ok());

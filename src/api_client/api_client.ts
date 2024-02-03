@@ -25,15 +25,28 @@ export interface IResponseTimes {
 }
 
 export interface IExecutionResultRow {
-  UniqueId: string;
-  CreatedAt: string;
-  StepUniqueId: string;
-  DataType: string;
-  DataKey: string;
-  StringValue: string;
-  IntValue: number;
-  FloatValue: number;
+  unique_id: string;
+  execution_document_id: string;
+  status: string;
+  timeMs: number;
+  latencyMs: number;
+  stepUniqueId: string;
+  error: string;
+  statusCode: number;
+  created_at: string;
+  completed_at: string;
+  run_second: number;
 }
+
+export interface IMachineInfo {
+  uid: string;
+  memory: number;
+  num_cores: number;
+  cpu_speed: number;
+  os_release: string;
+  os_type: string;
+}
+
 export interface IExecutionResult {
   runDocument: string;
   statuses: IResultStatus[];
@@ -180,15 +193,15 @@ export class ApiClient {
   public async getExecutions(args: {
     runDocumentPath: string;
     executionDocumentId: string;
-  }): Promise<Result<IExecutionResults>> {
+  }): Promise<Result<IExecutionResultRow[]>> {
     try {
       console.log("Getting runs");
-      const response = (await invoke("getExecutions", {
+      const response = (await invoke("get_executions", {
         runDocumentPath: args.runDocumentPath,
         executionDocumentId: args.executionDocumentId,
-      })) as IExecutionResults;
+      })) as IExecutionResultRow[];
       console.log({ ready: response });
-      return Result.ok<IExecutionResults>(response);
+      return Result.ok<IExecutionResultRow[]>(response);
     } catch (err: any) {
       console.log("Errored");
       console.error(err);
@@ -497,6 +510,20 @@ export class ApiClient {
       console.log(err);
       console.error(err);
       return Result.fail<string>({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Something went wrong. Please try again",
+      });
+    }
+  }
+
+  public async getMachineInfo(): Promise<Result<IMachineInfo>> {
+    try {
+      const response = await invoke("get_machine_info");
+      return Result.ok<IMachineInfo>(response as IMachineInfo);
+    } catch (err) {
+      console.log(err);
+      console.error(err);
+      return Result.fail<IMachineInfo>({
         code: "INTERNAL_SERVER_ERROR",
         message: "Something went wrong. Please try again",
       });

@@ -5,7 +5,7 @@ use sqlx::SqlitePool;
 use uuid::uuid;
 
 use crate::database_service::database_service::DatabaseService;
-use crate::file_service::file_service::FileService;
+use crate::file_service::app_service::AppService;
 
 #[derive(Debug, FromRow, Serialize, Deserialize)]
 pub struct DocumentMeta {

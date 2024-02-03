@@ -9,7 +9,7 @@ use tauri::api;
 use uuid::Uuid;
 
 use crate::database_service::database_service::DatabaseService;
-use crate::file_service::file_service::FileService;
+use crate::file_service::app_service::AppService;
 use crate::models::execution::{self, ExecutionCountByStatusAndRunSecond, ExecutionResults};
 use crate::models::{DocumentMeta, Execution, ExecutionDocument};
 use crate::protos::ipc::{RunConfiguration, RunDocument, RunShape, RunType};
@@ -116,14 +116,14 @@ impl ApiService {
         }
     }
     pub async fn save_global_meta_string(key: &str, value: &str) -> anyhow::Result<()> {
-        let path = FileService::get_metadata_file_path()?;
+        let path = AppService::get_metadata_file_path()?;
         let pool = DatabaseService::connection(&path).await?;
         let saved = DocumentMeta::save_string(&pool, key, value).await?;
         return Ok(saved);
     }
 
     pub async fn get_global_meta_string(key: &str) -> anyhow::Result<String> {
-        let path = FileService::get_metadata_file_path()?;
+        let path = AppService::get_metadata_file_path()?;
         let pool = DatabaseService::connection(&path).await?;
         let value = DocumentMeta::get_string(&pool, key).await?;
         return Ok(value);
@@ -134,7 +134,7 @@ impl ApiService {
         key: &str,
         value: &str,
     ) -> anyhow::Result<()> {
-        let decoded_document_path = FileService::decode_path(run_document_path)?;
+        let decoded_document_path = AppService::decode_path(run_document_path)?;
         let pool = DatabaseService::connection(decoded_document_path.as_str()).await?;
         let saved = DocumentMeta::save_string(&pool, key, value).await?;
         return Ok(saved);
@@ -144,7 +144,7 @@ impl ApiService {
         run_document_path: &str,
         key: &str,
     ) -> anyhow::Result<String> {
-        let decoded_document_path = FileService::decode_path(run_document_path)?;
+        let decoded_document_path = AppService::decode_path(run_document_path)?;
         let pool = DatabaseService::connection(decoded_document_path.as_str()).await?;
         let value = DocumentMeta::get_string(&pool, key).await?;
         return Ok(value);
@@ -154,7 +154,7 @@ impl ApiService {
         execution_document_id: &str,
         run_document_path: &str,
     ) -> anyhow::Result<ExecutionResults> {
-        let decoded_document_path = FileService::decode_path(run_document_path)?;
+        let decoded_document_path = AppService::decode_path(run_document_path)?;
         let pool = DatabaseService::connection(decoded_document_path.as_str()).await?;
         let execution_count_by_status_and_run_seconds =
             Execution::get_execution_count_by_status_and_run_second(execution_document_id, &pool)
@@ -177,7 +177,7 @@ impl ApiService {
         execution_document_id: &str,
         run_document_path: &str,
     ) -> anyhow::Result<Vec<Execution>> {
-        let decoded_document_path = FileService::decode_path(run_document_path)?;
+        let decoded_document_path = AppService::decode_path(run_document_path)?;
         let pool = DatabaseService::connection(decoded_document_path.as_str()).await?;
         let executions = Execution::get_executions(execution_document_id, &pool).await?;
         Ok(executions)
@@ -187,7 +187,7 @@ impl ApiService {
         execution_document_id: &str,
         run_document_path: &str,
     ) -> anyhow::Result<ExecutionDocument> {
-        let decoded_document_path = FileService::decode_path(run_document_path)?;
+        let decoded_document_path = AppService::decode_path(run_document_path)?;
         let pool = DatabaseService::connection(decoded_document_path.as_str()).await?;
         let execution_document =
             Execution::get_execution_document(execution_document_id, &pool).await?;
@@ -368,7 +368,7 @@ mod tests {
     use uuid::{uuid, Uuid};
 
     use crate::{
-        file_service::file_service::FileService,
+        file_service::app_service::AppService,
         protos::ipc::{ApiStep, HttpAction, HttpAuthType, RunStatus},
     };
 

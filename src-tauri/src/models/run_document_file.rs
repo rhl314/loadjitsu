@@ -1,7 +1,7 @@
 use sqlx::{Row, SqlitePool};
 
 use crate::{
-    database_service::database_service::DatabaseService, file_service::file_service::FileService,
+    database_service::database_service::DatabaseService, file_service::app_service::AppService,
     protos::ipc::RunDocument,
 };
 
@@ -17,8 +17,8 @@ pub struct RunDocumentFile {
 
 impl RunDocumentFile {
     pub async fn get_recent_runs() -> anyhow::Result<Vec<RunDocumentFile>> {
-        let path = FileService::get_metadata_file_path()?;
-        FileService::ensure_file_exists(&path)?;
+        let path = AppService::get_metadata_file_path()?;
+        AppService::ensure_file_exists(&path)?;
         DatabaseService::run_migrations(&path)?;
         let pool = DatabaseService::connection(&path).await?;
         let mut run_document_files: Vec<RunDocumentFile> = Vec::new();
@@ -40,7 +40,7 @@ impl RunDocumentFile {
         run_document: &RunDocument,
         path_of_run_document: &str,
     ) -> anyhow::Result<RunDocumentFile> {
-        let path = FileService::get_metadata_file_path()?;
+        let path = AppService::get_metadata_file_path()?;
         DatabaseService::run_migrations(&path)?;
         let run_document_file = RunDocumentFile {
             id: run_document.unique_id.clone(),
@@ -99,17 +99,17 @@ impl RunDocumentFile {
 
 #[cfg(test)]
 mod tests {
-    use crate::{api_service::api_service::ApiService, file_service::file_service::FileService};
+    use crate::{api_service::api_service::ApiService, file_service::app_service::AppService};
 
     #[tokio::test]
     async fn it_should_save_run_document_correctly() {
         let run_document = ApiService::generateNewRunDocument();
-        let path = FileService::get_temporary_file_path().unwrap();
+        let path = AppService::get_temporary_file_path().unwrap();
         let saved_or_error =
             super::RunDocumentFile::register_run_document(&run_document, &path).await;
         // dbg!(saved_or_error.err());
         assert!(&saved_or_error.is_ok());
-        let path = FileService::get_metadata_file_path().unwrap();
+        let path = AppService::get_metadata_file_path().unwrap();
         println!("Path is {}", path);
     }
 
