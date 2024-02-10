@@ -3,7 +3,7 @@ use std::fs::File;
 
 use anyhow::anyhow;
 use anyhow::Result;
-use base64::decode;
+use base64::{engine::general_purpose::STANDARD_NO_PAD, Engine as _};
 
 use platform_dirs::AppDirs;
 use sha2::Digest;
@@ -54,7 +54,7 @@ impl AppService {
         })
     }
     pub fn decode_path(encoded: &str) -> Result<String> {
-        match decode(encoded) {
+        match STANDARD_NO_PAD.decode(encoded) {
             Ok(bytes) => match String::from_utf8(bytes) {
                 Ok(decoded) => Ok(decoded),
                 Err(e) => Err(anyhow!("Failed to convert bytes to string: {}", e)),
