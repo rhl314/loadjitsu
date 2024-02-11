@@ -121,7 +121,8 @@ impl DocumentRevision {
     }
 
     pub async fn loadRunDocument(encodedPath: &str) -> anyhow::Result<RunDocument> {
-        let decoded_document_path = DocumentService::decode_document_path(encodedPath)?;
+        println!("encodedPath: {}", encodedPath);
+        let decoded_document_path = AppService::decode_path(encodedPath)?;
         println!("decoded_document_path: {}", decoded_document_path);
         let file_exists = AppService::does_file_exists(&decoded_document_path)?;
         if file_exists == false {

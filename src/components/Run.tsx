@@ -25,9 +25,11 @@ const Run = (args: { documentPath: string }) => {
   });
   const loadRunDocument = async () => {
     try {
+      console.log({ runDocumentPath: args.documentPath })
       const runDocumentSerialized = (await invoke("loadRunDocument", {
         runDocumentPath: args.documentPath,
       })) as string;
+      console.log({ runDocumentSerialized})
       const appUtil = new AppUtil();
       const runDocument = RunDocument.decode(
         appUtil.base64ToUint8Array(runDocumentSerialized)
@@ -37,6 +39,7 @@ const Run = (args: { documentPath: string }) => {
         state: "IDLE",
       });
     } catch (err) {
+      console.error(err);
       if (err === "DOCUMENT_NOT_FOUND") {
         let apiStepFromLocalStorage: ApiStep | null = null;
         try {
@@ -67,6 +70,7 @@ const Run = (args: { documentPath: string }) => {
     }
   };
   useEffect(() => {
+    console.log("Loading");
     loadRunDocument();
   }, []);
 

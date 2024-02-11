@@ -118,6 +118,7 @@ const Home = () => {
                                         )
                                       )
                                     );
+                                    console.log({ encodedPath})
                                     navigate(`/runs/api/${encodedPath}`);
                                   }}
                                 >

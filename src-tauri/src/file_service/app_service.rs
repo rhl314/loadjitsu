@@ -3,7 +3,7 @@ use std::fs::File;
 
 use anyhow::anyhow;
 use anyhow::Result;
-use base64::{engine::general_purpose::STANDARD_NO_PAD, Engine as _};
+use base64::{engine::general_purpose::STANDARD, Engine as _};
 
 use platform_dirs::AppDirs;
 use sha2::Digest;
@@ -54,7 +54,12 @@ impl AppService {
         })
     }
     pub fn decode_path(encoded: &str) -> Result<String> {
-        match STANDARD_NO_PAD.decode(encoded) {
+        // Calculate how much padding is needed
+        let padding_needed = (4 - encoded.len() % 4) % 4;
+        let padded_encoded = format!("{}{}", encoded, "=".repeat(padding_needed));
+        println!("padded_encoded: {}", padded_encoded);
+
+        match STANDARD.decode(padded_encoded) {
             Ok(bytes) => match String::from_utf8(bytes) {
                 Ok(decoded) => Ok(decoded),
                 Err(e) => Err(anyhow!("Failed to convert bytes to string: {}", e)),

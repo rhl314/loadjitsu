@@ -181,7 +181,7 @@ export default function DownloadReport({
       window.payload = payload;
 
       const response = await axios.post(
-        "http://localhost:9090/api/v1/report/generate",
+        "https://loadjitsu-api-qjgblthbsq-uc.a.run.app/api/v1/report/generate",
         payload
       );
 
