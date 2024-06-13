@@ -6,10 +6,15 @@ import NewRun from "./pages/NewRun";
 import Root from "./Root";
 import "./styles.css";
 import Execution from "./pages/Execution";
+import Welcome from "./pages/Welcome";
 const router = createBrowserRouter([
   {
     path: "/",
     element: <Root />,
+  },
+  {
+    path: "/welcome",
+    element: <Welcome />,
   },
   {
     path: "/home",

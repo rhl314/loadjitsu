@@ -11,8 +11,9 @@ function Root() {
     console.log(response);
     debugger;
     if (response.length === 0) {
-      const temporaryDocumentPath = await invoke("getTemporaryDocumentPath");
-      navigate(`/runs/api/${temporaryDocumentPath}`);
+      //const temporaryDocumentPath = await invoke("getTemporaryDocumentPath");
+      //navigate(`/runs/api/${temporaryDocumentPath}`);
+      navigate("/welcome");
     } else {
       navigate("/home");
     }

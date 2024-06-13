@@ -26,6 +26,7 @@ fn greet(name: &str) -> String {
 #[tauri::command]
 async fn getTemporaryDocumentPath() -> Result<String, String> {
     let ranOrError = DocumentService::get_temporary_document_path();
+    println!("{:?}", ranOrError);
     match ranOrError {
         Ok(ran) => Ok(ran),
         Err(error) => Err(error.to_string()),
