@@ -8,7 +8,6 @@ export default function ApiSteps() {
   const { state, dispatch } = useContext(RunDocumentAppContext);
   return (
     <div>
-      ``
       {state.runDocument?.apiSteps?.map((apiStep: ApiStep) => {
         return (
           <ApiStepComponent
