@@ -20,6 +20,7 @@
     "@uiw/react-codemirror": "^4.21.21",
     "axios": "^1.6.0",
     "chart.js": "^4.4.0",
+    "clsx": "^2.1.1",
     "dayjs": "^1.11.10",
     "javascript-time-ago": "^2.5.9",
     "lodash": "^4.17.21",
@@ -34,6 +35,7 @@
     "react-time-ago": "^7.2.1",
     "recharts": "^2.10.3",
     "shortid": "^2.2.16",
+    "tailwind-merge": "^2.3.0",
     "ts-proto": "^1.162.2",
     "valid-url": "^1.0.9"
   },
