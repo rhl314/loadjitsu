@@ -1,9 +1,6 @@
 import * as _ from "lodash";
-import { IExecutionResultData } from "./ExecutionResults";
 
-export default function ExecutionResultRow(props: {
-  data: IExecutionResultData;
-}) {
+export default function ExecutionResultRow(props: { data: any }) {
   let status: string = "NONE";
   const output = [];
   for (const row of props.data.rows) {
