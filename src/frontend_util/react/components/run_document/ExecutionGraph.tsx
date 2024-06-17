@@ -12,6 +12,7 @@ import { useContext } from "react";
 import { Line } from "react-chartjs-2";
 import { ExecutionAppContext } from "../../ExecutionContext";
 import TopNav from "../TopNav";
+import { useNavigate } from "react-router-dom";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -31,6 +32,7 @@ interface IDataPoint {
 }
 
 const ExecutionGraph = () => {
+  const navigation = useNavigate();
   const { state } = useContext(ExecutionAppContext);
   const dataMapped: IDataPoint[] = [];
   dataMapped.push({
@@ -97,8 +99,7 @@ const ExecutionGraph = () => {
         position: "top" as const,
       },
       title: {
-        display: true,
-        text: "Chart.js Line Chart",
+        display: false,
       },
     },
   };
@@ -137,8 +138,14 @@ const ExecutionGraph = () => {
     <div>
       <TopNav />
       <div className="app_container_wide mx-auto">
-        <article className="prose prose-lg my-4">
-          <h2>{state.runDocument?.title}</h2>
+        <article className="prose prose-lg my-4 cursor-pointer">
+          <h2
+            onClick={() => {
+              navigation(`/runs/api/${state.runDocumentPath || ""}`);
+            }}
+          >
+            {state.runDocument?.title}
+          </h2>
         </article>
         <div className="grid grid-cols-12 gap-8">
           <div className="col-span-2">
