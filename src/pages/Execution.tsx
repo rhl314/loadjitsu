@@ -196,7 +196,7 @@ const Execution = () => {
           <article className="prose prose-lg my-4">
             <h2>{title}</h2>
           </article>
-          <div className="grid grid-cols-12">
+          <div className="grid grid-cols-12 gap-8">
             <div className="col-span-2">
               <div className="grid">
                 <div className="tabs z-10 -mb-px">
@@ -238,7 +238,51 @@ const Execution = () => {
                 </div>
               </div>
             </div>
-            <div className="col-span-10">World</div>
+            <div className="col-span-10">
+              <div className="grid">
+                <div className="tabs z-10 -mb-px">
+                  <button className="tab tab-lifted tab-active">Status</button>
+                </div>
+                <div className="bg-base-300  relative overflow-x-auto">
+                  <div className="preview border-base-300 bg-base-100  min-h-[6rem] w-100 gap-2 overflow-x-hidden border bg-cover bg-top p-4">
+                    <div className="grid grid-cols-4 gap-2 flex items-center h-full">
+                      <div className="text-center">
+                        <div className="text-[42px] w-full">999999</div>
+                        <div>Success</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-[42px] w-full text-center">
+                          999999
+                        </div>
+                        <div>Errors</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-[42px] w-full text-center">
+                          999999
+                        </div>
+                        <div>Timeouts</div>
+                      </div>
+                      <div className="text-center">
+                        <div className="text-[42px] w-full text-center">
+                          999999
+                        </div>
+                        <div>Exceptions (500x)</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="grid mt-10">
+                <div className="tabs z-10 -mb-px">
+                  <button className="tab tab-lifted tab-active">Graph</button>
+                </div>
+                <div className="bg-base-300  relative overflow-x-auto">
+                  <div className="preview border-base-300 bg-base-100  min-h-[6rem] w-100 gap-2 overflow-x-hidden border bg-cover bg-top p-4">
+                    <Line options={options} data={data} />
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
