@@ -4,3 +4,11 @@
 .app_container {
   max-width: 960px;
 }
+.app_container_wide {
+  max-width: 1080px;
+}
+
+.preview {
+  background-image: repeating-linear-gradient(45deg, oklch(0 0 0), oklch(0 0 0) 13px, oklch(0.191251 0 0) 13px, oklch(0.191251 0 0) 14px);
+  background-size: 40px 40px
+}

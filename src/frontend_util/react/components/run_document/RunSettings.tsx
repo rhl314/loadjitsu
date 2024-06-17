@@ -183,7 +183,7 @@ export default function RunSettings() {
                       pattern="\d*"
                       value={configuration?.rps}
                       maxLength={5}
-                      className="w-full text-center"
+                      className="w-full text-center bg-base-100"
                       type="text"
                       placeholder="rps"
                     />
@@ -207,7 +207,7 @@ export default function RunSettings() {
                       pattern="\d*"
                       value={configuration?.durationInSeconds}
                       maxLength={4}
-                      className="w-full text-center"
+                      className="w-full text-center bg-base-100"
                       type="text"
                       placeholder="seconds"
                     />

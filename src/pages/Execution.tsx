@@ -7,9 +7,109 @@ import {
   INITIAL_EXECUTION_APP_STATE,
   executionReducer,
 } from "../frontend_util/react/ExecutionContext";
-import ExecutionGraph from "../frontend_util/react/components/run_document/ExecutionGraph";
-import { ScrollToTop } from "../ScrollToTop";
-import DownloadReport from "../frontend_util/react/components/DownloadReport";
+import TopNav from "../frontend_util/react/components/TopNav";
+
+import {
+  CategoryScale,
+  Chart as ChartJS,
+  Legend,
+  LineElement,
+  LinearScale,
+  PointElement,
+  Title,
+  Tooltip,
+} from "chart.js";
+import { faker } from "@faker-js/faker";
+import React from "react";
+import { Line } from "react-chartjs-2";
+import RunNavigation from "../frontend_util/react/components/run_document/RunNavigation";
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
+
+export const options = {
+  responsive: true,
+  plugins: {
+    legend: {
+      position: "top" as const,
+    },
+    title: {
+      display: true,
+      text: "Chart.js Line Chart",
+    },
+  },
+};
+
+const labels = ["January", "February", "March", "April", "May", "June", "July"];
+
+export const data = {
+  labels,
+  datasets: [
+    {
+      label: "Dataset 1",
+      data: labels.map(() => faker.datatype.number({ min: -1000, max: 1000 })),
+      borderColor: "rgb(255, 99, 132)",
+      backgroundColor: "rgba(255, 99, 132, 0.5)",
+    },
+    {
+      label: "Dataset 2",
+      data: labels.map(() => faker.datatype.number({ min: -1000, max: 1000 })),
+      borderColor: "rgb(53, 162, 235)",
+      backgroundColor: "rgba(53, 162, 235, 0.5)",
+    },
+  ],
+};
+
+const styles: Record<string, React.CSSProperties> = {
+  backdrop: {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    display: "grid",
+    gridTemplateAreas: `"nav nav" "left header"  "left top_stats" "left bottom_stats" "left main" "left footer"`,
+    gridTemplateRows: "80px 80px  80px 80px 1fr 80px",
+    gridTemplateColumns: "1fr 4fr",
+  },
+  header: {
+    gridArea: "header",
+    background: "white",
+  },
+  trunk: {
+    gridArea: "trunk",
+    backgroundColor: "#f5f5f5",
+  },
+  main: {
+    gridArea: "main",
+    overflow: "auto",
+  },
+  left: {
+    gridArea: "left",
+    overflow: "auto",
+  },
+  top_stats: {
+    gridArea: "top_stats",
+    backgroundColor: "yello",
+  },
+  bottom_stats: {
+    gridArea: "bottom_stats",
+    backgroundColor: "pink",
+  },
+  nav: {
+    gridArea: "nav",
+  },
+  footer: {
+    gridArea: "footer",
+  },
+};
 
 const Execution = () => {
   const navigation = useNavigate();
@@ -90,51 +190,58 @@ const Execution = () => {
     <ExecutionAppContext.Provider
       value={{ state: executionAppState, dispatch }}
     >
-      <ScrollToTop />
-      <div className="bg-primary">
-        <div className="navbar">
-          <div className="flex-1">
-            <p
-              className="btn btn-ghost normal-case text-xl text-white text-ellipsis"
-              onClick={() => {
-                navigation(`/runs/api/${documentPath}`);
-              }}
-            >
-              {title}
-            </p>
+      <div>
+        <TopNav />
+        <div className="app_container_wide mx-auto">
+          <article className="prose prose-lg my-4">
+            <h2>{title}</h2>
+          </article>
+          <div className="grid grid-cols-12">
+            <div className="col-span-2">
+              <div className="grid">
+                <div className="tabs z-10 -mb-px">
+                  <button className="tab tab-lifted tab-active">Status</button>
+                </div>
+                <div className="bg-base-300  relative overflow-x-auto">
+                  <div className="preview border-base-300 bg-base-100  min-h-[6rem] w-100 gap-2 overflow-x-hidden border bg-cover bg-top p-4">
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      viewBox="0 0 24 24"
+                      fill="red"
+                      className="w-[60px] mx-auto mt-3"
+                    >
+                      <path
+                        fillRule="evenodd"
+                        d="M4.5 7.5a3 3 0 013-3h9a3 3 0 013 3v9a3 3 0 01-3 3h-9a3 3 0 01-3-3v-9z"
+                        clipRule="evenodd"
+                      />
+                    </svg>
+                    <div className="text-center">
+                      <p>Abort test</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="grid mt-10">
+                <div className="tabs z-10 -mb-px">
+                  <button className="tab tab-lifted tab-active">Status</button>
+                </div>
+                <div className="bg-base-300  relative overflow-x-auto">
+                  <div className="preview border-base-300 bg-base-100  min-h-[6rem] w-100 gap-2 overflow-x-hidden border bg-cover bg-top p-4">
+                    <article className="prose prose-lg my-4 text-center">
+                      <h2>999999</h2>
+                    </article>
+                    <div className="text-center">
+                      <p>Avg Response time (ms)</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="col-span-10">World</div>
           </div>
-          <div className="flex-none">
-            <ul className="menu menu-horizontal px-1">
-              <li
-                onClick={() => {
-                  setShowDownloadReport(true);
-                }}
-              >
-                <a className="btn btn-sm">Download Results</a>
-              </li>
-            </ul>
-          </div>
-        </div>
-        <div className="app_container py-8 mx-auto">
-          <ExecutionGraph />
         </div>
       </div>
-      <div className="app_container mx-auto mt-10">
-        <div className="grid">
-          <div className="tabs z-10 -mb-px">
-            <button className="tab tab-lifted tab-active">Past runs</button>
-          </div>
-          <div className="bg-base-300  relative overflow-x-auto">
-            <div className="preview border-base-300 bg-base-100  min-h-[6rem] w-100 gap-2 overflow-x-hidden border bg-cover bg-top p-4"></div>
-          </div>
-        </div>
-      </div>
-      <DownloadReport
-        runDocumentPath={documentPath as string}
-        executionId={executionId as string}
-        open={showDownloadReport}
-        setOpen={setShowDownloadReport}
-      />
     </ExecutionAppContext.Provider>
   );
 };
