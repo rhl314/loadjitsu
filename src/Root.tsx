@@ -9,7 +9,6 @@ function Root() {
   async function getRecentRuns() {
     const response = (await invoke("getRecentRuns")) as IRunDocumentFile[];
     console.log(response);
-    debugger;
     if (response.length === 0) {
       //const temporaryDocumentPath = await invoke("getTemporaryDocumentPath");
       //navigate(`/runs/api/${temporaryDocumentPath}`);
