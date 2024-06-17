@@ -140,6 +140,7 @@ async fn runLoadTest(
     runDocumentSerialized: &str,
     runDocumentPath: &str,
 ) -> Result<ExecutionDocument, String> {
+    println!("Saving document");
     let savedOrError =
         DocumentRevision::saveSerializedRunDocument(runDocumentPath, runDocumentSerialized).await;
 

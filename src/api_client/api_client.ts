@@ -296,9 +296,10 @@ export class ApiClient {
       const bytes = RunDocument.encode(args.runDocument).finish();
       const appUtil = new AppUtil();
       const serialized = await appUtil.uint8ArrayToBase64(bytes);
+      console.log({ serialized });
       const response = (await invoke("runLoadTest", {
         runDocumentSerialized: serialized,
-        runDocumentPath: args.runDocumentPath,
+        runDocumentPath: AppUtil.fixBase64Padding(args.runDocumentPath),
       })) as IExecutionDocument;
       return Result.ok(response);
     } catch (err) {

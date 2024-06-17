@@ -21,7 +21,8 @@ impl DocumentService {
         }
     }
     pub fn decode_document_path(encoded: &str) -> anyhow::Result<String> {
-        let decoded = general_purpose::STANDARD_NO_PAD.decode(encoded)?;
+        println!("encoded path: {}", encoded);
+        let decoded = general_purpose::STANDARD.decode(encoded)?;
         let decodedString = String::from_utf8(decoded)?;
         Ok(decodedString)
     }
