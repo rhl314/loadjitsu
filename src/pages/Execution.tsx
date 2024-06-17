@@ -23,6 +23,7 @@ import { faker } from "@faker-js/faker";
 import React from "react";
 import { Line } from "react-chartjs-2";
 import RunNavigation from "../frontend_util/react/components/run_document/RunNavigation";
+import ExecutionGraph from "../frontend_util/react/components/run_document/ExecutionGraph";
 
 ChartJS.register(
   CategoryScale,
@@ -183,6 +184,7 @@ const Execution = () => {
       });
     }
   };
+
   useEffect(() => {
     loadExecution();
   }, []);
@@ -190,102 +192,7 @@ const Execution = () => {
     <ExecutionAppContext.Provider
       value={{ state: executionAppState, dispatch }}
     >
-      <div>
-        <TopNav />
-        <div className="app_container_wide mx-auto">
-          <article className="prose prose-lg my-4">
-            <h2>{title}</h2>
-          </article>
-          <div className="grid grid-cols-12 gap-8">
-            <div className="col-span-2">
-              <div className="grid">
-                <div className="tabs z-10 -mb-px">
-                  <button className="tab tab-lifted tab-active">Status</button>
-                </div>
-                <div className="bg-base-300  relative overflow-x-auto">
-                  <div className="preview border-base-300 bg-base-100  min-h-[6rem] w-100 gap-2 overflow-x-hidden border bg-cover bg-top p-4">
-                    <svg
-                      xmlns="http://www.w3.org/2000/svg"
-                      viewBox="0 0 24 24"
-                      fill="red"
-                      className="w-[60px] mx-auto mt-3"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M4.5 7.5a3 3 0 013-3h9a3 3 0 013 3v9a3 3 0 01-3 3h-9a3 3 0 01-3-3v-9z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                    <div className="text-center">
-                      <p>Abort test</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="grid mt-10">
-                <div className="tabs z-10 -mb-px">
-                  <button className="tab tab-lifted tab-active">Status</button>
-                </div>
-                <div className="bg-base-300  relative overflow-x-auto">
-                  <div className="preview border-base-300 bg-base-100  min-h-[6rem] w-100 gap-2 overflow-x-hidden border bg-cover bg-top p-4">
-                    <article className="prose prose-lg my-4 text-center">
-                      <h2>999999</h2>
-                    </article>
-                    <div className="text-center">
-                      <p>Avg Response time (ms)</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="col-span-10">
-              <div className="grid">
-                <div className="tabs z-10 -mb-px">
-                  <button className="tab tab-lifted tab-active">Status</button>
-                </div>
-                <div className="bg-base-300  relative overflow-x-auto">
-                  <div className="preview border-base-300 bg-base-100  min-h-[6rem] w-100 gap-2 overflow-x-hidden border bg-cover bg-top p-4">
-                    <div className="grid grid-cols-4 gap-2 flex items-center h-full">
-                      <div className="text-center">
-                        <div className="text-[42px] w-full">999999</div>
-                        <div>Success</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-[42px] w-full text-center">
-                          999999
-                        </div>
-                        <div>Errors</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-[42px] w-full text-center">
-                          999999
-                        </div>
-                        <div>Timeouts</div>
-                      </div>
-                      <div className="text-center">
-                        <div className="text-[42px] w-full text-center">
-                          999999
-                        </div>
-                        <div>Exceptions (500x)</div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="grid mt-10">
-                <div className="tabs z-10 -mb-px">
-                  <button className="tab tab-lifted tab-active">Graph</button>
-                </div>
-                <div className="bg-base-300  relative overflow-x-auto">
-                  <div className="preview border-base-300 bg-base-100  min-h-[6rem] w-100 gap-2 overflow-x-hidden border bg-cover bg-top p-4">
-                    <Line options={options} data={data} />
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <ExecutionGraph />
     </ExecutionAppContext.Provider>
   );
 };
