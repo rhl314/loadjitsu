@@ -8,6 +8,7 @@ export interface IExecutionCountByStatusAndRunSecond {
 }
 export interface ExecutionAppState {
   runDocument?: RunDocument;
+  executionDocument?: IExecutionDocument;
   runDocumentPath?: string;
   executionId?: string;
   executionResults?: IExecutionResults;

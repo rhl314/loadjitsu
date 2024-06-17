@@ -138,8 +138,12 @@ const Execution = () => {
           state: "ERROR",
         });
       }
+
       const executionDocument = executionDocumentOrError.getValue();
       console.log({ executionDocument });
+      dispatch({
+        executionDocument,
+      });
       const runDocumentOrError = await apiClient.getRunDocumentByRevisionId({
         runDocumentPath: documentPath as string,
         documentRevisionId: executionDocument.document_revision_id,
