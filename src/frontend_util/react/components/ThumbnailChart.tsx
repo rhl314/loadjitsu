@@ -52,12 +52,7 @@ const ThumbnailChart = (props: {
     dataMapped[i].TIMEOUT += dataMapped[i - 1].TIMEOUT;
   }
   return (
-    <LineChart
-      width={100}
-      height={50}
-      data={dataMapped}
-      className="bg-primary rounded"
-    >
+    <LineChart width={100} height={50} data={dataMapped} className="rounded">
       <Line type="monotone" dataKey="SUCCESS" stroke="green" dot={false} />
       <Line type="monotone" dataKey="ERROR" stroke="red" dot={false} />
       <Line type="monotone" dataKey="TIMEOUT" stroke="orange" dot={false} />
