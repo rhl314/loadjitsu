@@ -84,7 +84,7 @@ impl ExecutionDocument {
     pub async fn abort_execution_document(pool: &SqlitePool, pid: String) -> anyhow::Result<()> {
         println!("Completing run with pid: {}", pid);
         let query = sqlx::query(
-            "UPDATE ExecutionDocuments SET status = 'COMPLETED', completed_at = datetime('now') WHERE pid = $1",
+            "UPDATE ExecutionDocuments SET status = 'ABORTED', completed_at = datetime('now') WHERE pid = $1",
         )
         .bind(pid);
         query.execute(pool).await?;
@@ -113,6 +113,19 @@ impl ExecutionDocument {
                 .bind(id)
                 .fetch_optional(pool)
                 .await?;
+
+        Ok(execution_document)
+    }
+    pub async fn get_execution_document_by_pid(
+        pool: &SqlitePool,
+        pid: &str,
+    ) -> anyhow::Result<Option<ExecutionDocument>> {
+        let execution_document = sqlx::query_as::<_, ExecutionDocument>(
+            "SELECT * FROM ExecutionDocuments WHERE pid = ?",
+        )
+        .bind(pid)
+        .fetch_optional(pool)
+        .await?;
 
         Ok(execution_document)
     }

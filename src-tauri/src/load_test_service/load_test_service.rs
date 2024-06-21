@@ -1,6 +1,7 @@
 use crate::api_service::api_service::ApiService;
 use crate::database_service::database_service::DatabaseService;
 use crate::document_service::document_service::DocumentService;
+use crate::models::execution_document;
 use crate::models::DocumentRevision;
 use crate::models::ExecutionDocument;
 use crate::{file_service::app_service::AppService, protos::ipc::RunDocument};
@@ -64,8 +65,20 @@ impl LoadTestService {
         let api_step = api_step_or_none.unwrap().clone();
         let request_interval = Duration::from_secs(1) / requests_per_second as u32;
         let mut handles = Vec::new();
+        let pool = DatabaseService::connection(&run_document_path).await?;
+        let pid = process::id().to_string();
+        println!("pid: {}", pid);
 
         for run_second in 1..=test_duration_in_seconds {
+            let execution_document_or_null =
+                ExecutionDocument::get_execution_document_by_pid(&pool, &pid).await?;
+            if let Some(execution_document_or_null) = execution_document_or_null {
+                if execution_document_or_null.status.eq("REQUESTED_ABORT") {
+                    ExecutionDocument::abort_execution_document(&pool, pid.clone()).await?;
+                    process::exit(0);
+                }
+            }
+
             let outer_run_document_path = run_document_path.clone();
             let outer_run_unique_id = run_unique_id.clone();
             let outer_api_step = api_step.clone();
@@ -92,10 +105,7 @@ impl LoadTestService {
         for handle in handles {
             let _ = handle.await;
         }
-        let pool = DatabaseService::connection(&run_document_path).await?;
 
-        let pid = process::id().to_string();
-        println!("pid: {}", pid);
         ExecutionDocument::complete_execution_document(&pool, pid).await?;
         Ok(())
     }

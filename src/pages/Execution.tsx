@@ -175,7 +175,10 @@ const Execution = () => {
         executionResults: executionResults,
         state: "READY",
       });
-      if (executionDocument.status === "RUNNING") {
+      if (
+        executionDocument.status === "RUNNING" ||
+        executionDocument.status === "REQUESTED_ABORT"
+      ) {
         setTimeout(() => {
           loadExecution();
         }, 1000);

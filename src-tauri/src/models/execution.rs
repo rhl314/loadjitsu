@@ -89,7 +89,9 @@ impl Execution {
 
         let is_process_alive = AppService::is_process_alive(execution_document.pid.as_str())?;
         if is_process_alive {
-            execution_document.status = "RUNNING".to_string();
+            if (execution_document.status.ne("REQUESTED_ABORT")) {
+                execution_document.status = "RUNNING".to_string();
+            }
         } else if !is_process_alive & execution_document.status.ne("COMPLETED") {
             execution_document.status = "ABORTED".to_string();
         }

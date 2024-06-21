@@ -22,7 +22,6 @@ import { ExclamationTriangleIcon } from "@heroicons/react/24/outline";
 import {
   Dialog,
   DialogPanel,
-  DialogTitle,
   Transition,
   TransitionChild,
 } from "@headlessui/react";
@@ -71,12 +70,12 @@ export default function ImportCurl({
                       />
                     </div>
                     <div className="mt-3 text-center sm:ml-4 sm:mt-0 sm:text-left">
-                      <DialogTitle
+                      <Dialog.Title
                         as="h3"
                         className="text-base font-semibold leading-6 text-gray-100"
                       >
                         Import from curl
-                      </DialogTitle>
+                      </Dialog.Title>
                       <div className="mt-2">
                         <p className="text-sm text-gray-500">
                           Paste your curl command here to import it as a load
