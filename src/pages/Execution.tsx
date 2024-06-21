@@ -141,6 +141,7 @@ const Execution = () => {
 
       const executionDocument = executionDocumentOrError.getValue();
       console.log({ executionDocument });
+      console.log("INDIA", executionDocument.status);
       dispatch({
         executionDocument,
       });

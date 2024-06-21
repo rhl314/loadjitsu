@@ -120,6 +120,26 @@ impl DocumentRevision {
         Ok(id)
     }
 
+    pub async fn loadLatestRunDocumentRevision(
+        encodedPath: &str,
+    ) -> anyhow::Result<DocumentRevision> {
+        println!("encodedPath: {}", encodedPath);
+        let decoded_document_path = AppService::decode_path(encodedPath)?;
+        println!("decoded_document_path: {}", decoded_document_path);
+        let file_exists = AppService::does_file_exists(&decoded_document_path)?;
+        if file_exists == false {
+            return Err(anyhow::anyhow!("DOCUMENT_NOT_FOUND"));
+        }
+        let pool = DatabaseService::connection(&decoded_document_path).await?;
+        let latest_document_revision =
+            DocumentRevision::get_latest_document_revision(&pool).await?;
+        if let Some(latest_document_revision) = latest_document_revision {
+            return Ok(latest_document_revision);
+        } else {
+            return Err(anyhow::anyhow!("DOCUMENT_NOT_FOUND"));
+        }
+    }
+
     pub async fn loadRunDocument(encodedPath: &str) -> anyhow::Result<RunDocument> {
         println!("encodedPath: {}", encodedPath);
         let decoded_document_path = AppService::decode_path(encodedPath)?;

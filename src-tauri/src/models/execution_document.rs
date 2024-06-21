@@ -1,6 +1,7 @@
+use diesel::IntoSql;
 use serde::{Deserialize, Serialize};
 use sqlx::sqlite::SqlitePool;
-use sqlx::FromRow;
+use sqlx::{Execute, FromRow};
 use uuid::Uuid;
 
 use crate::database_service::database_service::DatabaseService;
@@ -57,7 +58,30 @@ impl ExecutionDocument {
         Ok(())
     }
 
+    pub async fn update_execution_document_status(
+        pool: &SqlitePool,
+        run: &ExecutionDocument,
+        status: &str,
+    ) -> anyhow::Result<()> {
+        let query = sqlx::query("UPDATE ExecutionDocuments SET status = $1 WHERE id = $2")
+            .bind(&status)
+            .bind(&run.id);
+        println!("{}", query.sql());
+        query.execute(pool).await?;
+        Ok(())
+    }
+
     pub async fn complete_execution_document(pool: &SqlitePool, pid: String) -> anyhow::Result<()> {
+        println!("Completing run with pid: {}", pid);
+        let query = sqlx::query(
+            "UPDATE ExecutionDocuments SET status = 'COMPLETED', completed_at = datetime('now') WHERE pid = $1",
+        )
+        .bind(pid);
+        query.execute(pool).await?;
+        Ok(())
+    }
+
+    pub async fn abort_execution_document(pool: &SqlitePool, pid: String) -> anyhow::Result<()> {
         println!("Completing run with pid: {}", pid);
         let query = sqlx::query(
             "UPDATE ExecutionDocuments SET status = 'COMPLETED', completed_at = datetime('now') WHERE pid = $1",

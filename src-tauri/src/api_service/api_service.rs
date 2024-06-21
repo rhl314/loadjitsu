@@ -194,6 +194,23 @@ impl ApiService {
         Ok(execution_document)
     }
 
+    pub async fn abort_execution(
+        execution_document_id: &str,
+        run_document_path: &str,
+    ) -> anyhow::Result<()> {
+        let decoded_document_path = AppService::decode_path(run_document_path)?;
+        let pool = DatabaseService::connection(decoded_document_path.as_str()).await?;
+        let execution_document =
+            Execution::get_execution_document(execution_document_id, &pool).await?;
+        ExecutionDocument::update_execution_document_status(
+            &pool,
+            &execution_document,
+            "REQUESTED_ABORT",
+        )
+        .await?;
+        Ok(())
+    }
+
     pub async fn run_and_record_response(
         api_step: &ApiStep,
         run_unique_id: &str,

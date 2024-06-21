@@ -237,6 +237,16 @@ async fn getExecutionDocument(
 }
 
 #[tauri::command]
+async fn abortExecution(runDocumentPath: &str, executionDocumentId: &str) -> Result<(), String> {
+    println!("aborting execution");
+    let runs_or_error = ApiService::abort_execution(executionDocumentId, runDocumentPath).await;
+    match runs_or_error {
+        Ok(ran) => Ok(()),
+        Err(error) => Err(error.to_string()),
+    }
+}
+
+#[tauri::command]
 async fn saveMetaDataString(key: &str, value: &str) -> Result<(), String> {
     let saved_or_error = ApiService::save_global_meta_string(key, value).await;
     match saved_or_error {
@@ -311,6 +321,7 @@ pub fn spawnUi(current_exe_signature: String) {
             getDocumentMetaDataString,
             get_executions,
             get_machine_info,
+            abortExecution
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

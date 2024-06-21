@@ -13,6 +13,7 @@ import { Line } from "react-chartjs-2";
 import { ExecutionAppContext } from "../../ExecutionContext";
 import TopNav from "../TopNav";
 import { useNavigate } from "react-router-dom";
+import { ApiClient } from "../../../../api_client/api_client";
 ChartJS.register(
   CategoryScale,
   LinearScale,
@@ -151,12 +152,33 @@ const ExecutionGraph = () => {
           <div className="col-span-2">
             <div className="grid">
               <div className="tabs z-10 -mb-px">
-                <button className="tab tab-lifted tab-active">Status</button>
+                <button
+                  className="tab tab-lifted tab-active"
+                  onClick={async () => {
+                    console.log("INDIA aborting");
+                    const client = new ApiClient();
+                    await client.abortExecution({
+                      runDocumentPath: state.runDocumentPath as string,
+                      executionDocumentId: state.executionId as string,
+                    });
+                  }}
+                >
+                  Status {state.executionDocument?.status}
+                </button>
               </div>
               <div className="bg-base-300  relative overflow-x-auto">
                 <div className="preview border-base-300 bg-base-100  min-h-[6rem] w-100 gap-2 overflow-x-hidden border bg-cover bg-top p-4">
                   {state.executionDocument?.status === "RUNNING" && (
-                    <div>
+                    <div
+                      onClick={async () => {
+                        console.log("INDIA aborting");
+                        const client = new ApiClient();
+                        await client.abortExecution({
+                          runDocumentPath: state.runDocumentPath as string,
+                          executionDocumentId: state.executionId as string,
+                        });
+                      }}
+                    >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
                         viewBox="0 0 24 24"

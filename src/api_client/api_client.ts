@@ -159,6 +159,28 @@ export class ApiClient {
     }
   }
 
+  public async abortExecution(args: {
+    runDocumentPath: string;
+    executionDocumentId: string;
+  }): Promise<Result<IExecutionDocument>> {
+    try {
+      console.log("INDIAN Aborting execution document");
+      const response = (await invoke("abortExecution", {
+        runDocumentPath: args.runDocumentPath,
+        executionDocumentId: args.executionDocumentId,
+      })) as IExecutionDocument;
+      console.log({ INDIA: response });
+      return Result.ok<IExecutionDocument>(response);
+    } catch (err: any) {
+      console.log("Errored");
+      console.error(err);
+      return Result.fail({
+        code: "INTERNAL_SERVER_ERROR",
+        message: "Please try again",
+      });
+    }
+  }
+
   public async getRunDocumentByRevisionId(args: {
     runDocumentPath: string;
     documentRevisionId: string;
@@ -169,7 +191,7 @@ export class ApiClient {
       const runDocumentSerialized = (await invoke(
         "getRunDocumentByRevisionId",
         {
-          runDocumentPath: args.runDocumentPath,
+          runDocumentPath: AppUtil.fixBase64Padding(args.runDocumentPath),
           documentRevisionId: args.documentRevisionId,
           runMigrations: args.runMigrations,
         }
