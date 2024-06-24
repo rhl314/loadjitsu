@@ -7,8 +7,25 @@ export default {
         grid: "grid 50s linear infinite",
         "spin-around": "spin-around calc(var(--speed) * 2) infinite linear",
         slide: "slide var(--speed) ease-in-out infinite alternate",
+        backgroundPositionSpin:
+          "background-position-spin 3000ms infinite alternate",
       },
       keyframes: {
+        "shine-pulse": {
+          "0%": {
+            "background-position": "0% 0%",
+          },
+          "50%": {
+            "background-position": "100% 100%",
+          },
+          to: {
+            "background-position": "0% 0%",
+          },
+        },
+        "background-position-spin": {
+          "0%": { backgroundPosition: "top center" },
+          "100%": { backgroundPosition: "bottom center" },
+        },
         grid: {
           "0%": { transform: "translateY(-50%)" },
           "100%": { transform: "translateY(0)" },

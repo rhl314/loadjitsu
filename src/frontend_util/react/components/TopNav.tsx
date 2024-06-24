@@ -1,7 +1,9 @@
 import { getVersion } from "@tauri-apps/api/app";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import ShimmerButton from "../../../components/magicui/ShimmerButton";
 import Logo from "./logo";
+import { open } from "@tauri-apps/api/shell";
 
 export default function TopNav() {
   const navigate = useNavigate();
@@ -28,7 +30,20 @@ export default function TopNav() {
       <div className="flex-none">
         <ul className="menu menu-horizontal px-1">
           <li>
-            <a className="bg-base-200">{version}</a>
+            <span className="pt-3.5 whitespace-pre-wrap text-center  leading-none tracking-tight text-white dark:from-white dark:to-slate-900/10">
+              v{version}
+            </span>
+          </li>
+          <li
+            onClick={async () => {
+              await open("https://github.com/tauri-apps/tauri");
+            }}
+          >
+            <ShimmerButton className="shadow-2xl" onClick={() => {}}>
+              <span className="whitespace-pre-wrap text-center  leading-none tracking-tight text-white dark:from-white dark:to-slate-900/10">
+                Free trial. Upgrade now
+              </span>
+            </ShimmerButton>
           </li>
         </ul>
       </div>
