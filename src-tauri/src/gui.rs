@@ -7,6 +7,7 @@ use std::time::Duration;
 
 use ureq::Agent;
 
+use crate::account_service::account_service::AccountService;
 use crate::api_service::api_service::ApiService;
 
 use crate::document_service::document_service::DocumentService;
@@ -291,6 +292,16 @@ async fn get_machine_info() -> Result<MachineInfo, String> {
     let machine_info_or_error = AppService::get_machine_info();
     match machine_info_or_error {
         Ok(saved) => Ok(saved),
+        Err(error) => Err(error.to_string()),
+    }
+}
+
+#[tauri::command]
+async fn registerLicenseKey(machine_uid: &str, key: &str) -> Result<String, String> {
+    let registered_or_error =
+        AccountService::registerLicenseKey("https://some.com", machine_uid, key).await;
+    match registered_or_error {
+        Ok(registered) => Ok(registered),
         Err(error) => Err(error.to_string()),
     }
 }

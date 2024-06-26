@@ -6,6 +6,7 @@ extern crate diesel;
 use clap::Parser;
 use file_service::app_service::AppService;
 use load_test_service::load_test_service::LoadTestService;
+mod account_service;
 mod api_service;
 mod database_service;
 mod document_service;
